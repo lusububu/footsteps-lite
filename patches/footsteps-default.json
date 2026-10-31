@@ -1,0 +1,17 @@
+{
+  "name": "Footsteps default",
+  "note": "The settings Footsteps Lite opens with. Steps: x = hit, o = soft hit, . = rest. Patterns listed here go into slots 1, 2, 3 ... in order.",
+  "tempo": 80,
+  "chain": true,
+  "feel": { "swing": 4, "swing8": false, "loose": 24, "kghost": 8, "ghost": 0, "hat": 0, "touch": 50, "hfill": 0 },
+  "fx": {
+    "chorus": { "on": false, "mix": 50, "rate": 0.6, "depth": 45 },
+    "echo":   { "on": false, "level": 30, "time": "1/8.", "repeats": 40 },
+    "reverb": { "on": true, "type": "plate", "mix": 18, "decay": 1.6, "tone": 8 },
+    "level": 70
+  },
+  "patterns": [
+    { "k": "x.......x.......", "s": "....x.......x...", "h": "x.x...xx.xx...xx" },
+    { "k": "x...x...x.......", "s": "....x.......x...", "h": "x.x...xx.xx.....", "o": "..............x." }
+  ]
+}

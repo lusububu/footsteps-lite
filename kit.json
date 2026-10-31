@@ -19,9 +19,12 @@
   "articulations": {
     "CH": {
       "half": "hat-loose"
+    },
+    "CR": {
+      "large": "crash-large"
     }
   },
-  "articulationsNote": "A loose step on the hat lane (right-click or hold a hat step) plays hat-loose.",
+  "articulationsNote": "A loose hat plays hat-loose and the crash lane's 18\" articulation plays the large crash. This kit has no other articulation recordings: those play the lane's normal sound, and flams and rolls are made from it.",
   "sounds": {
     "kick": {
       "name": "Kick",

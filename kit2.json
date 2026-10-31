@@ -16,8 +16,39 @@
     "CR": "crash-small"
   },
   "rowsNote": "Which sound each voice plays. Any sound below can go on a lane: for example CR can be crash-large or splash, CY ride-bell.",
-  "articulations": {},
-  "articulationsNote": "This kit has no loose hi-hat recording, so loose steps on the hat lane play the closed hat. Sounds not on a lane (rimshot, cross-stick, flams, roll, the shank, bell and pedal hats, chokes, splash) are listed for later and are not loaded.",
+  "articulations": {
+    "SD": {
+      "rim": "rimshot",
+      "xstick": "cross-stick",
+      "off": "snare-off",
+      "flam": "snare-flam",
+      "roll": "snare-roll"
+    },
+    "CH": {
+      "shank": "hat-shank",
+      "bell": "hat-bell",
+      "pedal": "hat-pedal",
+      "hcrash": "hat-crash"
+    },
+    "CY": {
+      "bell": "ride-bell"
+    },
+    "LT": {
+      "flam": "floor-tom-flam"
+    },
+    "HT": {
+      "flam": "tom-flam"
+    },
+    "CR": {
+      "large": "crash-large",
+      "bell": "crash-small-bell",
+      "lbell": "crash-large-bell",
+      "choke": "crash-large-choke",
+      "splash": "splash",
+      "schoke": "splash-choke"
+    }
+  },
+  "articulationsNote": "Articulations (right-click or hold a step, or the Articulation dropdown): snare rim, xstick, off, flam, roll; hat shank, bell, pedal, hcrash (this kit has no loose hat, so loose plays the closed hat); toms flam; cymbal bell; crash large (18\"), bell, lbell (18\" bell), choke (18\"), splash, schoke. They load after the lane sounds.",
   "sounds": {
     "kick": {
       "name": "Kick (Yamaha 16x16)",
@@ -187,6 +218,8 @@
       ],
       "chokedBy": [
         "hat-closed",
+        "hat-shank",
+        "hat-bell",
         "hat-pedal"
       ]
     },
@@ -224,8 +257,10 @@
       ],
       "chokedBy": [
         "hat-closed",
-        "hat-open",
-        "hat-pedal"
+        "hat-shank",
+        "hat-bell",
+        "hat-pedal",
+        "hat-open"
       ]
     },
     "tom": {
@@ -415,6 +450,9 @@
             { "file": "18-Crash-V05-SABIAN-18.wav", "startMs": 3.7, "peakDb": -15.0, "seconds": 8.45 }
           ]
         }
+      ],
+      "chokedBy": [
+        "crash-large-choke"
       ]
     },
     "rimshot": {
@@ -685,6 +723,12 @@
             { "file": "Shack-HHats-CL-V06-SABIAN-AAX.wav", "startMs": 0.0, "peakDb": -5.7, "seconds": 0.8 }
           ]
         }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-shank",
+        "hat-bell",
+        "hat-pedal"
       ]
     },
     "hat-bell": {
@@ -714,6 +758,12 @@
             { "file": "BELL-HHats-CL-V04-SABIAN-AAX.wav", "startMs": 17.7, "peakDb": -10.6, "seconds": 4.11 }
           ]
         }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-shank",
+        "hat-bell",
+        "hat-pedal"
       ]
     },
     "hat-pedal": {
@@ -751,6 +801,13 @@
             { "file": "HHats-Crash-V03-SABIAN-AAX.wav", "startMs": 0.3, "peakDb": -11.7, "seconds": 5.07 }
           ]
         }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-shank",
+        "hat-bell",
+        "hat-pedal",
+        "hat-crash"
       ]
     },
     "ride-bell": {
@@ -887,6 +944,9 @@
             { "file": "6-Splash-V05-SABIAN-HH-6.wav", "startMs": 0.7, "peakDb": -18.1, "seconds": 4.98 }
           ]
         }
+      ],
+      "chokedBy": [
+        "splash-choke"
       ]
     },
     "splash-choke": {

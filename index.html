@@ -76,7 +76,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .name{display:flex;align-items:center;gap:7px;min-width:0;border:0;background:transparent;padding:0 6px 0 0;text-align:left;font:600 14px/1 var(--f-display);letter-spacing:-.02em;white-space:nowrap;overflow:hidden}
 .name code{font:500 10px var(--f-mono);letter-spacing:.06em;color:var(--ink-60);flex:none;width:18px}
 .name.muted{opacity:.38;text-decoration:line-through}
-.pad{min-width:0;min-height:0;padding:0;border:0;border-radius:7px;background:var(--pad);transition:background .05s}
+.pad{min-width:0;min-height:0;padding:0;border:0;border-radius:7px;background:var(--pad);transition:background .05s;-webkit-touch-callout:none}
+.pad.sel{outline:2px solid var(--paper);outline-offset:1px}
 .pad.dn{background:var(--pad-beat)}
 .pad[data-v="1"]{background:var(--soft)}
 .pad[data-v="2"]{background:var(--ink)}
@@ -88,17 +89,30 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .grid.away .pad.col{box-shadow:inset 0 0 0 2px var(--ink-30)}
 .grid.away .pad.col[data-v="1"],.grid.away .pad.col[data-v="2"]{background:var(--ink)}
 .pad.mut{opacity:.35}
-.pad[data-a="1"],.pad[data-a="2"]{position:relative}
-.pad[data-a="1"]::after,.pad[data-a="2"]::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;box-sizing:border-box}
-.pad[data-a="1"]::after{border:2px solid var(--paper);clip-path:inset(50% 0 0 0);background:var(--paper)}
-.pad[data-a="2"]::after{border:2px solid var(--paper)}
-.pad.col[data-a="1"]::after,.pad.col[data-a="2"]::after{border-color:var(--ink);background:transparent}
-.pad.col[data-a="1"]::after{background:var(--ink)}
+/* an articulation shows as a two-letter mark on its step */
+.pad[data-art]:not([data-art=""]){position:relative}
+.pad[data-art]:not([data-art=""])::after{content:attr(data-art);position:absolute;inset:0;display:grid;place-items:center;font:500 9px/1 var(--f-mono);letter-spacing:.02em;color:var(--paper);pointer-events:none}
+.pad.col[data-art]::after{color:var(--ink)}
+.pad.vshow::after{display:none}
+/* the articulation menu (right-click or hold a step) */
+.artmenu{position:fixed;z-index:60;min-width:190px;max-height:calc(100% - 16px);overflow:auto;background:var(--ink);color:var(--paper);border-radius:12px;padding:6px;display:grid;gap:2px;box-shadow:0 10px 28px rgba(23,17,13,.35)}
+.artmenu h3{margin:2px 8px 4px;font:500 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:rgba(255,242,230,.6)}
+.artmenu button{display:flex;align-items:center;gap:8px;border:0;background:transparent;color:inherit;padding:7px 9px;border-radius:8px;font:500 12px var(--f-mono);letter-spacing:.03em;text-transform:uppercase;text-align:left}
+.artmenu button:hover,.artmenu button:focus-visible{background:rgba(255,242,230,.14);outline:none}
+.artmenu button::before{content:"";width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,242,230,.5);flex:none}
+.artmenu button[aria-checked="true"]::before{background:var(--orange);border-color:var(--orange)}
+.artmenu .code{margin-left:auto;opacity:.55}
+.artmenu .miss{display:block;font-size:9px;text-transform:none;letter-spacing:0;opacity:.6}
+.artmenu .clear{border-top:1px solid rgba(255,242,230,.15);margin-top:4px;padding-top:9px;border-radius:0 0 8px 8px}
+.artmenu .clear::before{border-color:transparent}
 .bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .btn{height:36px;padding:0 14px;border:2px solid var(--ink);background:transparent;border-radius:10px;font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .sep{width:2px;height:22px;background:var(--ink-30)}
 .kitsw button{height:32px;padding:0 12px}
+.artsel{display:flex;align-items:center;gap:6px}
+.artsel select{height:34px;max-width:12rem;border:2px solid var(--ink);border-radius:10px;background:var(--orange);color:var(--ink);font:500 12px var(--f-mono);letter-spacing:.03em;text-transform:uppercase;padding:0 8px}
+.artsel select:disabled{opacity:.45}
 .hint{margin-left:auto;font:400 11px var(--f-mono);color:var(--ink-60)}
 
 /* ---------- sound page ---------- */
@@ -145,7 +159,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
   .knob{width:62px}
   .kdial{width:42px;height:42px}
 }
-@media (max-width:980px){.brand{display:none}}
+@media (max-width:980px){.brand{display:none}.artsel .cap{display:none}.artsel select{max-width:8.5rem}}
 @media (max-width:820px){.hint{display:none}}
 @media (max-width:560px){
   .grid{grid-template-columns:52px repeat(16,minmax(0,1fr));gap:3px}
@@ -193,12 +207,15 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
       <button class="btn toggle fxq" data-fx="ec" aria-pressed="false">Echo</button>
       <button class="btn toggle fxq" data-fx="tape" aria-pressed="false">Tape</button>
       <span class="sep" aria-hidden="true"></span>
+      <label class="artsel"><span class="cap">Articulation</span><select id="artSel" aria-label="Articulation of the selected step"></select></label>
+      <span class="sep" aria-hidden="true"></span>
       <div class="views kitsw" id="kitSeg" role="group" aria-label="Kit"></div>
       <span class="cap" id="kitStatus" role="status"></span>
-      <span class="hint">Tap a step: on, soft, off. Scroll on a hit for velocity. Right-click a hat: closed, loose, open.</span>
+      <span class="hint">Tap: on, soft, off · Scroll: velocity · Right-click or hold: articulation</span>
     </div>
   </section>
 
+  <div class="artmenu" id="artMenu" role="menu" aria-label="Articulation" hidden></div>
   <section class="sound" id="soundView" hidden>
     <div class="band">
       <h2>Instruments <span class="cap" id="voiceMode"></span></h2>
@@ -766,17 +783,27 @@ const ROWS=[{k:'k',id:'BD',name:'Kick'},{k:'s',id:'SD',name:'Snare'},{k:'h',id:'
   {k:'cy',id:'CY',name:'Cymbal'},{k:'cr',id:'CR',name:'Crash'}];
 const ROW_ID=Object.fromEntries(ROWS.map(r=>[r.k,r.id])),ROW_OF=Object.fromEntries(ROWS.map(r=>[r.id,r.k]));
 const N_SLOTS=8;
-// the hat lane keeps an articulation per step in ha: 0 closed, 1 loose, 2 open (older patterns had open hats in their own row)
+// articulations: per lane, the index of each step's articulation in ART (0 = the lane's normal stroke). key: the name kit.json
+// uses under "articulations"; code: the mark on the step. Open hat plays the OH voice; the rest play the lane's voice
+const ART={
+  s:[['','Snare',''],['rim','Rimshot','RS'],['xstick','Cross-stick','XS'],['off','Wires off','WO'],['flam','Flam','FL'],['roll','Roll','RL']],
+  h:[['','Closed',''],['half','Loose','LO'],['open','Open','OP'],['shank','Shank','SH'],['bell','Bell','BL'],['pedal','Pedal','PD'],['hcrash','Hat crash','HC']],
+  cy:[['','Ride',''],['bell','Bell','BL']],
+  lt:[['','Tom',''],['flam','Flam','FL']],
+  ht:[['','Tom',''],['flam','Flam','FL']],
+  cr:[['','Crash',''],['large','Crash 18"','18'],['bell','Bell','BL'],['lbell','18" bell','B8'],['choke','18" choke','CK'],['splash','Splash','SP'],['schoke','Splash choke','SC']]};
+// older saves kept the hat articulation in ha (0 closed, 1 loose, 2 open: the same order) and even older ones had open hats in their own row
 function normSlot(sl){const out=Object.fromEntries(ROWS.map(r=>{const a=Array.isArray(sl[r.k])?sl[r.k]:[];return [r.k,Array.from({length:16},(_,j)=>[0,1,2].includes(a[j])?a[j]:0)]}));
   const vel=sl.vel&&typeof sl.vel==='object'?sl.vel:{};out.vel={};ROWS.forEach(r=>{const a=Array.isArray(vel[r.k])?vel[r.k]:[];if(a.some(x=>x!=null)) out.vel[r.k]=Array.from({length:16},(_,j)=>out[r.k][j]&&isFinite(a[j])&&a[j]!=null?clamp(Math.round(a[j]),5,130):null)});
-  const ha=Array.isArray(sl.ha)?sl.ha:[];out.ha=Array.from({length:16},(_,j)=>out.h[j]&&[0,1,2].includes(ha[j])?ha[j]:0);
-  if(Array.isArray(sl.o)) sl.o.forEach((v,j)=>{if(j<16&&(v===1||v===2)){out.h[j]=v;out.ha[j]=2}});
+  const art=sl.art&&typeof sl.art==='object'?sl.art:{h:sl.ha};out.art={};
+  for(const k in ART){const a=Array.isArray(art[k])?art[k]:[];out.art[k]=Array.from({length:16},(_,j)=>out[k][j]&&Number.isInteger(a[j])&&a[j]>0&&a[j]<ART[k].length?a[j]:0)}
+  if(Array.isArray(sl.o)) sl.o.forEach((v,j)=>{if(j<16&&(v===1||v===2)){out.h[j]=v;out.art.h[j]=2}});
   return out}
 const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s].slice(0,16).map(c=>c==='x'?2:c==='o'?1:0)])));
 // the Footsteps groove as saved in Footsteps Mobile: patterns 1 and 2, chained
 const defaults=()=>({tempo:80,cur:0,chain:true,view:'steps',kitIdx:0,mute:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
-  feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0},
+  feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0},
   fx:{ec:false,emix:30,etime:3,efb:40,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',tin:50,tbias:50,tout:50}});
 const KEY='footsteps-lite-v1';
 let ST=defaults();
@@ -872,7 +899,13 @@ function applyBuses(){if(!E) return;const t=ctx.currentTime,lvl=Math.pow(.55,1.4
   VOICES.forEach(id=>{const l=vsp(id,'slevel')/100,m=ST.mute[ROW_OF[id]||ROW_OF[PARAM_HOST[id]]];
     E.buses[id].gain.setTargetAtTime(m?0:l*l*1.3*BUS_TRIM[id]*lvl*Math.SQRT2,t,.008);E.pan[id].pan.value=clamp(vsp(id,'span')/100,-1,1)})}
 // a hit: the sample for this voice (the loose hat for a loose step); silent until its samples have loaded
-function hitDrum(E,id,t,vel,x){const k=sampleKey(id,x);if(!k) return;TP.lastHit=performance.now();playSample(E,id,t,vel,k,!!(x&&x.fill))}
+function hitDrum(E,id,t,vel,x){const art=x&&x.art,k=sampleKey(id,x);if(art) wantArt(id,art);if(!k) return;TP.lastHit=performance.now();
+  const own=art&&k!==KIT.rows[id];   // this kit has a recording of the articulation
+  // a kit without the recording plays the lane's normal stroke, and makes the flam and the roll from it
+  if(art==='flam'&&!own){playSample(E,id,t-(.016+Math.random()*.012),vel*.32,k,false);playSample(E,id,t,vel,k,false);return}
+  if(art==='roll'&&!own){const len=x.len||.12,n=Math.max(3,Math.round(len/.032)),sp=len/n;for(let i=0;i<n;i++) playSample(E,id,t+i*sp+nrm()*.0015,vel*(i?(.5+.12*i/n)*(1+nrm()*.06):1),k,false);return}
+  if(art==='pedal'&&!own) vel*=.45;
+  playSample(E,id,t,vel,k,x&&x.fill?'any':x&&x.ghost?'soft':false,art==='roll'?x.len:0)}
 
 // ---------- samples: the acoustic kit listed in kit.json ----------
 // The files load over http (GitHub Pages or a local server). Short drums load first, the long cymbals last;
@@ -884,26 +917,40 @@ const newKit=i=>({idx:i,def:null,rows:{},voices:{},pend:[],total:0,ready:0,faile
 let KIT=newKit(-1),LOADING=null;
 const soundReady=key=>{const s=KIT.def&&KIT.def.sounds[key];return !!s&&s.layers.some(L=>L.takes.some(tk=>tk.buf))};
 const sampledRow=id=>!!KIT.rows[id]&&soundReady(KIT.rows[id]);
-// the sound a hit plays: the row's sound, or the loose hat for a loose step on the hat lane (the closed hat in a kit without one)
-function sampleKey(id,x){if(!KIT.def) return null;let k=KIT.rows[id];
-  if(id==='CH'&&x&&x.half){const a=(KIT.def.articulations||{}).CH,h=a&&a.half;if(h&&soundReady(h)) k=h}
+// the sound a hit plays: the articulation's recording when the kit has one, otherwise the lane's normal stroke
+function sampleKey(id,x){if(!KIT.def) return null;let k=KIT.rows[id];const art=x&&x.art;
+  if(art){const a=(KIT.def.articulations||{})[id],h=a&&a[art];if(h&&soundReady(h)) k=h}
   return k&&soundReady(k)?k:null}
+const artInKit=(id,art)=>{const a=KIT.def&&(KIT.def.articulations||{})[id];return !!(a&&a[art]&&KIT.def.sounds[a[art]])};
 async function kitFetch(i){i=clamp(i|0,0,KITS.length-1);if(LOADING&&LOADING.idx===i) return;if(!LOADING&&KIT.idx===i&&KIT.def) return;
   const K=newKit(i),first=!KIT.def;LOADING=K;if(first) KIT=K;kitUI();
   try{const r=await fetch(KITS[i].file,{cache:'no-cache'});if(!r.ok) throw new Error(r.status);K.def=await r.json()}
   catch(e){K.missing=true;if(LOADING===K) LOADING=null;kitUI();return}
   const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');K.rows=k.rows||{};
-  const jobs=[];new Set([...Object.values(K.rows),...Object.values(k.articulations||{}).flatMap(a=>Object.values(a))].filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>jobs.push(tk)))});
-  jobs.sort((a,b)=>(a.seconds||1)-(b.seconds||1));K.total=jobs.length;kitUI();
+  const takes=keys=>{const J=[];new Set(keys.filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>J.push(tk)))});return J.sort((a,b)=>(a.seconds||1)-(b.seconds||1))};
+  // articulation recordings load only when a pattern uses them or one is picked (Kit 2's would otherwise add about 100 MB)
+  const base=takes(Object.values(K.rows)),extra=takes(artKeysInUse(k)).filter(tk=>!base.includes(tk));K.folder=folder;
+  base.forEach(tk=>tk._base=true);const jobs=base.concat(extra);K.total=jobs.length;K.bTotal=base.length;K.bDone=0;kitUI();
   let next=0;const worker=async()=>{while(next<jobs.length){if(LOADING!==K&&KIT!==K) return;const tk=jobs[next++];   // stops if another kit was picked meanwhile
-    try{const r=await fetch(folder+'/'+encodeURIComponent(tk.file));if(!r.ok) throw new Error(r.status);tk.ab=await r.arrayBuffer();if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
-    catch(e){K.failed++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}};
+    try{const r=await fetch(folder+'/'+encodeURIComponent(tk.file));if(!r.ok) throw new Error(r.status);tk.ab=await r.arrayBuffer();if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);if(tk._base) K.bDone++;kitUI();kitDone(K)}}
+    catch(e){K.failed++;if(tk._base) K.bDone++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI();kitDone(K)}}};
   await Promise.all([worker(),worker(),worker(),worker()]);kitDone(K)}
-// a kit that has everything in (or waiting only for the audio to start) takes over
-function kitDone(K){if(LOADING!==K||K.ready+K.pend.length+K.failed<K.total) return;LOADING=null;KIT=K;applyBuses();renderVoice();kitUI()}
+// the articulation sounds the saved patterns use, in a kit's own names
+function artKeysInUse(def){const A=def.articulations||{},out=new Set();
+  ST.slots.forEach(sl=>{for(const k in ART){const R=ROWS.find(x=>x.k===k);if(!R) continue;sl.art[k].forEach((ai,j)=>{if(!ai||!sl[k][j]) return;const key=ART[k][ai][0],voice=key==='open'?'OH':R.id,m=A[voice];if(m&&m[key]) out.add(m[key])})}});
+  return [...out]}
+// load one sound of the current kit on demand (an articulation picked or played for the first time); until it is in, the lane's own sound plays
+const wanting=new Set();
+async function kitWant(key){const K=KIT,s=K.def&&K.def.sounds[key];if(!s||wanting.has(K.idx+'|'+key)||soundReady(key)) return;wanting.add(K.idx+'|'+key);
+  const tks=s.layers.flatMap(L=>L.takes).filter(tk=>!tk.buf);K.total+=tks.length;kitUI();
+  for(const tk of tks){if(KIT!==K) return;try{const r=await fetch(K.folder+'/'+encodeURIComponent(tk.file));if(!r.ok) throw new Error(r.status);tk.ab=await r.arrayBuffer();if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
+    catch(e){K.failed++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}}
+function wantArt(voice,art){const a=KIT.def&&(KIT.def.articulations||{})[voice];if(a&&a[art]) kitWant(a[art])}
+// a kit takes over once its lane sounds are in (or wait only for the audio to start); its articulations keep loading after
+function kitDone(K){if(LOADING!==K||K.bDone<K.bTotal) return;LOADING=null;KIT=K;applyBuses();renderVoice();kitUI()}
 function bufPeak(b){let m=1e-6;for(let ch=0;ch<b.numberOfChannels;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){const a=d[i]<0?-d[i]:d[i];if(a>m) m=a}}return m}
 function kitDecode(tk,K){const ab=tk.ab;tk.ab=null;
-  return new Promise(ok=>{const done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);K.ready++}else K.failed++;kitUI();if(b&&E&&K===KIT) applyBuses();kitDone(K);ok()};
+  return new Promise(ok=>{const wasPend=K.pend.includes(tk),done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);K.ready++}else K.failed++;if(tk._base&&!wasPend) K.bDone++;kitUI();if(b&&E&&K===KIT) applyBuses();kitDone(K);ok()};
     try{const p=ctx.decodeAudioData(ab,done,()=>done(null));if(p&&p.catch) p.catch(()=>{})}catch(e){done(null)}})}
 function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;
   [...$('kitSeg').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===K.idx));
@@ -911,13 +958,15 @@ function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;
   if(K.missing){el.textContent=KITS[K.idx].label+': samples not found. Open the page from GitHub Pages or a local server';return}
   if(!K.def){el.textContent='Loading '+KITS[K.idx].label;return}
   const got=K.ready+K.pend.length;
-  el.textContent=K.failed?`${K.failed} of ${K.total} samples missing`:got<K.total?`${KITS[K.idx].label}: samples ${got}/${K.total}`+(K!==KIT?' (the other kit plays meanwhile)':''):(K.pend.length?'Samples ready: press Play':'')}
+  el.textContent=K.failed?`${K.failed} of ${K.total} samples missing`:K.bDone<K.bTotal?`${KITS[K.idx].label}: samples ${got}/${K.bTotal}`+(K!==KIT?' (the other kit plays meanwhile)':''):
+    got<K.total?`Loading articulations ${got-K.bTotal}/${K.total-K.bTotal}`:(K.pend.length?'Samples ready: press Play':'')}
 // one hit: the layer is picked by velocity, takes rotate, and the level follows the velocity inside the layer
-function playSample(E,id,t,vel,key,anyLayer){const s=KIT.def.sounds[key],Ls=s.layers,v=vel*100,has=L=>L.takes.some(tk=>tk.buf);
+function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=s.layers,v=vel*100,has=L=>L.takes.some(tk=>tk.buf);
   let li=Ls.findIndex(L=>v<=L.upTo);if(li<0) li=Ls.length-1;
   // a hat fill picks any of the recorded layers (never the same one twice running); the level below brings them all to the
   // fill's own level, so fills change colour from stroke to stroke without jumping in loudness
-  if(anyLayer){const c=Ls.map((L,i)=>i).filter(i=>has(Ls[i])&&(i!==s.lastFill||Ls.filter(has).length<2));if(c.length){li=c[Math.floor(Math.random()*c.length)];s.lastFill=li}}
+  if(anyLayer==='soft'){const c=Ls.map((L,i)=>i).filter(i=>has(Ls[i])).slice(0,2);if(c.length){s.lastGhost=((s.lastGhost|0)+1)%c.length;li=c[s.lastGhost]}}   // a ghost note: the two softest layers, taking turns
+  else if(anyLayer){const c=Ls.map((L,i)=>i).filter(i=>has(Ls[i])&&(i!==s.lastFill||Ls.filter(has).length<2));if(c.length){li=c[Math.floor(Math.random()*c.length)];s.lastFill=li}}
   if(!has(Ls[li])){let best=-1;for(let d=1;d<Ls.length&&best<0;d++){if(li-d>=0&&has(Ls[li-d])) best=li-d;else if(li+d<Ls.length&&has(Ls[li+d])) best=li+d}if(best<0) return false;li=best}
   const L=Ls[li],takes=L.takes.filter(tk=>tk.buf);L.rr=((L.rr|0)+1)%takes.length;const tk=takes[L.rr];
   // level follows the velocity (amplitude in proportion), whichever layer plays: the soft layers are recorded far
@@ -929,6 +978,7 @@ function playSample(E,id,t,vel,key,anyLayer){const s=KIT.def.sounds[key],Ls=s.la
   const dur=tk.buf.duration/src.playbackRate.value,dk=vsp(id,'sdecay')/100,tt=vsp(id,'stight')/100;let stopAt=Infinity;
   if(dk<.995){const len=.04+dk*dk*dur;g.gain.setValueAtTime(gain,T);g.gain.setTargetAtTime(0,T+len*.35,len*.22+.005);stopAt=T+len*1.6+.05}
   if(tt>.005){const hold=TIGHT_MAX[id]+(TIGHT_MIN[id]-TIGHT_MAX[id])*Math.pow(tt,.7),tau=.004+.03*(1-tt);if(T+hold<stopAt){g.gain.cancelScheduledValues(T);g.gain.setValueAtTime(gain,T);g.gain.setTargetAtTime(0,T+hold,tau);stopAt=T+hold+tau*8}}
+  if(len>0&&T+len<stopAt){g.gain.cancelScheduledValues(T);g.gain.setValueAtTime(gain,T);g.gain.setValueAtTime(gain,T+len);g.gain.setTargetAtTime(0,T+len,.03);stopAt=T+len+.25}
   let outNode=g;const tone=vsp(id,'stone');if(tone<19.5){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=tone*1000;f.Q.value=.6;g.connect(f);outNode=f;src.addEventListener('ended',()=>{try{f.disconnect()}catch(e){}},{once:true})}
   // choke: a closed hat cuts a ringing open hat, and so on, as kit.json's chokedBy lists
   for(const [k2,list] of Object.entries(KIT.voices)){const cs=KIT.def.sounds[k2];if(!cs||!(cs.chokedBy||[]).includes(key)) continue;
@@ -1099,11 +1149,11 @@ function barPlan(b,P){const old=barPlans.get(b);if(old) return old;
     if(!row('s')[j]&&(has('s',j+1)||has('s',j-1))&&Math.random()<Gb*.45) gs.set(j,.13+Math.random()*.08);
     else if(!row('k')[j]&&!has('s',j)&&Math.random()<GKb*.25) gk.add(j)}
   // Hat variation leaves closed hats out: most often on the e and a, less on the and, rarely on a beat, never on beat 1
-  const op=j=>!!P.h[j]&&P.ha[j]===2,cl=j=>!!P.h[j]&&P.ha[j]!==2;
-  for(let j=1;j<spb;j++){if(!row('h')[j]||P.ha[j]) continue;   // loose and open steps are always played
+  const op=j=>!!P.h[j]&&P.art.h[j]===2,cl=j=>!!P.h[j]&&P.art.h[j]!==2;
+  for(let j=1;j<spb;j++){if(!row('h')[j]||P.art.h[j]) continue;   // steps with an articulation are always played
     const pos=j%4,w=pos===0?.06:pos===2?.18:.4,soft=Math.max(0,1-stepVel(P,'h',j));
     if(Math.random()<H*(w+.3*soft)*(hs.has(j-1)?.4:1)) hs.add(j)}
-  {const j=spb-2;if(has('h',j)&&!P.ha[j]&&Math.random()<H*.06) go.add(j)}   // now and then the hat opens before the bar line
+  {const j=spb-2;if(has('h',j)&&!P.art.h[j]&&Math.random()<H*.06) go.add(j)}   // now and then the hat opens before the bar line
   // hat fills: soft closed hats one subdivision finer than the programmed hats, never while an open hat rings
   const HF=HAT_FILLS?Math.pow((F.hfill||0)/100,2)*.6*(last?1.4:1):0;
   const hatSteps=[];for(let j=0;j<spb;j++) if(row('h')[j]) hatSteps.push(j);
@@ -1116,7 +1166,20 @@ function barPlan(b,P){const old=barPlans.get(b);if(old) return old;
       else if(lvl===16){if(j%2&&Math.random()<HF*.9) hf.set(j,.94+Math.random()*.12)}
       else if(j%4===2&&Math.random()<HF*.9) hf.set(j,.94+Math.random()*.12)}}
   hs.forEach(j=>{hf.delete(j-.5);hf.delete(j+.5);hf.delete(j-1);hf.delete(j+1)});
-  const plan={gs,gk,go,hs,hf,swj:nrm()*1.5*(.5+L)};
+  // hat ghosts: very soft taps by the other hand between the programmed hats, one subdivision finer than the hat pattern
+  // (16ths between 8th hats, 32nds after 16th hats, 8ths between quarter hats); none while an open hat rings, none next to a
+  // hat that Hat variation left out, none beside a step with an articulation
+  const HG=(F.hghost||0)/100*(last?1.2:1),hg=new Map();
+  if(HG>0&&lvl){let ring=false;for(let j=spb-1;j>=0;j--){if(cl(j)){ring=false;break}if(op(j)){ring=true;break}}
+    const ok=j=>!hs.has(Math.floor(j))&&!hs.has(Math.ceil(j))&&!go.has(Math.floor(j));
+    for(let j=0;j<spb;j++){
+      if(op(j)){ring=true;if(lvl!==32) continue}else if(cl(j)){ring=false;if(lvl!==32) continue}
+      if(ring) continue;
+      const g=.15+Math.random()*.15;
+      if(lvl===32){if(cl(j)&&!P.art.h[j]&&ok(j+.5)&&Math.random()<HG*.75) hg.set(j+.5,g)}
+      else if(lvl===16){if(j%2&&!row('h')[j]&&ok(j)&&Math.random()<HG*.8) hg.set(j,g)}
+      else if(j%4===2&&!row('h')[j]&&ok(j)&&Math.random()<HG*.8) hg.set(j,g)}}
+  const plan={gs,gk,go,hs,hf,hg,swj:nrm()*1.5*(.5+L)};
   barPlans.set(b,plan);if(barPlans.size>16) barPlans.delete(barPlans.keys().next().value);return plan}
 // ---------- the drummer's body: what happens to a hit just before it is played ----------
 // which limb plays a hit: the hat hands come from the hat pattern (right leads), the hi-hat foot and the kick foot are the feet,
@@ -1155,7 +1218,7 @@ function drumsFor(t,q0,lq,qn){const F=ST.feel,L=F.loose/100,H=F.hat/100,now=ctx.
     if(v<.3) dev+=.002+.004*L;
     const at=t+(q-q0)*qn+dev,vel=Math.max(.05,v*vf);
     if(at<now) return;
-    evs.push([at,id,vel,o.half?{half:1}:o.fill?{fill:1}:null,limbOf(id,o)])};
+    evs.push([at,id,vel,o.art?{art:o.art,len:o.len}:o.fill?{fill:1}:o.ghost?{ghost:1}:null,limbOf(id,o)])};
   for(let b=b0;b<b1;b++){const P=ST.slots[getSlot(b)],has=(k,j)=>!!P[k][((j%16)+16)%16],PL=barPlan(b,P),sp=(j,id)=>b*4+stepPos(j,id,PL.swj);
     // with 16th hats the off-sixteenths are the other hand, a little softer and timed on their own
     const sixteenths=P.h.some((x,j)=>x&&j%2===1),hand=j=>sixteenths&&j%2===1?'CHL':'CHR';
@@ -1165,13 +1228,21 @@ function drumsFor(t,q0,lq,qn){const F=ST.feel,L=F.loose/100,H=F.hat/100,now=ctx.
           if(R.k==='s'&&PL.gs.has(j)) hit('s',j,b,q,PL.gs.get(j));
           else if(R.k==='k'&&PL.gk.has(j)) hit('k',j,b,q,.35);
           else if(R.k==='h'&&PL.hf.has(j)) hit('h',j,b,q,fillVel(P,j-.5)*PL.hf.get(j),{limb:j%2?'CHL':'CHR',fill:true});
+          else if(R.k==='h'&&PL.hg.has(j)) hit('h',j,b,q,PL.hg.get(j),{limb:'CHL',ghost:true});
           continue}
         let vel=stepVel(P,R.k,j),limb;
+        if(R.k==='h'&&PL.hg.has(j+.5)) hit('h',j+.5,b,b*4+(stepPos(j,'CH',PL.swj)+stepPos(j+1,'CH',PL.swj))/2,PL.hg.get(j+.5),{limb:'CHL',ghost:true});
         if(R.k==='h'&&PL.hf.has(j+.5)) hit('h',j+.5,b,b*4+(stepPos(j,'CH',PL.swj)+stepPos(j+1,'CH',PL.swj))/2,fillVel(P,j)*PL.hf.get(j+.5),{limb:'CHL',fill:true});
-        if(R.k==='h'){if(PL.hs.has(j)) continue;limb=hand(j);if(limb==='CHL') vel*=.82;const a=P.ha[j]|0;
-          if(a===2||PL.go.has(j)){hit('h',j,b,q,a===2?vel:vel*.6,{limb,id:'OH'});continue}
-          if(a===1){hit('h',j,b,q,vel,{limb,half:true});continue}}
-        hit(R.k,j,b,q,vel,{limb})}}}
+        const ai=ART[R.k]?P.art[R.k][j]|0:0,art=ai?ART[R.k][ai][0]:'';
+        if(R.k==='h'){if(PL.hs.has(j)) continue;
+          if(art==='pedal'){hit('h',j,b,q,vel,{limb:'HF',art});continue}   // the foot, not a hand
+          limb=hand(j);if(limb==='CHL') vel*=.82;
+          if(art==='open'||(!art&&PL.go.has(j))){hit('h',j,b,q,art==='open'?vel:vel*.6,{limb,id:'OH'});continue}}
+        if(art==='roll'){   // a run of roll steps is one roll; it lasts until the run ends
+          const prev=P.art.s[(j+15)%16]===ai&&P[R.k][(j+15)%16];if(prev&&j>0) continue;
+          let n=1;while(n<16&&P[R.k][(j+n)%16]&&P.art.s[(j+n)%16]===ai&&j+n<16) n++;
+          hit(R.k,j,b,q,vel,{limb,art,len:n*qn/4});continue}
+        hit(R.k,j,b,q,vel,{limb,art:art||undefined})}}}
   shapeHits(E,evs.sort((a,b)=>a[0]-b[0]),qn).forEach(([at,id,vel,x])=>hitDrum(E,id,at,vel,x))}
 
 // ---------- transport ----------
@@ -1241,21 +1312,22 @@ function buildGrid(){const g=$('grid');g.appendChild(document.createElement('div
   // tap cycles a step (on, soft, off); dragging paints the same value over the steps it crosses
   let paint=null;
   const apply=(p)=>{const r=+p.dataset.r,j=+p.dataset.j,R=ROWS[r],sl=ST.slots[ST.cur];if(paint.done.has(p)) return;paint.done.add(p);
-    const nv=paint.v;if(sl[R.k][j]===nv) return;if(R.k==='h'&&(!nv||!sl.h[j])) sl.ha[j]=0;sl[R.k][j]=nv;if(sl.vel&&sl.vel[R.k]) sl.vel[R.k][j]=null;
+    const nv=paint.v;if(sl[R.k][j]===nv) return;if(ART[R.k]&&(!nv||!sl[R.k][j])) sl.art[R.k][j]=0;sl[R.k][j]=nv;if(sl.vel&&sl.vel[R.k]) sl.vel[R.k][j]=null;
     if(nv&&!playing&&ctx) hearStep(r,j);
     renderGrid();save()};
   let hold=0,heldAt=-1e9;
   g.addEventListener('pointerdown',e=>{const p=e.target.closest('.pad');if(!p) return;e.preventDefault();if(e.button!==0) return;   // right-click is handled below
-    const r=+p.dataset.r,j=+p.dataset.j,sl=ST.slots[ST.cur],cur=sl[ROWS[r].k][j],before={v:cur,a:sl.ha[j]};paint={v:cur===0?2:cur===2?1:0,done:new Set(),id:e.pointerId,p};
+    const r=+p.dataset.r,j=+p.dataset.j,sl=ST.slots[ST.cur],cur=sl[ROWS[r].k][j],k0=ROWS[r].k,before={v:cur,a:ART[k0]?sl.art[k0][j]:0};paint={v:cur===0?2:cur===2?1:0,done:new Set(),id:e.pointerId,p,before};selectStep(r,j);
     if(!ctx&&paint.v) ensureAudio().then(()=>hearStep(r,j));
     apply(p);
-    // on a touch screen, holding a hat step does what right-click does
-    clearTimeout(hold);if(ROWS[r].k==='h'&&e.pointerType!=='mouse') hold=setTimeout(()=>{if(!paint||paint.p!==p||paint.done.size>1) return;
-      sl.h[j]=before.v;sl.ha[j]=before.a;paint=null;heldAt=performance.now();cycleHat(j)},450)});
+    // on a touch screen, holding a step of a lane with articulations does what right-click does: it opens the menu
+    clearTimeout(hold);if(ART[k0]&&e.pointerType!=='mouse'){const cx=e.clientX,cy=e.clientY;hold=setTimeout(()=>{if(!paint||paint.p!==p||paint.done.size>1) return;
+      sl[k0][j]=before.v;sl.art[k0][j]=before.a;paint=null;heldAt=performance.now();renderGrid();save();openArtMenu(r,j,cx,cy)},450)}});
   g.addEventListener('pointermove',e=>{if(!paint||e.pointerId!==paint.id) return;const el=document.elementFromPoint(e.clientX,e.clientY),p=el&&el.closest&&el.closest('.pad');if(p) apply(p)});
   g.addEventListener('contextmenu',e=>{const p=e.target.closest('.pad');if(!p) return;e.preventDefault();
-    if((e.pointerType&&e.pointerType!=='mouse')||performance.now()-heldAt<800) return;   // a long touch is handled by the timer above
-    if(ROWS[+p.dataset.r].k==='h') cycleHat(+p.dataset.j)});
+    if(performance.now()-heldAt<800||!$('artMenu').hidden) return;   // already opened by the long-touch timer
+    const r=+p.dataset.r,j=+p.dataset.j;if(e.pointerType&&e.pointerType!=='mouse'){clearTimeout(hold);if(paint&&paint.p===p&&paint.before){const k0=ROWS[r].k,sl=ST.slots[ST.cur];sl[k0][j]=paint.before.v;if(ART[k0]) sl.art[k0][j]=paint.before.a;renderGrid()}paint=null;heldAt=performance.now()}
+    selectStep(r,j);if(ART[ROWS[r].k]) openArtMenu(r,j,e.clientX,e.clientY)});
   // scroll on a hit to set its velocity, 5% a notch (Shift for 1%); the number shows while you scroll
   let wAcc=0,wT=0,wHear=0;
   g.addEventListener('wheel',e=>{const p=e.target.closest('.pad');if(!p) return;e.preventDefault();
@@ -1267,20 +1339,48 @@ function buildGrid(){const g=$('grid');g.appendChild(document.createElement('div
     if(!playing&&performance.now()-wHear>140){wHear=performance.now();ensureAudio().then(()=>hearStep(r,j))}
     save()},{passive:false});
   const end=()=>{paint=null;clearTimeout(hold)};window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end)}
-// right-click (or hold) a hat step: closed, loose, open, closed ... An empty step starts as a loose hat
-const HAT_ART=['closed','loose','open'];
-function cycleHat(j){const sl=ST.slots[ST.cur];if(!sl.h[j]){sl.h[j]=2;sl.ha[j]=1}else sl.ha[j]=((sl.ha[j]|0)+1)%3;
-  ensureAudio().then(()=>{if(!playing) hearStep(ROWS.findIndex(R=>R.k==='h'),j)});renderGrid();save()}
+// the step last tapped or right-clicked is selected (outlined); the Articulation dropdown under the grid shows and sets its articulation
+let selStep=null;
+function selectStep(r,j){if(selStep&&pads[selStep.r]) pads[selStep.r][selStep.j].classList.remove('sel');selStep={r,j};pads[r][j].classList.add('sel');renderArtSel()}
+function renderArtSel(){const s=$('artSel');if(!s) return;s.textContent='';
+  if(!selStep||!ART[ROWS[selStep.r].k]){const o=document.createElement('option');o.textContent=selStep?'None on this lane':'Select a step';s.appendChild(o);s.disabled=true;return}
+  const R=ROWS[selStep.r],sl=ST.slots[ST.cur],L=ART[R.k],cur=sl[R.k][selStep.j]?sl.art[R.k][selStep.j]|0:-1;s.disabled=false;
+  const g=document.createElement('optgroup');g.label=R.name+' · step '+(selStep.j+1);
+  if(cur<0){const o=document.createElement('option');o.value='';o.textContent='Off';g.appendChild(o)}
+  L.forEach(([key,name],i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;g.appendChild(o)});s.appendChild(g);s.value=cur<0?'':String(cur)}
+$('artSel').addEventListener('change',e=>{if(!selStep||e.target.value==='') return;setArt(selStep.r,selStep.j,+e.target.value)});
+// the articulation menu: right-click (or hold on a touch screen) a snare, hat or cymbal step. Every articulation is offered;
+// one the current kit has no recording of plays the lane's normal stroke (the flam and roll are then made from it)
+let artAt=null;
+function openArtMenu(r,j,x,y){const R=ROWS[r],L=ART[R.k];if(!L) return;const m=$('artMenu'),sl=ST.slots[ST.cur],cur=sl[R.k][j]?sl.art[R.k][j]|0:-1;
+  artAt={r,j};m.textContent='';const h=document.createElement('h3');h.textContent=R.name+' · step '+(j+1);m.appendChild(h);
+  L.forEach(([key,name,code],i)=>{const b=document.createElement('button');b.setAttribute('role','menuitemradio');b.setAttribute('aria-checked',i===cur);
+    const voice=key==='open'?'OH':R.id,miss=i&&key!=='open'&&KIT.def&&!artInKit(voice,key);
+    b.innerHTML=`<span>${name}${miss?`<span class="miss">${key==='flam'||key==='roll'?'made from the '+L[0][1].toLowerCase()+' in this kit':'plays the '+L[0][1].toLowerCase()+' in this kit'}</span>`:''}</span><span class="code">${code}</span>`;
+    b.addEventListener('click',()=>{setArt(r,j,i);closeArtMenu()});m.appendChild(b)});
+  if(sl[R.k][j]){const c=document.createElement('button');c.className='clear';c.textContent='Clear step';c.addEventListener('click',()=>{sl[R.k][j]=0;sl.art[R.k][j]=0;if(sl.vel&&sl.vel[R.k]) sl.vel[R.k][j]=null;renderGrid();save();closeArtMenu()});m.appendChild(c)}
+  m.hidden=false;const W=innerWidth,H=innerHeight,w=m.offsetWidth,hh=m.offsetHeight;
+  m.style.left=clamp(x+6,8,W-w-8)+'px';m.style.top=clamp(y+6,8,H-hh-8)+'px';
+  const first=m.querySelector('[aria-checked="true"]')||m.querySelector('button');if(first) first.focus({preventScroll:true})}
+function closeArtMenu(){const m=$('artMenu');if(m.hidden) return;m.hidden=true;artAt=null}
+function setArt(r,j,i){const R=ROWS[r],sl=ST.slots[ST.cur];if(!sl[R.k][j]) sl[R.k][j]=2;sl.art[R.k][j]=i;if(i){const key=ART[R.k][i][0];wantArt(key==='open'?'OH':R.id,key)}
+  ensureAudio().then(()=>{if(!playing) hearStep(r,j)});renderGrid();save()}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#artMenu')) closeArtMenu()},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeArtMenu();
+  if(!$('artMenu').hidden&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();const bs=[...$('artMenu').querySelectorAll('button')],i=bs.indexOf(document.activeElement);bs[(i+(e.key==='ArrowDown'?1:-1)+bs.length)%bs.length].focus()}});
+window.addEventListener('resize',closeArtMenu);
 function hearStep(r,j){const R=ROWS[r],sl=ST.slots[ST.cur],v=sl[R.k][j];if(!v) return;let id=R.id,x=null;
-  if(R.k==='h'){const a=sl.ha[j]|0;if(a===2) id='OH';else if(a===1) x={half:1}}
+  const ai=ART[R.k]?sl.art[R.k][j]|0:0,art=ai?ART[R.k][ai][0]:'';
+  if(art==='open') id='OH';else if(art) x={art,len:art==='roll'?qn()/4:0};
   hitDrum(E,id,ctx.currentTime+.02,stepVel(sl,R.k,j),x)}
 function renderGrid(){const sl=ST.slots[ST.cur];
   ROWS.forEach((R,r)=>{const m=!!ST.mute[R.k];names[r].classList.toggle('muted',m);names[r].setAttribute('aria-pressed',m);
     for(let j=0;j<16;j++){const p=pads[r][j];p.dataset.v=sl[R.k][j];p.classList.toggle('mut',m);
       const vx=sl.vel&&sl.vel[R.k]&&sl[R.k][j]?sl.vel[R.k][j]:null;p.classList.toggle('vx',vx!=null);if(vx!=null){p.style.setProperty('--fill',Math.min(100,vx)+'%');p.dataset.vel=vx}
       const vtxt=sl[R.k][j]?', velocity '+Math.round(stepVel(sl,R.k,j)*100)+'%':'';
-      if(R.k==='h'){const a=sl[R.k][j]?sl.ha[j]|0:0;p.dataset.a=a;p.setAttribute('aria-label','Hat step '+(j+1)+(sl.h[j]?', '+HAT_ART[a]:'')+vtxt)}else p.setAttribute('aria-label',R.name+' step '+(j+1)+vtxt)}});
-  renderSlots()}
+      const ai=ART[R.k]&&sl[R.k][j]?sl.art[R.k][j]|0:0;p.dataset.art=ai?ART[R.k][ai][2]:'';
+      p.setAttribute('aria-label',R.name+' step '+(j+1)+(ai?', '+ART[R.k][ai][1]:'')+vtxt)}});
+  renderSlots();renderArtSel()}
 let shownCol=-1,playingSlot=-1,lastBeat=-1;
 function clearCol(){if(shownCol>=0) colPads[shownCol].forEach(p=>p.classList.remove('col'));shownCol=-1;playingSlot=-1}
 let undo=null;
@@ -1312,7 +1412,7 @@ function knob(spec,obj,onChange){const el=document.createElement('div');el.class
 const pct=v=>Math.round(v)+'%';
 const FEEL_K=[{k:'swing',label:'Swing',min:0,max:100,step:1,def:4,fmt:pct},{k:'loose',label:'Looseness',min:0,max:100,step:1,def:24,fmt:pct},
   {k:'kghost',label:'Kick ghosts',min:0,max:100,step:1,def:8,fmt:pct},{k:'ghost',label:'Snare ghosts',min:0,max:100,step:1,def:0,fmt:pct},
-  {k:'hat',label:'Hat variation',min:0,max:100,step:1,def:0,fmt:pct},{k:'touch',label:'Touch',min:0,max:100,step:1,def:50,fmt:pct}];
+  {k:'hat',label:'Hat variation',min:0,max:100,step:1,def:0,fmt:pct},{k:'hghost',label:'Hat ghosts',min:0,max:100,step:1,def:0,fmt:pct},{k:'touch',label:'Touch',min:0,max:100,step:1,def:50,fmt:pct}];
 const fxCh=()=>applyFx(false);
 const FX_GROUPS={ecKnobs:[{k:'emix',label:'Amount',min:0,max:100,step:1,def:30,fmt:pct},{k:'etime',label:'Time',min:0,max:6,step:1,def:3,fmt:echoTxt},{k:'efb',label:'Repeats',min:0,max:95,step:1,def:40,fmt:pct}],
   rvKnobs:[{k:'rmix',label:'Amount',min:0,max:100,step:1,def:18,fmt:pct},{k:'rdec',label:'Decay',min:.3,max:6,step:.1,def:1.6,fmt:v=>(+v).toFixed(1)+' s'},{k:'rtone',label:'Tone',min:1.5,max:16,step:.5,def:8,fmt:v=>(+v).toFixed(1)+' kHz'}],

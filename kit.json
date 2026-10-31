@@ -1,0 +1,331 @@
+{
+  "name": "Kit 1",
+  "folder": "samples/Kit1",
+  "format": "WAV, 44.1 kHz, 16-bit, stereo",
+  "velocity": "upTo is the highest step velocity a layer plays, in percent. A full step is 100%, a soft step 42%, ghost notes and hat fills about 13 to 40%; accents and the drummer's swell can go past 100%. Within a layer the level follows the velocity.",
+  "startMs": "where the hit begins in the file (first sample above 5% of the file's peak); playback starts there so every hit lands on time",
+  "peakDb": "peak level of the file, for reference",
+  "rows": {
+    "BD": "kick",
+    "SD": "snare",
+    "CH": "hat-closed",
+    "OH": "hat-open",
+    "LT": "floor-tom",
+    "HT": "tom",
+    "CY": "ride",
+    "CR": "crash-small"
+  },
+  "rowsNote": "Which sound each voice plays. CH is a closed step on the hat lane and OH an open one. CY (the Cymbal lane) and CR (the Crash lane) can each be ride, crash-small or crash-large.",
+  "articulations": {
+    "CH": {
+      "half": "hat-loose"
+    }
+  },
+  "articulationsNote": "A loose step on the hat lane (right-click or hold a hat step) plays hat-loose.",
+  "sounds": {
+    "kick": {
+      "name": "Kick",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "01 - Kick - Velocity1.wav", "startMs": 5.5, "peakDb": -11.1, "seconds": 0.65 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "02 - Kick - Velocity2.wav", "startMs": 4.1, "peakDb": -4.7, "seconds": 0.65 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "03 - Kick - Velocity3.wav", "startMs": 3.6, "peakDb": -3.0, "seconds": 0.68 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "04 - Kick - Velocity4.wav", "startMs": 3.1, "peakDb": -1.8, "seconds": 0.85 }
+          ]
+        }
+      ]
+    },
+    "snare": {
+      "name": "Snare",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "05 - Snare - Velocity1.wav", "startMs": 4.5, "peakDb": -18.8, "seconds": 0.31 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "06 - Snare - Velocity2.wav", "startMs": 8.5, "peakDb": -16.1, "seconds": 0.35 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "07 - Snare - Velocity3.wav", "startMs": 7.5, "peakDb": -7.9, "seconds": 0.4 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "08 - Snare - Velocity4.wav", "startMs": 0.8, "peakDb": -1.9, "seconds": 0.6 }
+          ]
+        }
+      ]
+    },
+    "hat-closed": {
+      "name": "Hats Closed",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "09 - Hats Closed - Velocity1.wav", "startMs": 5.6, "peakDb": -23.5, "seconds": 0.29 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "10 - Hats Closed - Velocity2.wav", "startMs": 2.6, "peakDb": -18.2, "seconds": 0.33 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "11 - Hats Closed - Velocity3.wav", "startMs": 0.6, "peakDb": -14.3, "seconds": 0.56 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "12 - Hats Closed - Velocity4.wav", "startMs": 2.1, "peakDb": -4.9, "seconds": 0.71 }
+          ]
+        }
+      ],
+      "chokedBy": [
+        "hat-closed"
+      ]
+    },
+    "hat-loose": {
+      "name": "Hats Loose",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "13 - Hats Loose - Velocity1.wav", "startMs": 0.3, "peakDb": -18.9, "seconds": 0.35 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "14 - Hats Loose - Velocity2.wav", "startMs": 1.0, "peakDb": -18.4, "seconds": 0.39 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "15 - Hats Loose - Velocity3.wav", "startMs": 0.9, "peakDb": -14.1, "seconds": 0.46 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "16 - Hats Loose - Velocity4.wav", "startMs": 1.0, "peakDb": -7.2, "seconds": 0.66 }
+          ]
+        }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-loose",
+        "hat-open"
+      ]
+    },
+    "hat-open": {
+      "name": "Hats Open",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "17 - Hats Open - Velocity1.wav", "startMs": 1.5, "peakDb": -19.3, "seconds": 0.46 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "18 - Hats Open - Velocity2.wav", "startMs": 0.2, "peakDb": -17.1, "seconds": 0.58 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "19 - Hats Open - Velocity3.wav", "startMs": 9.7, "peakDb": -16.4, "seconds": 0.6 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "20 - Hats Open - Velocity4.wav", "startMs": 4.7, "peakDb": -6.9, "seconds": 0.69 }
+          ]
+        }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-loose",
+        "hat-open"
+      ]
+    },
+    "tom": {
+      "name": "Tom",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "21 - Tom - Velocity1.wav", "startMs": 5.8, "peakDb": -27.8, "seconds": 0.8 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "22 - Tom - Velocity2.wav", "startMs": 4.4, "peakDb": -20.3, "seconds": 0.81 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "23 - Tom - Velocity3.wav", "startMs": 2.7, "peakDb": -14.8, "seconds": 0.91 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "24 - Tom - Velocity4.wav", "startMs": 4.2, "peakDb": -4.0, "seconds": 1.06 }
+          ]
+        }
+      ]
+    },
+    "floor-tom": {
+      "name": "Floor Tom",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "25- Floor Tom - Velocity1.wav", "startMs": 7.6, "peakDb": -20.7, "seconds": 1.58 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "26- Floor Tom - Velocity2.wav", "startMs": 8.9, "peakDb": -16.1, "seconds": 1.58 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "27- Floor Tom - Velocity3.wav", "startMs": 2.9, "peakDb": -2.5, "seconds": 1.55 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "28- Floor Tom - Velocity4.wav", "startMs": 1.9, "peakDb": -1.2, "seconds": 2.09 }
+          ]
+        }
+      ]
+    },
+    "ride": {
+      "name": "Ride",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "29- Ride - Velocity1.wav", "startMs": 0.0, "peakDb": -28.6, "seconds": 4.19 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "30- Ride - Velocity2.wav", "startMs": 0.3, "peakDb": -21.2, "seconds": 8.39 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "31- Ride - Velocity3.wav", "startMs": 0.6, "peakDb": -10.3, "seconds": 10.44 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "32- Ride - Velocity4.wav", "startMs": 0.2, "peakDb": -5.5, "seconds": 12.02 }
+          ]
+        }
+      ]
+    },
+    "crash-small": {
+      "name": "Small Crash",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "33 - Small Crash - Velocity1.wav", "startMs": 7.1, "peakDb": -29.6, "seconds": 9.01 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "34 - Small Crash - Velocity2.wav", "startMs": 7.5, "peakDb": -23.8, "seconds": 9.68 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "35 - Small Crash - Velocity3.wav", "startMs": 5.9, "peakDb": -14.4, "seconds": 8.75 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "36 - Small Crash - Velocity4.wav", "startMs": 5.4, "peakDb": -3.0, "seconds": 10.43 }
+          ]
+        }
+      ]
+    },
+    "crash-large": {
+      "name": "Large Crash",
+      "layers": [
+        {
+          "upTo": 30,
+          "takes": [
+            { "file": "37 - Large Crash - Velocity1.wav", "startMs": 0.0, "peakDb": -16.7, "seconds": 6.35 }
+          ]
+        },
+        {
+          "upTo": 55,
+          "takes": [
+            { "file": "38 - Large Crash - Velocity2.wav", "startMs": 5.5, "peakDb": -23.3, "seconds": 7.34 }
+          ]
+        },
+        {
+          "upTo": 85,
+          "takes": [
+            { "file": "39 - Large Crash - Velocity3.wav", "startMs": 6.4, "peakDb": -13.5, "seconds": 9.0 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "40 - Large Crash - Velocity4.wav", "startMs": 3.7, "peakDb": -3.9, "seconds": 9.0 }
+          ]
+        }
+      ]
+    }
+  },
+  "chokeNote": "chokedBy: a hit of any listed sound cuts this one short. A closed hat cuts its own ring, so quick hat fills between strokes stay audible."
+}

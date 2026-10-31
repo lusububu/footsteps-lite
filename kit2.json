@@ -1,0 +1,940 @@
+{
+  "name": "Kit 2",
+  "folder": "samples/Kit2",
+  "format": "WAV, 48 kHz, 24-bit, stereo",
+  "velocity": "upTo is the highest step velocity a layer plays, in percent. Layers were set from the recordings themselves: each one plays where its own recorded level matches the hit, so a full step (100%) lands on the hardest strokes and a soft step (42%) on a middle one. Strokes recorded within 2 dB of each other are grouped as takes of one layer and rotate from hit to hit.",
+  "startMs": "where the hit begins in the file (first sample above 5% of the file's peak)",
+  "peakDb": "peak level of the file, for reference",
+  "rows": {
+    "BD": "kick",
+    "SD": "snare",
+    "CH": "hat-closed",
+    "OH": "hat-open",
+    "LT": "floor-tom",
+    "HT": "tom",
+    "CY": "ride",
+    "CR": "crash-small"
+  },
+  "rowsNote": "Which sound each voice plays. Any sound below can go on a lane: for example CR can be crash-large or splash, CY ride-bell.",
+  "articulations": {},
+  "articulationsNote": "This kit has no loose hi-hat recording, so loose steps on the hat lane play the closed hat. Sounds not on a lane (rimshot, cross-stick, flams, roll, the shank, bell and pedal hats, chokes, splash) are listed for later and are not loaded.",
+  "sounds": {
+    "kick": {
+      "name": "Kick (Yamaha 16x16)",
+      "layers": [
+        {
+          "upTo": 16.0,
+          "takes": [
+            { "file": "Kick-V01-Yamaha-16x16.wav", "startMs": 0.5, "peakDb": -20.9, "seconds": 1.49 }
+          ]
+        },
+        {
+          "upTo": 23.4,
+          "takes": [
+            { "file": "Kick-V02-Yamaha-16x16.wav", "startMs": 4.2, "peakDb": -17.1, "seconds": 1.16 }
+          ]
+        },
+        {
+          "upTo": 34.1,
+          "takes": [
+            { "file": "Kick-V03-Yamaha-16x16.wav", "startMs": 8.4, "peakDb": -14.3, "seconds": 1.04 },
+            { "file": "Kick-V04-Yamaha-16x16.wav", "startMs": 5.2, "peakDb": -13.3, "seconds": 1.38 }
+          ]
+        },
+        {
+          "upTo": 49.3,
+          "takes": [
+            { "file": "Kick-V05-Yamaha-16x16.wav", "startMs": 2.5, "peakDb": -10.6, "seconds": 1.56 },
+            { "file": "Kick-V06-Yamaha-16x16.wav", "startMs": 0.4, "peakDb": -8.7, "seconds": 1.29 }
+          ]
+        },
+        {
+          "upTo": 66.8,
+          "takes": [
+            { "file": "Kick-V07-Yamaha-16x16.wav", "startMs": 0.3, "peakDb": -7.9, "seconds": 1.32 },
+            { "file": "Kick-V08-Yamaha-16x16.wav", "startMs": 0.1, "peakDb": -6.3, "seconds": 1.29 }
+          ]
+        },
+        {
+          "upTo": 88.1,
+          "takes": [
+            { "file": "Kick-V09-Yamaha-16x16.wav", "startMs": 0.0, "peakDb": -5.3, "seconds": 1.42 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "Kick-V10-Yamaha-16x16.wav", "startMs": 0.5, "peakDb": -3.1, "seconds": 1.56 },
+            { "file": "Kick-V11-Yamaha-16x16.wav", "startMs": 0.3, "peakDb": -2.7, "seconds": 1.38 },
+            { "file": "Kick-V12-Yamaha-16x16.wav", "startMs": 1.2, "peakDb": -2.6, "seconds": 1.47 }
+          ]
+        }
+      ]
+    },
+    "snare": {
+      "name": "Snare (CustomWorks 6x13)",
+      "layers": [
+        {
+          "upTo": 8.1,
+          "takes": [
+            { "file": "SNARE-V01-CustomWorks-6x13.wav", "startMs": 0.3, "peakDb": -24.9, "seconds": 1.45 }
+          ]
+        },
+        {
+          "upTo": 13.6,
+          "takes": [
+            { "file": "SNARE-V02-CustomWorks-6x13.wav", "startMs": 0.9, "peakDb": -21.5, "seconds": 1.5 }
+          ]
+        },
+        {
+          "upTo": 23.0,
+          "takes": [
+            { "file": "SNARE-V03-CustomWorks-6x13.wav", "startMs": 0.5, "peakDb": -15.9, "seconds": 1.5 }
+          ]
+        },
+        {
+          "upTo": 33.9,
+          "takes": [
+            { "file": "SNARE-V04-CustomWorks-6x13.wav", "startMs": 0.3, "peakDb": -12.4, "seconds": 1.55 }
+          ]
+        },
+        {
+          "upTo": 48.4,
+          "takes": [
+            { "file": "SNARE-V05-CustomWorks-6x13.wav", "startMs": 0.0, "peakDb": -9.2, "seconds": 1.51 },
+            { "file": "SNARE-V06-CustomWorks-6x13.wav", "startMs": 0.3, "peakDb": -8.2, "seconds": 1.49 }
+          ]
+        },
+        {
+          "upTo": 66.8,
+          "takes": [
+            { "file": "SNARE-V07-CustomWorks-6x13.wav", "startMs": 0.1, "peakDb": -6.2, "seconds": 1.57 }
+          ]
+        },
+        {
+          "upTo": 88.1,
+          "takes": [
+            { "file": "SNARE-V08-CustomWorks-6x13.wav", "startMs": 0.3, "peakDb": -3.6, "seconds": 1.51 },
+            { "file": "SNARE-V09-CustomWorks-6x13.wav", "startMs": 0.8, "peakDb": -2.9, "seconds": 1.51 },
+            { "file": "SNARE-V10-CustomWorks-6x13.wav", "startMs": 0.1, "peakDb": -2.5, "seconds": 1.51 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "SNARE-V11-CustomWorks-6x13.wav", "startMs": 0.1, "peakDb": -1.4, "seconds": 1.51 },
+            { "file": "SNARE-V12-CustomWorks-6x13.wav", "startMs": 0.2, "peakDb": -0.8, "seconds": 1.63 },
+            { "file": "SNARE-V13-CustomWorks-6x13.wav", "startMs": 0.2, "peakDb": -0.3, "seconds": 1.68 },
+            { "file": "SNARE-V14-CustomWorks-6x13.wav", "startMs": 0.1, "peakDb": -0.0, "seconds": 1.73 },
+            { "file": "SNARE-V15-CustomWorks-6x13.wav", "startMs": 0.1, "peakDb": -0.0, "seconds": 1.58 },
+            { "file": "SNARE-V16-CustomWorks-6x13.wav", "startMs": 0.3, "peakDb": -0.0, "seconds": 1.61 },
+            { "file": "SNARE-V17-CustomWorks-6x13.wav", "startMs": 0.2, "peakDb": -0.0, "seconds": 1.64 },
+            { "file": "SNARE-V18-CustomWorks-6x13.wav", "startMs": 0.5, "peakDb": -0.0, "seconds": 1.73 },
+            { "file": "SNARE-V19-CustomWorks-6x13.wav", "startMs": 0.4, "peakDb": -1.1, "seconds": 1.76 },
+            { "file": "SNARE-V20-CustomWorks-6x13.wav", "startMs": 1.3, "peakDb": -0.0, "seconds": 1.76 }
+          ]
+        }
+      ]
+    },
+    "hat-closed": {
+      "name": "Hi-hat closed (Sabian AAX)",
+      "layers": [
+        {
+          "upTo": 4.5,
+          "takes": [
+            { "file": "HHats-CL-V01-SABIAN-AAX.wav", "startMs": 1.3, "peakDb": -37.5, "seconds": 0.84 }
+          ]
+        },
+        {
+          "upTo": 12.3,
+          "takes": [
+            { "file": "HHats-CL-V02-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -26.9, "seconds": 0.82 }
+          ]
+        },
+        {
+          "upTo": 21.4,
+          "takes": [
+            { "file": "HHats-CL-V03-SABIAN-AAX.wav", "startMs": 0.7, "peakDb": -19.9, "seconds": 0.8 }
+          ]
+        },
+        {
+          "upTo": 29.5,
+          "takes": [
+            { "file": "HHats-CL-V04-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -17.3, "seconds": 1.43 }
+          ]
+        },
+        {
+          "upTo": 44.9,
+          "takes": [
+            { "file": "HHats-CL-V05-SABIAN-AAX.wav", "startMs": 0.4, "peakDb": -14.3, "seconds": 0.89 }
+          ]
+        },
+        {
+          "upTo": 75.9,
+          "takes": [
+            { "file": "HHats-CL-V06-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -10.0, "seconds": 0.84 },
+            { "file": "HHats-CL-V07-SABIAN-AAX.wav", "startMs": 0.4, "peakDb": -10.6, "seconds": 0.66 },
+            { "file": "HHats-CL-V08-SABIAN-AAX.wav", "startMs": 0.3, "peakDb": -8.7, "seconds": 0.84 },
+            { "file": "HHats-CL-V09-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -10.3, "seconds": 0.85 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "HHats-CL-V10-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -5.2, "seconds": 0.86 }
+          ]
+        }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-pedal"
+      ]
+    },
+    "hat-open": {
+      "name": "Hi-hat open (Sabian AAX)",
+      "layers": [
+        {
+          "upTo": 11.5,
+          "takes": [
+            { "file": "HHats-OP-V01-SABIAN-AAX.wav", "startMs": 5.9, "peakDb": -37.4, "seconds": 0.97 }
+          ]
+        },
+        {
+          "upTo": 42.2,
+          "takes": [
+            { "file": "HHats-OP-V02-SABIAN-AAX.wav", "startMs": 0.0, "peakDb": -23.6, "seconds": 1.24 }
+          ]
+        },
+        {
+          "upTo": 83.7,
+          "takes": [
+            { "file": "HHats-OP-V03-SABIAN-AAX.wav", "startMs": 0.0, "peakDb": -14.8, "seconds": 1.14 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "HHats-OP-V04-SABIAN-AAX.wav", "startMs": 0.2, "peakDb": -11.7, "seconds": 1.85 },
+            { "file": "HHats-OP-V05-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -13.8, "seconds": 2.54 },
+            { "file": "HHats-OP-V06-SABIAN-AAX.wav", "startMs": 0.5, "peakDb": -13.8, "seconds": 3.07 },
+            { "file": "HHats-OP-V07-SABIAN-AAX.wav", "startMs": 0.2, "peakDb": -10.5, "seconds": 4.12 },
+            { "file": "HHats-OP-V08-SABIAN-AAX.wav", "startMs": 0.8, "peakDb": -9.8, "seconds": 4.29 }
+          ]
+        }
+      ],
+      "chokedBy": [
+        "hat-closed",
+        "hat-open",
+        "hat-pedal"
+      ]
+    },
+    "tom": {
+      "name": "Tom 10\" (Star Classic)",
+      "layers": [
+        {
+          "upTo": 3.8,
+          "takes": [
+            { "file": "TOM10-V01-StarClassic-10x10.wav", "startMs": 4.9, "peakDb": -33.1, "seconds": 1.4 }
+          ]
+        },
+        {
+          "upTo": 9.8,
+          "takes": [
+            { "file": "TOM10-V02-StarClassic-10x10.wav", "startMs": 6.6, "peakDb": -24.1, "seconds": 2.0 }
+          ]
+        },
+        {
+          "upTo": 28.3,
+          "takes": [
+            { "file": "TOM10-V03-StarClassic-10x10.wav", "startMs": 0.0, "peakDb": -16.7, "seconds": 1.98 }
+          ]
+        },
+        {
+          "upTo": 62.4,
+          "takes": [
+            { "file": "TOM10-V05-StarClassic-10x10.wav", "startMs": 0.4, "peakDb": -5.6, "seconds": 2.01 }
+          ]
+        },
+        {
+          "upTo": 85.1,
+          "takes": [
+            { "file": "TOM10-V06-StarClassic-10x10.wav", "startMs": 0.6, "peakDb": -3.0, "seconds": 2.14 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "TOM10-V07-StarClassic-10x10.wav", "startMs": 0.4, "peakDb": -0.2, "seconds": 2.13 },
+            { "file": "TOM10-V08-StarClassic-10x10.wav", "startMs": 0.7, "peakDb": -0.0, "seconds": 2.06 }
+          ]
+        }
+      ]
+    },
+    "floor-tom": {
+      "name": "Tom 13\" (Star Classic)",
+      "layers": [
+        {
+          "upTo": 6.6,
+          "takes": [
+            { "file": "TOM13-V01-StarClassic-13x13.wav", "startMs": 0.0, "peakDb": -30.6, "seconds": 2.64 }
+          ]
+        },
+        {
+          "upTo": 22.5,
+          "takes": [
+            { "file": "TOM13-V02-StarClassic-13x13.wav", "startMs": 0.6, "peakDb": -16.5, "seconds": 2.58 }
+          ]
+        },
+        {
+          "upTo": 42.4,
+          "takes": [
+            { "file": "TOM13-V03-StarClassic-13x13.wav", "startMs": 3.8, "peakDb": -9.4, "seconds": 2.63 }
+          ]
+        },
+        {
+          "upTo": 72.9,
+          "takes": [
+            { "file": "TOM13-V04-StarClassic-13x13.wav", "startMs": 0.3, "peakDb": -5.5, "seconds": 2.7 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "TOM13-V05-StarClassic-13x13.wav", "startMs": 0.7, "peakDb": -0.0, "seconds": 2.71 },
+            { "file": "TOM13-V06-StarClassic-13x13.wav", "startMs": 1.2, "peakDb": -0.0, "seconds": 2.7 },
+            { "file": "TOM13-V07-StarClassic-13x13.wav", "startMs": 2.4, "peakDb": -1.4, "seconds": 2.7 },
+            { "file": "TOM13-V08-StarClassic-13x13.wav", "startMs": 1.1, "peakDb": -0.1, "seconds": 2.64 }
+          ]
+        }
+      ]
+    },
+    "ride": {
+      "name": "Ride 22\" (Sabian)",
+      "layers": [
+        {
+          "upTo": 7.4,
+          "takes": [
+            { "file": "Ride-V01-ROBMOR-SABIAN-22.wav", "startMs": 1.0, "peakDb": -43.4, "seconds": 4.03 }
+          ]
+        },
+        {
+          "upTo": 26.9,
+          "takes": [
+            { "file": "Ride-V02-ROBMOR-SABIAN-22.wav", "startMs": 0.1, "peakDb": -27.9, "seconds": 7.02 }
+          ]
+        },
+        {
+          "upTo": 51.0,
+          "takes": [
+            { "file": "Ride-V03-ROBMOR-SABIAN-22.wav", "startMs": 0.0, "peakDb": -20.9, "seconds": 7.01 }
+          ]
+        },
+        {
+          "upTo": 80.4,
+          "takes": [
+            { "file": "Ride-V04-ROBMOR-SABIAN-22.wav", "startMs": 0.3, "peakDb": -16.8, "seconds": 7.52 },
+            { "file": "Ride-V05-ROBMOR-SABIAN-22.wav", "startMs": 0.7, "peakDb": -16.1, "seconds": 8.92 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "Ride-V06-ROBMOR-SABIAN-22.wav", "startMs": 0.0, "peakDb": -13.0, "seconds": 7.98 },
+            { "file": "Ride-V07-ROBMOR-SABIAN-22.wav", "startMs": 1.0, "peakDb": -13.9, "seconds": 9.98 },
+            { "file": "Ride-V08-ROBMOR-SABIAN-22.wav", "startMs": 0.0, "peakDb": -17.0, "seconds": 9.83 }
+          ]
+        }
+      ]
+    },
+    "crash-small": {
+      "name": "Crash 14\" (Sabian)",
+      "layers": [
+        {
+          "upTo": 10.5,
+          "takes": [
+            { "file": "14-Crash-V01-SABIAN-14.wav", "startMs": 0.6, "peakDb": -37.8, "seconds": 8.15 }
+          ]
+        },
+        {
+          "upTo": 23.0,
+          "takes": [
+            { "file": "14-Crash-V02-SABIAN-14.wav", "startMs": 1.0, "peakDb": -27.9, "seconds": 8.53 }
+          ]
+        },
+        {
+          "upTo": 47.3,
+          "takes": [
+            { "file": "14-Crash-V03-SABIAN-14.wav", "startMs": 1.5, "peakDb": -24.2, "seconds": 7.48 }
+          ]
+        },
+        {
+          "upTo": 88.6,
+          "takes": [
+            { "file": "14-Crash-V04-SABIAN-14.wav", "startMs": 0.5, "peakDb": -15.4, "seconds": 8.02 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "14-Crash-V05-SABIAN-14.wav", "startMs": 0.0, "peakDb": -13.3, "seconds": 7.42 },
+            { "file": "14-Crash-V06-SABIAN-14.wav", "startMs": 2.6, "peakDb": -11.6, "seconds": 7.06 }
+          ]
+        }
+      ]
+    },
+    "crash-large": {
+      "name": "Crash 18\" (Sabian)",
+      "layers": [
+        {
+          "upTo": 8.9,
+          "takes": [
+            { "file": "18-Crash-V01-SABIAN-18.wav", "startMs": 0.1, "peakDb": -40.9, "seconds": 8.98 }
+          ]
+        },
+        {
+          "upTo": 26.6,
+          "takes": [
+            { "file": "18-Crash-V02-SABIAN-18.wav", "startMs": 0.7, "peakDb": -31.1, "seconds": 9.0 }
+          ]
+        },
+        {
+          "upTo": 58.2,
+          "takes": [
+            { "file": "18-Crash-V03-SABIAN-18.wav", "startMs": 0.1, "peakDb": -21.9, "seconds": 9.15 }
+          ]
+        },
+        {
+          "upTo": 86.6,
+          "takes": [
+            { "file": "18-Crash-V04-SABIAN-18.wav", "startMs": 0.0, "peakDb": -17.5, "seconds": 9.59 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "18-Crash-V05-SABIAN-18.wav", "startMs": 3.7, "peakDb": -15.0, "seconds": 8.45 }
+          ]
+        }
+      ]
+    },
+    "rimshot": {
+      "name": "Rimshot",
+      "layers": [
+        {
+          "upTo": 11.8,
+          "takes": [
+            { "file": "RIMSHOTS-V01-CW-6x13.wav", "startMs": 0.0, "peakDb": -25.0, "seconds": 1.49 }
+          ]
+        },
+        {
+          "upTo": 24.1,
+          "takes": [
+            { "file": "RIMSHOTS-V02-CW-6x13.wav", "startMs": 0.5, "peakDb": -17.1, "seconds": 1.92 },
+            { "file": "RIMSHOTS-V03-CW-6x13.wav", "startMs": 0.0, "peakDb": -15.6, "seconds": 1.96 }
+          ]
+        },
+        {
+          "upTo": 44.9,
+          "takes": [
+            { "file": "RIMSHOTS-V04-CW-6x13.wav", "startMs": 8.1, "peakDb": -12.6, "seconds": 1.7 }
+          ]
+        },
+        {
+          "upTo": 80.4,
+          "takes": [
+            { "file": "RIMSHOTS-V05-CW-6x13.wav", "startMs": 0.4, "peakDb": -6.3, "seconds": 1.79 },
+            { "file": "RIMSHOTS-V06-CW-6x13.wav", "startMs": 1.2, "peakDb": -5.2, "seconds": 1.8 },
+            { "file": "RIMSHOTS-V07-CW-6x13.wav", "startMs": 0.3, "peakDb": -5.5, "seconds": 1.89 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "RIMSHOTS-V08-CW-6x13.wav", "startMs": 0.2, "peakDb": -2.5, "seconds": 1.84 }
+          ]
+        }
+      ]
+    },
+    "cross-stick": {
+      "name": "Cross-stick",
+      "layers": [
+        {
+          "upTo": 14.3,
+          "takes": [
+            { "file": "SSTICK-V01-CW-6x13.wav", "startMs": 1.2, "peakDb": -29.6, "seconds": 1.01 }
+          ]
+        },
+        {
+          "upTo": 40.5,
+          "takes": [
+            { "file": "SSTICK-V02-CW-6x13.wav", "startMs": 0.4, "peakDb": -16.2, "seconds": 1.0 },
+            { "file": "SSTICK-V03-CW-6x13.wav", "startMs": 0.0, "peakDb": -16.2, "seconds": 1.0 }
+          ]
+        },
+        {
+          "upTo": 72.9,
+          "takes": [
+            { "file": "SSTICK-V04-CW-6x13.wav", "startMs": 0.0, "peakDb": -11.5, "seconds": 1.0 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "SSTICK-V05-CW-6x13.wav", "startMs": 0.0, "peakDb": -6.0, "seconds": 1.0 },
+            { "file": "SSTICK-V06-CW-6x13.wav", "startMs": 0.1, "peakDb": -8.7, "seconds": 1.01 },
+            { "file": "SSTICK-V07-CW-6x13.wav", "startMs": 0.6, "peakDb": -5.1, "seconds": 1.0 },
+            { "file": "SSTICK-V08-CW-6x13.wav", "startMs": 0.3, "peakDb": -5.5, "seconds": 1.0 }
+          ]
+        }
+      ]
+    },
+    "snare-off": {
+      "name": "Snare, wires off",
+      "layers": [
+        {
+          "upTo": 15.2,
+          "takes": [
+            { "file": "SNR-OFF-V01-CustomWorks-6x13.wav", "startMs": 1.0, "peakDb": -22.7, "seconds": 1.34 }
+          ]
+        },
+        {
+          "upTo": 27.7,
+          "takes": [
+            { "file": "SNR-OFF-V02-CustomWorks-6x13.wav", "startMs": 0.9, "peakDb": -15.6, "seconds": 1.42 }
+          ]
+        },
+        {
+          "upTo": 43.4,
+          "takes": [
+            { "file": "SNR-OFF-V03-CustomWorks-6x13.wav", "startMs": 0.9, "peakDb": -12.3, "seconds": 1.54 }
+          ]
+        },
+        {
+          "upTo": 64.9,
+          "takes": [
+            { "file": "SNR-OFF-V04-CustomWorks-6x13.wav", "startMs": 0.8, "peakDb": -7.8, "seconds": 1.66 },
+            { "file": "SNR-OFF-V05-CustomWorks-6x13.wav", "startMs": 0.1, "peakDb": -8.2, "seconds": 1.51 }
+          ]
+        },
+        {
+          "upTo": 86.6,
+          "takes": [
+            { "file": "SNR-OFF-V06-CustomWorks-6x13.wav", "startMs": 0.3, "peakDb": -5.3, "seconds": 1.67 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "SNR-OFF-V07-CustomWorks-6x13.wav", "startMs": 0.8, "peakDb": -2.8, "seconds": 1.58 },
+            { "file": "SNR-OFF-V08-CustomWorks-6x13.wav", "startMs": 0.0, "peakDb": -1.7, "seconds": 1.51 }
+          ]
+        }
+      ]
+    },
+    "snare-flam": {
+      "name": "Snare flam",
+      "layers": [
+        {
+          "upTo": 16.3,
+          "takes": [
+            { "file": "FLAMS-V01-CW-6x13.wav", "startMs": 1.3, "peakDb": -19.8, "seconds": 1.31 }
+          ]
+        },
+        {
+          "upTo": 27.4,
+          "takes": [
+            { "file": "FLAMS-V02-CW-6x13.wav", "startMs": 1.3, "peakDb": -15.3, "seconds": 1.23 },
+            { "file": "FLAMS-V03-CW-6x13.wav", "startMs": 2.3, "peakDb": -15.3, "seconds": 1.47 }
+          ]
+        },
+        {
+          "upTo": 43.7,
+          "takes": [
+            { "file": "FLAMS-V04-CW-6x13.wav", "startMs": 14.2, "peakDb": -10.8, "seconds": 1.49 }
+          ]
+        },
+        {
+          "upTo": 63.1,
+          "takes": [
+            { "file": "FLAMS-V05-CW-6x13.wav", "startMs": 9.2, "peakDb": -7.2, "seconds": 1.82 },
+            { "file": "FLAMS-V06-CW-6x13.wav", "startMs": 0.2, "peakDb": -6.0, "seconds": 1.48 }
+          ]
+        },
+        {
+          "upTo": 86.1,
+          "takes": [
+            { "file": "FLAMS-V07-CW-6x13.wav", "startMs": 1.3, "peakDb": -4.4, "seconds": 1.76 },
+            { "file": "FLAMS-V08-CW-6x13.wav", "startMs": 0.9, "peakDb": -2.7, "seconds": 1.5 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "FLAMS-V09-CW-6x13.wav", "startMs": 0.6, "peakDb": -1.8, "seconds": 1.55 },
+            { "file": "FLAMS-V10-CW-6x13.wav", "startMs": 0.6, "peakDb": -0.0, "seconds": 1.49 }
+          ]
+        }
+      ]
+    },
+    "tom-flam": {
+      "name": "Tom 10\" flam",
+      "layers": [
+        {
+          "upTo": 13.8,
+          "takes": [
+            { "file": "FLAM10-V01-StarClassic-10x10.wav", "startMs": 0.6, "peakDb": -23.3, "seconds": 2.12 }
+          ]
+        },
+        {
+          "upTo": 27.5,
+          "takes": [
+            { "file": "FLAM10-V02-StarClassic-10x10.wav", "startMs": 0.6, "peakDb": -16.5, "seconds": 2.08 }
+          ]
+        },
+        {
+          "upTo": 45.2,
+          "takes": [
+            { "file": "FLAM10-V03-StarClassic-10x10.wav", "startMs": 0.3, "peakDb": -11.3, "seconds": 2.14 }
+          ]
+        },
+        {
+          "upTo": 74.1,
+          "takes": [
+            { "file": "FLAM10-V04-StarClassic-10x10.wav", "startMs": 0.7, "peakDb": -7.9, "seconds": 2.04 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "FLAM10-V05-StarClassic-10x10.wav", "startMs": 0.8, "peakDb": -2.7, "seconds": 2.09 },
+            { "file": "FLAM10-V06-StarClassic-10x10.wav", "startMs": 0.9, "peakDb": -0.9, "seconds": 2.36 },
+            { "file": "FLAM10-V07-StarClassic-10x10.wav", "startMs": 0.8, "peakDb": -0.9, "seconds": 2.57 },
+            { "file": "FLAM10-V08-StarClassic-10x10.wav", "startMs": 0.5, "peakDb": -2.1, "seconds": 2.05 }
+          ]
+        }
+      ]
+    },
+    "floor-tom-flam": {
+      "name": "Tom 13\" flam",
+      "layers": [
+        {
+          "upTo": 14.0,
+          "takes": [
+            { "file": "FLAM13-V01-StarClassic-13x13.wav", "startMs": 3.3, "peakDb": -23.7, "seconds": 2.72 }
+          ]
+        },
+        {
+          "upTo": 34.3,
+          "takes": [
+            { "file": "FLAM13-V02-StarClassic-13x13.wav", "startMs": 0.0, "peakDb": -11.7, "seconds": 2.72 }
+          ]
+        },
+        {
+          "upTo": 56.6,
+          "takes": [
+            { "file": "FLAM13-V03-StarClassic-13x13.wav", "startMs": 0.0, "peakDb": -8.1, "seconds": 2.68 }
+          ]
+        },
+        {
+          "upTo": 87.1,
+          "takes": [
+            { "file": "FLAM13-V04-StarClassic-13x13.wav", "startMs": 0.3, "peakDb": -3.0, "seconds": 2.75 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "FLAM13-V05-StarClassic-13x13.wav", "startMs": 0.2, "peakDb": -0.6, "seconds": 2.66 },
+            { "file": "FLAM13-V06-StarClassic-13x13.wav", "startMs": 0.7, "peakDb": -0.5, "seconds": 2.71 },
+            { "file": "FLAM13-V07-StarClassic-13x13.wav", "startMs": 0.5, "peakDb": -0.5, "seconds": 2.74 }
+          ]
+        }
+      ]
+    },
+    "hat-shank": {
+      "name": "Hi-hat closed, shank",
+      "layers": [
+        {
+          "upTo": 6.1,
+          "takes": [
+            { "file": "Shack-HHats-CL-V01-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -37.8, "seconds": 0.84 }
+          ]
+        },
+        {
+          "upTo": 19.8,
+          "takes": [
+            { "file": "Shack-HHats-CL-V02-SABIAN-AAX.wav", "startMs": 0.3, "peakDb": -22.2, "seconds": 0.85 }
+          ]
+        },
+        {
+          "upTo": 40.3,
+          "takes": [
+            { "file": "Shack-HHats-CL-V03-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -17.3, "seconds": 0.84 }
+          ]
+        },
+        {
+          "upTo": 78.5,
+          "takes": [
+            { "file": "Shack-HHats-CL-V04-SABIAN-AAX.wav", "startMs": 0.0, "peakDb": -9.9, "seconds": 0.8 },
+            { "file": "Shack-HHats-CL-V05-SABIAN-AAX.wav", "startMs": 0.0, "peakDb": -9.6, "seconds": 0.79 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "Shack-HHats-CL-V06-SABIAN-AAX.wav", "startMs": 0.0, "peakDb": -5.7, "seconds": 0.8 }
+          ]
+        }
+      ]
+    },
+    "hat-bell": {
+      "name": "Hi-hat closed, bell",
+      "layers": [
+        {
+          "upTo": 8.4,
+          "takes": [
+            { "file": "BELL-HHats-CL-V01-SABIAN-AAX.wav", "startMs": 0.6, "peakDb": -37.0, "seconds": 3.34 }
+          ]
+        },
+        {
+          "upTo": 24.8,
+          "takes": [
+            { "file": "BELL-HHats-CL-V02-SABIAN-AAX.wav", "startMs": 0.1, "peakDb": -27.3, "seconds": 3.35 }
+          ]
+        },
+        {
+          "upTo": 64.9,
+          "takes": [
+            { "file": "BELL-HHats-CL-V03-SABIAN-AAX.wav", "startMs": 0.2, "peakDb": -18.1, "seconds": 4.58 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "BELL-HHats-CL-V04-SABIAN-AAX.wav", "startMs": 17.7, "peakDb": -10.6, "seconds": 4.11 }
+          ]
+        }
+      ]
+    },
+    "hat-pedal": {
+      "name": "Hi-hat pedal",
+      "layers": [
+        {
+          "upTo": 73.7,
+          "takes": [
+            { "file": "HHats-PDL-V01-SABIAN-AAX.wav", "startMs": 3.5, "peakDb": -30.2, "seconds": 0.5 },
+            { "file": "HHats-PDL-V02-SABIAN-AAX.wav", "startMs": 1.1, "peakDb": -32.2, "seconds": 0.5 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "HHats-PDL-V04-SABIAN-AAX.wav", "startMs": 1.8, "peakDb": -24.9, "seconds": 0.46 },
+            { "file": "HHats-PDL-V05-SABIAN-AAX.wav", "startMs": 1.2, "peakDb": -25.4, "seconds": 0.51 }
+          ]
+        }
+      ]
+    },
+    "hat-crash": {
+      "name": "Hi-hat crash",
+      "layers": [
+        {
+          "upTo": 88.6,
+          "takes": [
+            { "file": "HHats-Crash-V01-SABIAN-AAX.wav", "startMs": 4.2, "peakDb": -13.8, "seconds": 7.88 },
+            { "file": "HHats-Crash-V02-SABIAN-AAX.wav", "startMs": 0.4, "peakDb": -13.5, "seconds": 6.66 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "HHats-Crash-V03-SABIAN-AAX.wav", "startMs": 0.3, "peakDb": -11.7, "seconds": 5.07 }
+          ]
+        }
+      ]
+    },
+    "ride-bell": {
+      "name": "Ride bell",
+      "layers": [
+        {
+          "upTo": 26.5,
+          "takes": [
+            { "file": "BELL-V01-ROBMOR-SABIAN-22.wav", "startMs": 1.0, "peakDb": -25.3, "seconds": 7.07 },
+            { "file": "BELL-V02-ROBMOR-SABIAN-22.wav", "startMs": 1.0, "peakDb": -25.2, "seconds": 6.03 }
+          ]
+        },
+        {
+          "upTo": 49.0,
+          "takes": [
+            { "file": "BELL-V03-ROBMOR-SABIAN-22.wav", "startMs": 13.2, "peakDb": -17.8, "seconds": 6.86 }
+          ]
+        },
+        {
+          "upTo": 76.7,
+          "takes": [
+            { "file": "BELL-V04-ROBMOR-SABIAN-22.wav", "startMs": 0.7, "peakDb": -14.6, "seconds": 6.78 },
+            { "file": "BELL-V05-ROBMOR-SABIAN-22.wav", "startMs": 0.3, "peakDb": -13.2, "seconds": 7.3 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "BELL-V06-ROBMOR-SABIAN-22.wav", "startMs": 0.0, "peakDb": -10.0, "seconds": 8.0 },
+            { "file": "BELL-V07-ROBMOR-SABIAN-22.wav", "startMs": 0.2, "peakDb": -10.4, "seconds": 8.02 },
+            { "file": "BELL-V08-ROBMOR-SABIAN-22.wav", "startMs": 0.0, "peakDb": -8.5, "seconds": 8.06 }
+          ]
+        }
+      ]
+    },
+    "crash-small-bell": {
+      "name": "Crash 14\" bell",
+      "layers": [
+        {
+          "upTo": 47.9,
+          "takes": [
+            { "file": "14-CrshBELL-V01-SABIAN-14.wav", "startMs": 1.2, "peakDb": -42.4, "seconds": 7.17 }
+          ]
+        },
+        {
+          "upTo": 86.6,
+          "takes": [
+            { "file": "14-CrshBELL-V02-SABIAN-14.wav", "startMs": 0.5, "peakDb": -34.6, "seconds": 6.05 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "14-CrshBELL-V03-SABIAN-14.wav", "startMs": 0.3, "peakDb": -32.1, "seconds": 6.05 },
+            { "file": "14-CrshBELL-V04-SABIAN-14.wav", "startMs": 0.2, "peakDb": -32.7, "seconds": 7.19 }
+          ]
+        }
+      ]
+    },
+    "crash-large-bell": {
+      "name": "Crash 18\" bell",
+      "layers": [
+        {
+          "upTo": 59.6,
+          "takes": [
+            { "file": "18-CrshBELL-V01-SABIAN-18.wav", "startMs": 0.8, "peakDb": -42.4, "seconds": 6.01 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "18-CrshBELL-V02-SABIAN-18.wav", "startMs": 14.7, "peakDb": -33.4, "seconds": 7.73 },
+            { "file": "18-CrshBELL-V03-SABIAN-18.wav", "startMs": 0.9, "peakDb": -32.5, "seconds": 5.0 },
+            { "file": "18-CrshBELL-V04-SABIAN-18.wav", "startMs": 0.8, "peakDb": -38.8, "seconds": 6.25 }
+          ]
+        }
+      ]
+    },
+    "crash-large-choke": {
+      "name": "Crash 18\" choked",
+      "layers": [
+        {
+          "upTo": 12.5,
+          "takes": [
+            { "file": "18-CrshCHOKE-V01-SABIAN-18.wav", "startMs": 18.4, "peakDb": -33.4, "seconds": 2.11 }
+          ]
+        },
+        {
+          "upTo": 35.9,
+          "takes": [
+            { "file": "18-CrshCHOKE-V02-SABIAN-18.wav", "startMs": 4.5, "peakDb": -27.5, "seconds": 2.12 }
+          ]
+        },
+        {
+          "upTo": 85.6,
+          "takes": [
+            { "file": "18-CrshCHOKE-V03-SABIAN-18.wav", "startMs": 1.6, "peakDb": -15.1, "seconds": 1.67 },
+            { "file": "18-CrshCHOKE-V04-SABIAN-18.wav", "startMs": 0.0, "peakDb": -13.2, "seconds": 1.63 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "18-CrshCHOKE-V05-SABIAN-18.wav", "startMs": 0.9, "peakDb": -12.4, "seconds": 1.86 }
+          ]
+        }
+      ]
+    },
+    "splash": {
+      "name": "Splash 6\"",
+      "layers": [
+        {
+          "upTo": 8.1,
+          "takes": [
+            { "file": "6-Splash-V01-SABIAN-HH-6.wav", "startMs": 1.8, "peakDb": -43.7, "seconds": 5.17 }
+          ]
+        },
+        {
+          "upTo": 23.9,
+          "takes": [
+            { "file": "6-Splash-V02-SABIAN-HH-6.wav", "startMs": 0.2, "peakDb": -36.1, "seconds": 4.02 }
+          ]
+        },
+        {
+          "upTo": 67.2,
+          "takes": [
+            { "file": "6-Splash-V03-SABIAN-HH-6.wav", "startMs": 1.2, "peakDb": -25.0, "seconds": 4.18 },
+            { "file": "6-Splash-V04-SABIAN-HH-6.wav", "startMs": 0.7, "peakDb": -26.7, "seconds": 4.98 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "6-Splash-V05-SABIAN-HH-6.wav", "startMs": 0.7, "peakDb": -18.1, "seconds": 4.98 }
+          ]
+        }
+      ]
+    },
+    "splash-choke": {
+      "name": "Splash 6\" choked",
+      "layers": [
+        {
+          "upTo": 5.2,
+          "takes": [
+            { "file": "6-SplashCHOKE-V01-SABIAN-HH-6.wav", "startMs": 0.3, "peakDb": -44.8, "seconds": 1.08 }
+          ]
+        },
+        {
+          "upTo": 14.2,
+          "takes": [
+            { "file": "6-SplashCHOKE-V02-SABIAN-HH-6.wav", "startMs": 0.0, "peakDb": -36.4, "seconds": 0.76 }
+          ]
+        },
+        {
+          "upTo": 32.2,
+          "takes": [
+            { "file": "6-SplashCHOKE-V03-SABIAN-HH-6.wav", "startMs": 0.3, "peakDb": -27.5, "seconds": 0.9 }
+          ]
+        },
+        {
+          "upTo": 66.1,
+          "takes": [
+            { "file": "6-SplashCHOKE-V04-SABIAN-HH-6.wav", "startMs": 0.8, "peakDb": -22.2, "seconds": 0.92 }
+          ]
+        },
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "6-SplashCHOKE-V05-SABIAN-HH-6.wav", "startMs": 1.0, "peakDb": -15.0, "seconds": 1.01 },
+            { "file": "6-SplashCHOKE-V06-SABIAN-HH-6.wav", "startMs": 0.4, "peakDb": -13.1, "seconds": 1.01 }
+          ]
+        }
+      ]
+    },
+    "snare-roll": {
+      "name": "Snare roll",
+      "layers": [
+        {
+          "upTo": 200,
+          "takes": [
+            { "file": "ROLL-01-CW 6x13.wav", "startMs": 1.4, "peakDb": -0.4, "seconds": 3.87 }
+          ]
+        }
+      ]
+    }
+  }
+}

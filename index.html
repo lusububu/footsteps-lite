@@ -98,6 +98,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .btn{height:36px;padding:0 14px;border:2px solid var(--ink);background:transparent;border-radius:10px;font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .sep{width:2px;height:22px;background:var(--ink-30)}
+.kitsw button{height:32px;padding:0 12px}
 .hint{margin-left:auto;font:400 11px var(--f-mono);color:var(--ink-60)}
 
 /* ---------- sound page ---------- */
@@ -191,6 +192,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
       <button class="btn toggle fxq" data-fx="rv" aria-pressed="true">Reverb</button>
       <button class="btn toggle fxq" data-fx="ec" aria-pressed="false">Echo</button>
       <button class="btn toggle fxq" data-fx="tape" aria-pressed="false">Tape</button>
+      <span class="sep" aria-hidden="true"></span>
+      <div class="views kitsw" id="kitSeg" role="group" aria-label="Kit"></div>
       <span class="cap" id="kitStatus" role="status"></span>
       <span class="hint">Tap a step: on, soft, off. Scroll on a hit for velocity. Right-click a hat: closed, loose, open.</span>
     </div>
@@ -771,7 +774,7 @@ function normSlot(sl){const out=Object.fromEntries(ROWS.map(r=>{const a=Array.is
   return out}
 const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s].slice(0,16).map(c=>c==='x'?2:c==='o'?1:0)])));
 // the Footsteps groove as saved in Footsteps Mobile: patterns 1 and 2, chained
-const defaults=()=>({tempo:80,cur:0,chain:true,view:'steps',mute:{},
+const defaults=()=>({tempo:80,cur:0,chain:true,view:'steps',kitIdx:0,mute:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
   feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0},
   fx:{ec:false,emix:30,etime:3,efb:40,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',tin:50,tbias:50,tout:50}});
@@ -874,33 +877,41 @@ function hitDrum(E,id,t,vel,x){const k=sampleKey(id,x);if(!k) return;TP.lastHit=
 // ---------- samples: the acoustic kit listed in kit.json ----------
 // The files load over http (GitHub Pages or a local server). Short drums load first, the long cymbals last;
 // a lane stays silent until its samples are in.
-const KIT={def:null,rows:{},voices:{},pend:[],total:0,ready:0,failed:0,missing:false};
+// Two kits, each described by its own JSON. A kit picked while another is playing loads in the background; the old kit
+// keeps playing until every sample of the new one is in, then they swap.
+const KITS=[{file:'kit.json',label:'Kit 1'},{file:'kit2.json',label:'Kit 2'}];
+const newKit=i=>({idx:i,def:null,rows:{},voices:{},pend:[],total:0,ready:0,failed:0,missing:false});
+let KIT=newKit(-1),LOADING=null;
 const soundReady=key=>{const s=KIT.def&&KIT.def.sounds[key];return !!s&&s.layers.some(L=>L.takes.some(tk=>tk.buf))};
 const sampledRow=id=>!!KIT.rows[id]&&soundReady(KIT.rows[id]);
-// the sound a hit plays: the row's sound, or the loose hat for a loose step on the hat lane
+// the sound a hit plays: the row's sound, or the loose hat for a loose step on the hat lane (the closed hat in a kit without one)
 function sampleKey(id,x){if(!KIT.def) return null;let k=KIT.rows[id];
-  if(id==='CH'&&x&&x.half){const a=(KIT.def.articulations||{}).CH;k=a&&a.half||null}
+  if(id==='CH'&&x&&x.half){const a=(KIT.def.articulations||{}).CH,h=a&&a.half;if(h&&soundReady(h)) k=h}
   return k&&soundReady(k)?k:null}
-async function kitFetch(){
-  try{const r=await fetch('kit.json',{cache:'no-cache'});if(!r.ok) throw new Error(r.status);KIT.def=await r.json()}
-  catch(e){KIT.missing=true;kitUI();return}
-  const k=KIT.def,folder=String(k.folder||'samples').replace(/\/+$/,'');KIT.rows=k.rows||{};
-  const jobs=[];new Set([...Object.values(KIT.rows),...Object.values(k.articulations||{}).flatMap(a=>Object.values(a))].filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>jobs.push(tk)))});
-  jobs.sort((a,b)=>(a.seconds||1)-(b.seconds||1));KIT.total=jobs.length;kitUI();
-  let next=0;const worker=async()=>{while(next<jobs.length){const tk=jobs[next++];
-    try{const r=await fetch(folder+'/'+encodeURIComponent(tk.file));if(!r.ok) throw new Error(r.status);tk.ab=await r.arrayBuffer();if(ctx) await kitDecode(tk);else{KIT.pend.push(tk);kitUI()}}
-    catch(e){KIT.failed++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}};
-  await Promise.all([worker(),worker(),worker(),worker()])}
+async function kitFetch(i){i=clamp(i|0,0,KITS.length-1);if(LOADING&&LOADING.idx===i) return;if(!LOADING&&KIT.idx===i&&KIT.def) return;
+  const K=newKit(i),first=!KIT.def;LOADING=K;if(first) KIT=K;kitUI();
+  try{const r=await fetch(KITS[i].file,{cache:'no-cache'});if(!r.ok) throw new Error(r.status);K.def=await r.json()}
+  catch(e){K.missing=true;if(LOADING===K) LOADING=null;kitUI();return}
+  const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');K.rows=k.rows||{};
+  const jobs=[];new Set([...Object.values(K.rows),...Object.values(k.articulations||{}).flatMap(a=>Object.values(a))].filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>jobs.push(tk)))});
+  jobs.sort((a,b)=>(a.seconds||1)-(b.seconds||1));K.total=jobs.length;kitUI();
+  let next=0;const worker=async()=>{while(next<jobs.length){if(LOADING!==K&&KIT!==K) return;const tk=jobs[next++];   // stops if another kit was picked meanwhile
+    try{const r=await fetch(folder+'/'+encodeURIComponent(tk.file));if(!r.ok) throw new Error(r.status);tk.ab=await r.arrayBuffer();if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
+    catch(e){K.failed++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}};
+  await Promise.all([worker(),worker(),worker(),worker()]);kitDone(K)}
+// a kit that has everything in (or waiting only for the audio to start) takes over
+function kitDone(K){if(LOADING!==K||K.ready+K.pend.length+K.failed<K.total) return;LOADING=null;KIT=K;applyBuses();renderVoice();kitUI()}
 function bufPeak(b){let m=1e-6;for(let ch=0;ch<b.numberOfChannels;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){const a=d[i]<0?-d[i]:d[i];if(a>m) m=a}}return m}
-function kitDecode(tk){const ab=tk.ab;tk.ab=null;
-  return new Promise(ok=>{const done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);KIT.ready++}else KIT.failed++;kitUI();if(b&&E) applyBuses();ok()};
+function kitDecode(tk,K){const ab=tk.ab;tk.ab=null;
+  return new Promise(ok=>{const done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);K.ready++}else K.failed++;kitUI();if(b&&E&&K===KIT) applyBuses();kitDone(K);ok()};
     try{const p=ctx.decodeAudioData(ab,done,()=>done(null));if(p&&p.catch) p.catch(()=>{})}catch(e){done(null)}})}
-function kitUI(){const el=$('kitStatus');if(!el) return;
-  if(KIT.missing){el.textContent='Samples not found: open the page from GitHub Pages or a local server';return}
-  if(!KIT.def){el.textContent='Loading kit';return}
-  const got=KIT.ready+KIT.pend.length;
-  if(KIT.def&&got>=KIT.total&&!KIT.uiDone&&!KIT.pend.length){KIT.uiDone=true;setTimeout(renderVoice,0)}
-  el.textContent=KIT.failed?`${KIT.failed} of ${KIT.total} samples missing`:got<KIT.total?`Samples ${got}/${KIT.total}`:(KIT.pend.length?'Samples ready: press Play':'')}
+function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;
+  [...$('kitSeg').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===K.idx));
+  if(K.idx<0){el.textContent='';return}
+  if(K.missing){el.textContent=KITS[K.idx].label+': samples not found. Open the page from GitHub Pages or a local server';return}
+  if(!K.def){el.textContent='Loading '+KITS[K.idx].label;return}
+  const got=K.ready+K.pend.length;
+  el.textContent=K.failed?`${K.failed} of ${K.total} samples missing`:got<K.total?`${KITS[K.idx].label}: samples ${got}/${K.total}`+(K!==KIT?' (the other kit plays meanwhile)':''):(K.pend.length?'Samples ready: press Play':'')}
 // one hit: the layer is picked by velocity, takes rotate, and the level follows the velocity inside the layer
 function playSample(E,id,t,vel,key,anyLayer){const s=KIT.def.sounds[key],Ls=s.layers,v=vel*100,has=L=>L.takes.some(tk=>tk.buf);
   let li=Ls.findIndex(L=>v<=L.upTo);if(li<0) li=Ls.length-1;
@@ -1057,7 +1068,7 @@ async function ensureAudio(){if(ctx){if(ctx.state!=='running') try{await ctx.res
   LIM.threshold.value=-1;LIM.ratio.value=20;LIM.knee.value=0;LIM.attack.value=.001;LIM.release.value=.08;
   BUS.connect(LEVEL);FXC.ec.out.connect(LEVEL);RV.n.out.connect(LEVEL);LEVEL.connect(LIM);LIM.connect(MAKEUP);MAKEUP.connect(TAPEIN);TAPEIN.connect(AN);AN.connect(ctx.destination);
   if(ctx.audioWorklet) tpAttach(ctx);else tpSay('The tape machine needs a newer browser. The beat plays without it.');
-  E=createEngine(ctx,{dry:BUS,ec:FXC.ec.in,rv:RV.n.input});KIT.pend.splice(0).forEach(kitDecode);applyBuses();applyFx(true);
+  E=createEngine(ctx,{dry:BUS,ec:FXC.ec.in,rv:RV.n.input});[KIT,LOADING].forEach(K=>{if(K) K.pend.splice(0).forEach(tk=>kitDecode(tk,K))});applyBuses();applyFx(true);
   if(ctx.state!=='running') try{await ctx.resume()}catch(e){}}
 
 // ---------- the drummer: feel, ghost notes and the body (adapted from Footsteps Mobile) ----------
@@ -1332,6 +1343,7 @@ function renderVoice(){const box=$('laneSeg');
   const R=ROWS.find(x=>x.k===voiceSel),k=$('voiceKnobs');k.textContent='';
   voiceSpecs(R).forEach(s=>k.appendChild(knob(s,ST.snd,s.apply?applyBuses:s.fx?()=>{applyFx(false);renderSound()}:null)));
   const ks=KIT.rows[R.id];$('voiceMode').textContent=ks&&KIT.def&&KIT.def.sounds[ks]?KIT.def.sounds[ks].name+(sampledRow(R.id)?'':' (loading)'):''}
+function buildKitSeg(){KITS.forEach((K,i)=>{const b=document.createElement('button');b.textContent=K.label;b.addEventListener('click',()=>{ST.kitIdx=i;save();kitFetch(i);kitUI()});$('kitSeg').appendChild(b)});kitUI()}
 function buildSound(){renderVoice();FEEL_K.forEach(s=>$('feelKnobs').appendChild(knob(s,ST.feel)));
   Object.entries(FX_GROUPS).forEach(([box,list])=>list.forEach(s=>$(box).appendChild(knob(s,ST.fx,fxCh))));
   $('swingSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b) return;ST.feel.swing8=b.dataset.v==='8';renderSound();save()});
@@ -1365,7 +1377,7 @@ function frame(){
   requestAnimationFrame(frame)}
 
 // ---------- start ----------
-buildGrid();buildSound();renderGrid();renderSound();kitFetch();setView(ST.view==='sound'?'sound':'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
+buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();kitFetch(ST.kitIdx);setView(ST.view==='sound'?'sound':'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
 requestAnimationFrame(frame);
 </script>
 

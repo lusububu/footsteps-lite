@@ -221,7 +221,8 @@
         "hat-shank",
         "hat-bell",
         "hat-pedal"
-      ]
+      ],
+      "ring": [70, 20]
     },
     "hat-open": {
       "name": "Hi-hat open (Sabian AAX)",
@@ -996,5 +997,6 @@
         }
       ]
     }
-  }
+  },
+  "ringNote": "ring: [hold, fade] in ms. The sound plays as recorded for hold, then fades with that time constant. Kit 2's hardest closed hats ring about 170 ms down to -20 dB (Kit 1's about 125 ms), so they are faded from 70 ms to land near 115 ms."
 }

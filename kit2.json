@@ -32,9 +32,23 @@
     },
     "CY": {
       "bell": "ride-bell"
+    },
+    "LT": {
+      "flam": "floor-tom-flam"
+    },
+    "HT": {
+      "flam": "tom-flam"
+    },
+    "CR": {
+      "large": "crash-large",
+      "bell": "crash-small-bell",
+      "lbell": "crash-large-bell",
+      "choke": "crash-large-choke",
+      "splash": "splash",
+      "schoke": "splash-choke"
     }
   },
-  "articulationsNote": "Articulations on a lane (right-click or hold a step): snare rim, xstick, off, flam, roll; hat shank, bell, pedal, hcrash (loose and open use the lane's own sounds: this kit has no loose hat, so loose plays the closed hat); cymbal bell. They load after the lane sounds. Not on a lane yet: crash-large, the crash bells and chokes, splash, tom flams.",
+  "articulationsNote": "Articulations (right-click or hold a step, or the Articulation dropdown): snare rim, xstick, off, flam, roll; hat shank, bell, pedal, hcrash (this kit has no loose hat, so loose plays the closed hat); toms flam; cymbal bell; crash large (18\"), bell, lbell (18\" bell), choke (18\"), splash, schoke. They load after the lane sounds.",
   "sounds": {
     "kick": {
       "name": "Kick (Yamaha 16x16)",
@@ -436,6 +450,9 @@
             { "file": "18-Crash-V05-SABIAN-18.wav", "startMs": 3.7, "peakDb": -15.0, "seconds": 8.45 }
           ]
         }
+      ],
+      "chokedBy": [
+        "crash-large-choke"
       ]
     },
     "rimshot": {
@@ -927,6 +944,9 @@
             { "file": "6-Splash-V05-SABIAN-HH-6.wav", "startMs": 0.7, "peakDb": -18.1, "seconds": 4.98 }
           ]
         }
+      ],
+      "chokedBy": [
+        "splash-choke"
       ]
     },
     "splash-choke": {

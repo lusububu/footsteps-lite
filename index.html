@@ -49,6 +49,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .cap{font:500 10px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60)}
 .mini{min-width:34px;height:34px;padding:0 8px;border:2px solid var(--ink);background:transparent;border-radius:9px;font:500 12px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
 .mini:active{background:var(--ink);color:var(--paper)}
+.mini:disabled{opacity:.35}
+.ptools .mini{padding:0 7px;font-size:11px}
 .bpm{font:600 28px/1 var(--f-display);letter-spacing:-.04em;min-width:2.1em;text-align:center;font-variant-numeric:tabular-nums;touch-action:none;cursor:ns-resize;padding:2px 0}
 .slots{display:flex;gap:4px}
 .slot{position:relative;width:32px;height:34px;padding:0;border:2px solid var(--ink);background:transparent;border-radius:9px;font:500 13px var(--f-mono)}
@@ -69,19 +71,16 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 
 /* ---------- step grid ---------- */
 .view{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
-.main{flex:1;min-height:0;display:flex;gap:14px}
-.main .grid{flex:1;min-width:0}
 /* drummer feel beside the grid: three compact knobs to a row */
-.feel{flex:none;width:192px;display:flex;flex-direction:column;gap:8px;border-left:2px solid var(--ink);padding-left:12px;min-height:0;overflow-y:auto}
-.feelhead{display:flex;align-items:center;justify-content:space-between;gap:6px}
+/* drummer feel: one row of compact knobs under the grid, each with its value beside the name */
+.feel{flex:none;display:flex;align-items:center;gap:14px;border-top:2px solid var(--ink);padding-top:7px;min-width:0}
+.feelhead{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
 .feelhead .seg button{height:26px;padding:0 7px;font-size:10px}
-.feel .knobs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 4px}
-.feel .knob{width:auto}
-.feel .kdial{width:38px;height:38px}
-.feel .knob{display:grid;grid-template-rows:auto auto auto;justify-items:center;gap:2px}
-.feel .kvalue{order:2;font-size:10px}
-.feel .klabel{order:3;font-size:11px;line-height:1.05;min-height:2.1em;text-align:center}
-.feel .kdial{order:1}
+.feel .knobs{flex:1;min-width:0;display:flex;justify-content:space-between;gap:4px;flex-wrap:nowrap}
+.feel .knob{flex:1 1 0;min-width:0;width:auto;display:grid;grid-template-columns:auto;justify-items:center;gap:1px}
+.feel .kdial{width:34px;height:34px}
+.feel .klabel{font-size:11px;line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feel .kvalue{font-size:9.5px}
 .grid{flex:1;min-height:0;display:grid;grid-template-columns:86px repeat(16,minmax(0,1fr));grid-template-rows:12px repeat(7,minmax(14px,1fr));gap:4px;touch-action:none}
 .num{font:500 10px/12px var(--f-mono);color:var(--ink-60);text-align:center}
 .num.b4,.pad.b4{margin-left:6px}
@@ -90,11 +89,10 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .name code{font:500 10px var(--f-mono);letter-spacing:.06em;color:var(--ink-60);flex:none;width:18px}
 .name.muted{opacity:.38;text-decoration:line-through}
 .pad{min-width:0;min-height:0;padding:0;border:0;border-radius:7px;background:var(--pad);transition:background .05s;-webkit-touch-callout:none}
-.pad.sel{outline:2px solid var(--paper);outline-offset:1px}
 .pad.dn{background:var(--pad-beat)}
 .pad[data-v="1"]{background:var(--soft)}
 .pad[data-v="2"]{background:var(--ink)}
-.pad.vx[data-v]{background:linear-gradient(to top,var(--ink) var(--fill),var(--soft) var(--fill))}
+.pad.vx[data-v]{background:linear-gradient(to top,var(--ink) var(--fill),var(--pad-beat) var(--fill))}
 .pad.vshow{position:relative}
 .pad.vshow::before{content:attr(data-vel);position:absolute;inset:0;display:grid;place-items:center;font:500 10px var(--f-mono);color:var(--paper);z-index:1}
 .pad.col{box-shadow:inset 0 0 0 2px var(--paper)}
@@ -126,9 +124,6 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .sep{width:2px;height:22px;background:var(--ink-30)}
 .kitsw button{height:32px;padding:0 12px}
-.artsel{display:flex;align-items:center;gap:6px}
-.artsel select{height:34px;max-width:12rem;border:2px solid var(--ink);border-radius:10px;background:var(--orange);color:var(--ink);font:500 12px var(--f-mono);letter-spacing:.03em;text-transform:uppercase;padding:0 8px}
-.artsel select:disabled{opacity:.45}
 
 /* ---------- sound page ---------- */
 .sound{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:6px}
@@ -175,7 +170,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
   .knob{width:62px}
   .kdial{width:42px;height:42px}
 }
-@media (max-width:980px){.brand{display:none}.artsel .cap{display:none}.artsel select{max-width:8.5rem}}
+@media (max-width:980px){.brand{display:none}}
 @media (max-width:560px){
   .grid{grid-template-columns:52px repeat(16,minmax(0,1fr));gap:3px}
   .num.b4,.pad.b4{margin-left:3px}
@@ -194,7 +189,11 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 }
 @keyframes turn{0%,20%{transform:rotate(-90deg)}55%,100%{transform:rotate(0)}}
 @media (prefers-reduced-motion:reduce){.rotate svg{animation:none}}
-@media (max-width:760px){.feel{width:168px}.bar .btn{padding:0 8px}.artsel select{max-width:7rem}#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:26px}}
+@media (max-width:980px){#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:28px}.slots{gap:3px}}
+@media (max-width:760px){.bar .btn{padding:0 8px}.slot{width:23px}.views button{padding:0 8px}.ptools .mini{padding:0 5px;font-size:10px;letter-spacing:.02em}.feel{gap:8px}.feel .klabel{font-size:10px}
+  /* small phones: the header keeps one row; the page switch shows only the other page */
+  .top{gap:6px}.play{width:48px}.slot{width:22px}#chain{padding:0 5px;font-size:10px;letter-spacing:.02em}
+  .top .views button[aria-pressed="true"]{display:none}.top .views button{padding:0 9px}}
 @media (prefers-reduced-motion:reduce){.slot.queued{animation:none;border-style:dashed}.play{transition:none}}
 </style>
 
@@ -216,6 +215,11 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
       <div class="slots" id="slots" role="group" aria-label="Patterns"></div>
       <button class="mini toggle" id="chain" aria-pressed="true" title="Play every pattern that has steps, one bar each, in order">Chain</button>
     </div>
+    <div class="cluster ptools" role="group" aria-label="Pattern">
+      <button class="mini" id="clear" title="Clear this pattern">Clear</button>
+      <button class="mini" id="copy" title="Copy this pattern">Copy</button>
+      <button class="mini" id="paste" title="Paste the copied pattern here" disabled>Paste</button>
+    </div>
     <div class="spacer"></div>
     <div class="meter" id="meter" aria-hidden="true"></div>
     <div class="views" role="group" aria-label="Page">
@@ -225,17 +229,12 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
   </header>
 
   <section class="view" id="stepsView">
-    <div class="main">
-      <div class="grid" id="grid" title="Tap: on, soft, off · Drag: paint · Scroll: velocity · Right-click or hold: articulation"></div>
-      <aside class="feel" aria-label="Drummer feel">
-        <div class="feelhead"><span class="cap">Feel</span><span class="seg" id="swingSeg" role="group" aria-label="Swing on"><button data-v="16">16ths</button><button data-v="8">8ths</button></span></div>
-        <div class="knobs" id="feelKnobs"></div>
-      </aside>
+    <div class="grid" id="grid" title="Tap: on or off, higher in the box is louder · Drag sideways: paint · Drag up or down, or scroll, on a hit: velocity · Right-click or hold: articulation"></div>
+    <div class="feel" role="group" aria-label="Drummer feel">
+      <div class="feelhead"><span class="cap">Feel</span><span class="seg" id="swingSeg" role="group" aria-label="Swing on"><button data-v="16">16ths</button><button data-v="8">8ths</button></span></div>
+      <div class="knobs" id="feelKnobs"></div>
     </div>
     <div class="bar">
-      <button class="btn" id="clear">Clear</button>
-      <button class="btn" id="copy">Copy to 2</button>
-      <label class="artsel"><span class="cap">Articulation</span><select id="artSel" aria-label="Articulation of the selected step"></select></label>
       <span class="cap kitstat" id="kitStatus" role="status"></span>
       <div class="fxbar" role="group" aria-label="Effects"><button class="btn toggle fxq" data-fx="rv" aria-pressed="true">Reverb</button><button class="btn toggle fxq" data-fx="ec" aria-pressed="false">Echo</button><button class="btn toggle fxq" data-fx="tape" aria-pressed="false">Tape</button></div>
       <div class="views kitsw" id="kitSeg" role="group" aria-label="Kit"></div>
@@ -1186,6 +1185,8 @@ const voiceSwing=(jit,id)=>{const tf=clamp(Math.pow(90/ST.tempo,.35),.75,1.15),o
 function stepPos(j,id,jit){const sw=voiceSwing(jit,id)/100,b=Math.floor(j/4),r=j%4;
   return b+(ST.feel.swing8?[0,sw/2,sw,sw+(1-sw)/2]:[0,.5*sw,.5,.5+.5*sw])[r]}
 // the drummer's choices for one bar are made once, when the bar is first reached
+// hat-ghost figures, one per phrase and pattern (see barPlan); a fresh seed each time the page opens
+const HG_FIG=new Map(),HG_SEED=Math.floor(Math.random()*1e6);
 // hat fills are switched off for now (their knob is hidden); set this to true to bring them back with the knob
 const HAT_FILLS=false;
 const barPlans=new Map();
@@ -1215,18 +1216,35 @@ function barPlan(b,P){const old=barPlans.get(b);if(old) return old;
       else if(j%4===2&&Math.random()<HF*.9) hf.set(j,.94+Math.random()*.12)}}
   hs.forEach(j=>{hf.delete(j-.5);hf.delete(j+.5);hf.delete(j-1);hf.delete(j+1)});
   // hat ghosts: very soft taps by the other hand between the programmed hats, one subdivision finer than the hat pattern
-  // (16ths between 8th hats, 32nds after 16th hats, 8ths between quarter hats); none while an open hat rings, none next to a
-  // hat that Hat variation left out, none beside a step with an articulation
-  const HG=(F.hghost||0)/100*(last?1.2:1),hg=new Map();
-  if(HG>0&&lvl){let ring=false;for(let j=spb-1;j>=0;j--){if(cl(j)){ring=false;break}if(op(j)){ring=true;break}}
-    const ok=j=>!hs.has(Math.floor(j))&&!hs.has(Math.ceil(j))&&!go.has(Math.floor(j));
+  // (16ths between 8th hats, 32nds after 16th hats, 8ths between quarter hats). A drummer settles on a small figure and keeps
+  // it, so the places are chosen once per four-bar phrase and repeated, with now and then one moved, and one more leading into
+  // the next phrase. Places that lead into a beat come first, the "e" and the spots just after a beat last. Never where the
+  // other hand is on the snare (or a snare ghost), never two within a sixteenth, never while an open hat rings, next to a hat
+  // that Hat variation left out, or beside a step with an articulation
+  const hgOn=(F.hghost||0)>0,hg=new Map();
+  if(hgOn&&lvl){let ring=false;for(let j=spb-1;j>=0;j--){if(cl(j)){ring=false;break}if(op(j)){ring=true;break}}
+    const ok=j=>!hs.has(Math.floor(j))&&!hs.has(Math.ceil(j%spb))&&!go.has(Math.floor(j));
+    const snareAt=j=>has('s',j)||gs.has(j);
+    const cand=[];
     for(let j=0;j<spb;j++){
       if(op(j)){ring=true;if(lvl!==32) continue}else if(cl(j)){ring=false;if(lvl!==32) continue}
       if(ring) continue;
-      const g=.15+Math.random()*.15;
-      if(lvl===32){if(cl(j)&&!P.art.h[j]&&ok(j+.5)&&Math.random()<HG*.75) hg.set(j+.5,g)}
-      else if(lvl===16){if(j%2&&!row('h')[j]&&ok(j)&&Math.random()<HG*.8) hg.set(j,g)}
-      else if(j%4===2&&!row('h')[j]&&ok(j)&&Math.random()<HG*.8) hg.set(j,g)}}
+      if(lvl===32){if(cl(j)&&!P.art.h[j]&&ok(j+.5)&&!snareAt(j)&&!snareAt((j+1)%spb)) cand.push([j+.5,[.3,.6,.5,1][j%4]])}
+      else if(lvl===16){if(j%2&&!row('h')[j]&&ok(j)&&!snareAt(j)) cand.push([j,(j%4===3?1:.55)+(has('s',(j+1)%spb)?.3:0)])}
+      else if(j%4===2&&!row('h')[j]&&ok(j)&&!snareAt(j)) cand.push([j,1])}
+    if(cand.length){
+      // the phrase's figure: a fixed ranking of the places and a fixed count, from the knob on a gentle curve
+      // (about one ghost every other bar at 30%, two or three a bar at 70%, at most half the places at 100%)
+      const ph=Math.floor(b/4),key=getSlot(b)+'|'+ph+'|'+lvl,M=HG_FIG.get(key)||(()=>{const r=rng(HG_SEED+ph*977+getSlot(b)*131+lvl);
+        const m={score:new Map(cand.map(([j,w])=>[j,w*(.55+.9*r())])),u:r(),mv:r()};HG_FIG.set(key,m);if(HG_FIG.size>48) HG_FIG.delete(HG_FIG.keys().next().value);return m})();
+      const want=Math.pow(F.hghost/100,1.7)*.5*cand.length;let n=Math.floor(want+M.u);if(last&&Math.random()<.5) n++;
+      const ranked=cand.slice().sort((a,b2)=>(M.score.get(b2[0])??b2[1]*.5)-(M.score.get(a[0])??a[1]*.5));
+      const pick=[];for(const c of ranked){if(pick.length>=n) break;if(pick.some(p=>Math.abs(p[0]-c[0])<1||Math.abs(p[0]-c[0])>spb-1)) continue;pick.push(c)}
+      // now and then the drummer moves one tap to the next free place
+      if(pick.length&&Math.random()<.18){const out=pick.splice(Math.floor(Math.random()*pick.length),1)[0];
+        const alt=ranked.find(c=>c!==out&&!pick.includes(c)&&!pick.some(p=>Math.abs(p[0]-c[0])<1));if(alt) pick.push(alt);else pick.push(out)}
+      // soft, a touch louder where they lead into a beat
+      pick.forEach(([j,w])=>hg.set(j,.11+.06*Math.min(1,w)+Math.random()*.04))}}
   const plan={gs,gk,go,hs,hf,hg,swj:nrm()*1.5*(.5+L)};
   barPlans.set(b,plan);if(barPlans.size>16) barPlans.delete(barPlans.keys().next().value);return plan}
 // ---------- the drummer's body: what happens to a hit just before it is played ----------
@@ -1345,7 +1363,7 @@ holdRepeat($('tDown'),()=>setTempo(ST.tempo-1));holdRepeat($('tUp'),()=>setTempo
 function renderSlots(){const box=$('slots');if(!box.children.length){for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Pattern '+(i+1));b.addEventListener('click',()=>pickSlot(i));box.appendChild(b)}}
   const ps=playing?playingSlot:-1;
   [...box.children].forEach((b,i)=>{b.setAttribute('aria-pressed',i===ST.cur);b.classList.toggle('empty',!slotHas(i));b.classList.toggle('playing',i===ps);b.classList.toggle('queued',i===uiQueued&&i!==ps)});
-  $('chain').setAttribute('aria-pressed',ST.chain);$('copy').textContent='Copy to '+((ST.cur+1)%N_SLOTS+1)}
+  $('chain').setAttribute('aria-pressed',ST.chain)}
 // while playing, a picked pattern starts on the next bar; picking one turns Chain off
 function pickSlot(i){if(playing){if(ST.chain){ST.chain=false}queued=i===playingSlot?null:i;uiQueued=queued}ST.cur=i;renderSlots();renderGrid();save()}
 $('chain').addEventListener('click',()=>{ST.chain=!ST.chain;if(ST.chain){queued=null;uiQueued=null}renderSlots();save()});
@@ -1358,25 +1376,45 @@ function buildGrid(){const g=$('grid');g.appendChild(document.createElement('div
     nm.addEventListener('click',()=>{ST.mute[R.k]=!ST.mute[R.k];applyBuses();renderGrid();save()});g.appendChild(nm);names.push(nm);pads[r]=[];
     for(let j=0;j<16;j++){const p=document.createElement('button');p.className='pad'+(j%4===0?' dn':'')+(j&&j%4===0?' b4':'');p.dataset.r=r;p.dataset.j=j;p.setAttribute('aria-label',R.name+' step '+(j+1));
       g.appendChild(p);pads[r][j]=p;colPads[j].push(p)}});
-  // tap cycles a step (on, soft, off); dragging paints the same value over the steps it crosses
-  let paint=null;
-  const apply=(p)=>{const r=+p.dataset.r,j=+p.dataset.j,R=ROWS[r],sl=ST.slots[ST.cur];if(paint.done.has(p)) return;paint.done.add(p);
-    const nv=paint.v;if(sl[R.k][j]===nv) return;if(ART[R.k]&&(!nv||!sl[R.k][j])) sl.art[R.k][j]=0;sl[R.k][j]=nv;if(sl.vel&&sl.vel[R.k]) sl.vel[R.k][j]=null;
-    if(nv&&!playing&&ctx) hearStep(r,j);
-    renderGrid();save()};
-  let hold=0,heldAt=-1e9;
+  // Tap a step to switch it on or off. Where you tap sets the velocity: the step fills from the bottom up to the finger, so the
+  // top of the box is full (the top fifth snaps to 100%) and lower is softer. Drag sideways to paint steps on, each at the height
+  // the finger crosses it, or off when you started on a hit.
+  // Drag up or down on a hit to set its velocity (2 px a percent). Right-click, or hold on a touch screen, for articulations
+  let act=null,hold=0,heldAt=-1e9,vHear=0;
+  const setStep=(r,j,on,vel)=>{const R=ROWS[r],sl=ST.slots[ST.cur];if(!!sl[R.k][j]===on) return false;sl[R.k][j]=on?2:0;
+    if(ART[R.k]) sl.art[R.k][j]=0;if(sl.vel&&sl.vel[R.k]) sl.vel[R.k][j]=null;
+    if(on&&vel!=null&&vel<100){sl.vel=sl.vel||{};sl.vel[R.k]=sl.vel[R.k]||Array(16).fill(null);sl.vel[R.k][j]=vel}return true};
+  // the velocity at a point of a step's box: 100% in its top fifth, then down to 10% at the bottom, in 5% steps
+  const velAt=(p,y)=>{const b=p.getBoundingClientRect(),f=clamp((b.bottom-y)/b.height,0,1);return f>=.8?100:clamp(Math.round(f/.8*100/5)*5,10,100)};
+  const flash=p=>{p.classList.add('vshow');clearTimeout(p._vt);p._vt=setTimeout(()=>p.classList.remove('vshow'),700)};
+  const paintPad=(p,y)=>{if(act.done.has(p)) return;act.done.add(p);const r=+p.dataset.r,j=+p.dataset.j;
+    if(setStep(r,j,act.paintOn,act.paintOn?velAt(p,y):null)){if(act.paintOn) flash(p);if(act.paintOn&&!playing&&ctx) hearStep(r,j);renderGrid();save()}};
   g.addEventListener('pointerdown',e=>{const p=e.target.closest('.pad');if(!p) return;e.preventDefault();if(e.button!==0) return;   // right-click is handled below
-    const r=+p.dataset.r,j=+p.dataset.j,sl=ST.slots[ST.cur],cur=sl[ROWS[r].k][j],k0=ROWS[r].k,before={v:cur,a:ART[k0]?sl.art[k0][j]:0};paint={v:cur===0?2:cur===2?1:0,done:new Set(),id:e.pointerId,p,before};selectStep(r,j);
-    if(!ctx&&paint.v) ensureAudio().then(()=>hearStep(r,j));
-    apply(p);
-    // on a touch screen, holding a step of a lane with articulations does what right-click does: it opens the menu
-    clearTimeout(hold);if(ART[k0]&&e.pointerType!=='mouse'){const cx=e.clientX,cy=e.clientY;hold=setTimeout(()=>{if(!paint||paint.p!==p||paint.done.size>1) return;
-      sl[k0][j]=before.v;sl.art[k0][j]=before.a;paint=null;heldAt=performance.now();renderGrid();save();openArtMenu(r,j,cx,cy)},450)}});
-  g.addEventListener('pointermove',e=>{if(!paint||e.pointerId!==paint.id) return;const el=document.elementFromPoint(e.clientX,e.clientY),p=el&&el.closest&&el.closest('.pad');if(p) apply(p)});
+    const r=+p.dataset.r,j=+p.dataset.j,R=ROWS[r],sl=ST.slots[ST.cur],on=!!sl[R.k][j];
+    act={id:e.pointerId,p,r,j,x0:e.clientX,y0:e.clientY,mode:on?'pending':'paint',paintOn:!on,done:new Set([p]),
+      before:{v:sl[R.k][j],a:ART[R.k]?sl.art[R.k][j]:0},v0:Math.round(stepVel(sl,R.k,j)*100)};
+    if(!on){const v=velAt(p,e.clientY);setStep(r,j,true,v);if(ctx) hearStep(r,j);else ensureAudio().then(()=>hearStep(r,j));renderGrid();save();act.v0=v;flash(p)}
+    // on a touch screen, holding a step of a lane with articulations opens their menu (the step is left as it was)
+    clearTimeout(hold);if(ART[R.k]&&e.pointerType!=='mouse'){const cx=e.clientX,cy=e.clientY,a0=act;hold=setTimeout(()=>{if(act!==a0||a0.moved) return;
+      sl[R.k][j]=a0.before.v;sl.art[R.k][j]=a0.before.a;act=null;heldAt=performance.now();renderGrid();save();openArtMenu(r,j,cx,cy)},450)}});
+  window.addEventListener('pointermove',e=>{if(!act||e.pointerId!==act.id) return;const dx=e.clientX-act.x0,dy=e.clientY-act.y0;
+    if(!act.moved&&Math.hypot(dx,dy)>6){act.moved=true;clearTimeout(hold);
+      // the first clear movement decides: up or down sets the velocity of this hit, sideways paints
+      if(Math.abs(dy)>Math.abs(dx)) act.mode='vel';else if(act.mode==='pending'){act.mode='paint';act.paintOn=false;setStep(act.r,act.j,false);renderGrid();save()}}
+    if(act.mode==='vel'){const R=ROWS[act.r],sl=ST.slots[ST.cur],nv=clamp(Math.round(act.v0-dy/2),5,130);if(!sl[R.k][act.j]) return;
+      sl.vel=sl.vel||{};sl.vel[R.k]=sl.vel[R.k]||Array(16).fill(null);if(sl.vel[R.k][act.j]===nv) return;sl.vel[R.k][act.j]=nv;
+      renderGrid();act.p.classList.add('vshow');
+      if(!playing&&performance.now()-vHear>140){vHear=performance.now();const a=act;ensureAudio().then(()=>hearStep(a.r,a.j))}save();return}
+    if(act.mode==='paint'){const el=document.elementFromPoint(e.clientX,e.clientY),p=el&&el.closest&&el.closest('.pad');if(p) paintPad(p,e.clientY)}});
+  const end=e=>{clearTimeout(hold);if(!act||(e&&e.pointerId!=null&&e.pointerId!==act.id)) return;
+    if(act.mode==='pending'&&!act.moved&&e&&e.type==='pointerup'){setStep(act.r,act.j,false);renderGrid();save()}   // a tap on a hit switches it off
+    const p=act.p;setTimeout(()=>p.classList.remove('vshow'),700);act=null};
+  window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
   g.addEventListener('contextmenu',e=>{const p=e.target.closest('.pad');if(!p) return;e.preventDefault();
     if(performance.now()-heldAt<800||!$('artMenu').hidden) return;   // already opened by the long-touch timer
-    const r=+p.dataset.r,j=+p.dataset.j;if(e.pointerType&&e.pointerType!=='mouse'){clearTimeout(hold);if(paint&&paint.p===p&&paint.before){const k0=ROWS[r].k,sl=ST.slots[ST.cur];sl[k0][j]=paint.before.v;if(ART[k0]) sl.art[k0][j]=paint.before.a;renderGrid()}paint=null;heldAt=performance.now()}
-    selectStep(r,j);if(ART[ROWS[r].k]) openArtMenu(r,j,e.clientX,e.clientY)});
+    const r=+p.dataset.r,j=+p.dataset.j;
+    if(e.pointerType&&e.pointerType!=='mouse'){clearTimeout(hold);if(act&&act.p===p){const k0=ROWS[r].k,sl=ST.slots[ST.cur];sl[k0][j]=act.before.v;if(ART[k0]) sl.art[k0][j]=act.before.a;renderGrid()}act=null;heldAt=performance.now()}
+    if(ART[ROWS[r].k]) openArtMenu(r,j,e.clientX,e.clientY)});
   // scroll on a hit to set its velocity, 5% a notch (Shift for 1%); the number shows while you scroll
   let wAcc=0,wT=0,wHear=0;
   g.addEventListener('wheel',e=>{const p=e.target.closest('.pad');if(!p) return;e.preventDefault();
@@ -1387,17 +1425,7 @@ function buildGrid(){const g=$('grid');g.appendChild(document.createElement('div
     renderGrid();p.classList.add('vshow');clearTimeout(wT);wT=setTimeout(()=>p.classList.remove('vshow'),900);
     if(!playing&&performance.now()-wHear>140){wHear=performance.now();ensureAudio().then(()=>hearStep(r,j))}
     save()},{passive:false});
-  const end=()=>{paint=null;clearTimeout(hold)};window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end)}
-// the step last tapped or right-clicked is selected (outlined); the Articulation dropdown under the grid shows and sets its articulation
-let selStep=null;
-function selectStep(r,j){if(selStep&&pads[selStep.r]) pads[selStep.r][selStep.j].classList.remove('sel');selStep={r,j};pads[r][j].classList.add('sel');renderArtSel()}
-function renderArtSel(){const s=$('artSel');if(!s) return;s.textContent='';
-  if(!selStep||!ART[ROWS[selStep.r].k]){const o=document.createElement('option');o.textContent=selStep?'None on this lane':'Select a step';s.appendChild(o);s.disabled=true;return}
-  const R=ROWS[selStep.r],sl=ST.slots[ST.cur],L=ART[R.k],cur=sl[R.k][selStep.j]?sl.art[R.k][selStep.j]|0:-1;s.disabled=false;
-  const g=document.createElement('optgroup');g.label=R.name+' · step '+(selStep.j+1);
-  if(cur<0){const o=document.createElement('option');o.value='';o.textContent='Off';g.appendChild(o)}
-  L.forEach(([key,name],i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;g.appendChild(o)});s.appendChild(g);s.value=cur<0?'':String(cur)}
-$('artSel').addEventListener('change',e=>{if(!selStep||e.target.value==='') return;setArt(selStep.r,selStep.j,+e.target.value)});
+}
 // the articulation menu: right-click (or hold on a touch screen) a snare, hat or cymbal step. Every articulation is offered;
 // one the current kit has no recording of plays the lane's normal stroke (the flam and roll are then made from it)
 let artAt=null;
@@ -1425,11 +1453,11 @@ function hearStep(r,j){const R=ROWS[r],sl=ST.slots[ST.cur],v=sl[R.k][j];if(!v) r
 function renderGrid(){const sl=ST.slots[ST.cur];
   ROWS.forEach((R,r)=>{const m=!!ST.mute[R.k];names[r].classList.toggle('muted',m);names[r].setAttribute('aria-pressed',m);
     for(let j=0;j<16;j++){const p=pads[r][j];p.dataset.v=sl[R.k][j];p.classList.toggle('mut',m);
-      const vx=sl.vel&&sl.vel[R.k]&&sl[R.k][j]?sl.vel[R.k][j]:null;p.classList.toggle('vx',vx!=null);if(vx!=null){p.style.setProperty('--fill',Math.min(100,vx)+'%');p.dataset.vel=vx}
+      const vx=sl.vel&&sl.vel[R.k]&&sl[R.k][j]?sl.vel[R.k][j]:null;p.classList.toggle('vx',vx!=null);if(vx!=null) p.style.setProperty('--fill',(vx>=100?100:vx*.8)+'%');p.dataset.vel=sl[R.k][j]?Math.round(stepVel(sl,R.k,j)*100):''   // the fill sits where a tap of that velocity lands
       const vtxt=sl[R.k][j]?', velocity '+Math.round(stepVel(sl,R.k,j)*100)+'%':'';
       const ai=ART[R.k]&&sl[R.k][j]?sl.art[R.k][j]|0:0;p.dataset.art=ai?ART[R.k][ai][2]:'';
       p.setAttribute('aria-label',R.name+' step '+(j+1)+(ai?', '+ART[R.k][ai][1]:'')+vtxt)}});
-  renderSlots();renderArtSel()}
+  renderSlots()}
 let shownCol=-1,playingSlot=-1,lastBeat=-1;
 function clearCol(){if(shownCol>=0) colPads[shownCol].forEach(p=>p.classList.remove('col'));shownCol=-1;playingSlot=-1}
 let undo=null;
@@ -1437,7 +1465,17 @@ $('clear').addEventListener('click',()=>{const b=$('clear');
   if(undo){ST.slots[undo.i]=undo.data;undo=null;b.textContent='Clear';renderGrid();save();return}
   undo={i:ST.cur,data:JSON.parse(JSON.stringify(ST.slots[ST.cur]))};ST.slots[ST.cur]=pat({});b.textContent='Undo';renderGrid();save();
   setTimeout(()=>{if(undo){undo=null;b.textContent='Clear'}},5000)});
-$('copy').addEventListener('click',()=>{const to=(ST.cur+1)%N_SLOTS;ST.slots[to]=JSON.parse(JSON.stringify(ST.slots[ST.cur]));pickSlot(to)});
+// Copy keeps this pattern (steps, velocities and articulations); Paste puts it into whichever pattern is showing, and
+// turns into Undo for a few seconds. Ctrl or Cmd with C and V do the same
+let clip=null,pasteUndo=null;
+function copyPat(){clip=JSON.parse(JSON.stringify(ST.slots[ST.cur]));const b=$('copy');b.textContent='Copied';$('paste').disabled=false;setTimeout(()=>b.textContent='Copy',900)}
+function pastePat(){const b=$('paste');
+  if(pasteUndo){ST.slots[pasteUndo.i]=pasteUndo.data;pasteUndo=null;b.textContent='Paste';renderGrid();save();return}
+  if(!clip) return;pasteUndo={i:ST.cur,data:JSON.parse(JSON.stringify(ST.slots[ST.cur]))};ST.slots[ST.cur]=JSON.parse(JSON.stringify(clip));
+  b.textContent='Undo';renderGrid();save();setTimeout(()=>{if(pasteUndo){pasteUndo=null;b.textContent='Paste'}},5000)}
+$('copy').addEventListener('click',copyPat);$('paste').addEventListener('click',pastePat);
+document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.target.closest('input,select,textarea')||$('stepsView').hidden) return;
+  if(e.key==='c'&&!getSelection().toString()){e.preventDefault();copyPat()}else if(e.key==='v'&&clip){e.preventDefault();if(pasteUndo){pasteUndo=null;$('paste').textContent='Paste'}pastePat()}});
 
 // ---------- UI: knobs ----------
 const knobRefs={};

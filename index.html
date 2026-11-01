@@ -128,6 +128,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 .knobs{display:flex;flex-wrap:wrap;gap:6px 8px}
 .lanes{flex-basis:100%;flex-wrap:wrap}
+#setText{display:block;box-sizing:border-box;width:100%;height:9rem;margin-top:8px;border:0;border-radius:10px;padding:10px;background:var(--ink);color:var(--paper);font:400 11px/1.4 var(--f-mono);resize:vertical}
 .group.off .knobs{opacity:.42}
 .knob{width:70px;display:flex;flex-direction:column;align-items:center;gap:3px}
 .kdial{width:50px;height:50px;border-radius:50%;touch-action:none;cursor:ns-resize}
@@ -235,6 +236,13 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     <div class="band">
       <h2>Tape <span class="cap">on the whole kit, after the limiter</span><span class="cap" id="tpStatus" role="status"></span></h2>
       <div class="group" id="gTp"><div class="ghead"><button class="btn toggle fxq" data-fx="tape" aria-pressed="false">Tape</button><div class="seg" id="tpSeg"></div><div class="seg" id="tpTapeSeg"></div></div><div class="knobs" id="tpKnobs"></div></div>
+    </div>
+    <div class="band">
+      <h2>Settings <span class="cap">saved on this device as you go</span></h2>
+      <div class="group" style="flex:1 1 100%">
+        <div class="ghead"><button class="btn" id="copySet">Copy settings</button><button class="btn" id="resetSet">Reset to default</button><span class="cap" id="setStatus" role="status"></span></div>
+        <textarea id="setText" readonly hidden aria-label="Settings to save as defaults.json"></textarea>
+      </div>
     </div>
   </section>
 </div>
@@ -808,12 +816,13 @@ const defaults=()=>({tempo:80,cur:0,chain:true,view:'steps',kitIdx:0,mute:{},
   fx:{ec:false,emix:30,etime:3,efb:40,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
 const KEY='footsteps-lite-v1';
 let ST=defaults();
-try{const s=JSON.parse(localStorage.getItem(KEY)||'null');
+let hadSaved=false,noSave=false;
+try{const raw=localStorage.getItem(KEY);hadSaved=!!raw;const s=JSON.parse(raw||'null');
   if(s&&typeof s==='object'){const d=defaults();
     ST={...d,...s,feel:{...d.feel,...(s.feel||{})},fx:{...d.fx,...(s.fx||{})},mute:{...(s.mute||{})}};
     ST.slots=Array.from({length:N_SLOTS},(_,i)=>normSlot((s.slots||[])[i]||{}));
     ST.cur=clamp(ST.cur|0,0,N_SLOTS-1);ST.tempo=clamp(+ST.tempo||80,40,200)}}catch(e){}
-let saveT=0;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}},250)}
+let saveT=0;function save(){if(noSave) return;clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}},250)}
 const slotHas=i=>ROWS.some(r=>ST.slots[i][r.k].some(Boolean));
 
 // lane timing from the saved Footsteps kit: the snare sits 2% of a beat early
@@ -1469,6 +1478,25 @@ function renderSound(){document.querySelectorAll('.fxq').forEach(b=>b.setAttribu
 function setView(v){ST.view=v;$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');save()}
 $('vSteps').addEventListener('click',()=>setView('steps'));$('vSound').addEventListener('click',()=>setView('sound'));
 
+// ---------- defaults.json: the starting point for any browser that has no settings of its own ----------
+// Copy settings puts everything (patterns, tempo, kit, feel, effects, tape, instrument knobs) on the clipboard as JSON; saved
+// as defaults.json next to index.html, it is what a new device starts with. Reset to default goes back to it.
+async function loadDefaults(force){let text=null;
+  try{const r=await fetch('defaults.json',{cache:'no-cache'});if(r.ok){text=await r.text();JSON.parse(text)}}catch(e){text=null}
+  if(!text){if(force){noSave=true;clearTimeout(saveT);try{localStorage.removeItem(KEY)}catch(e){}location.reload()}return false}
+  // it becomes this browser's saved settings, and the page starts again from it
+  noSave=true;clearTimeout(saveT);
+  try{localStorage.setItem(KEY,text);if(localStorage.getItem(KEY)!==text) throw 0}catch(e){noSave=false;setMsg('This browser does not keep settings, so defaults.json cannot be applied here');return false}
+  if(playing) stop();location.reload();return true}
+function setMsg(s){const el=$('setStatus');if(el) el.textContent=s}
+$('copySet').addEventListener('click',()=>{const text=JSON.stringify(ST,null,1),ta=$('setText');
+  const shown=()=>{ta.value=text;ta.hidden=false;ta.focus();ta.select()};
+  const done=()=>setMsg('Copied. Save it in the repo as defaults.json, next to index.html');
+  try{navigator.clipboard.writeText(text).then(()=>{done();ta.hidden=true},()=>{shown();setMsg('Select all of this and copy it, then save it as defaults.json')})}
+  catch(e){shown();setMsg('Select all of this and copy it, then save it as defaults.json')}});
+{let armed=0;$('resetSet').addEventListener('click',()=>{const b=$('resetSet');
+  if(!armed){armed=setTimeout(()=>{armed=0;b.textContent='Reset to default'},3000);b.textContent='Tap again to reset';setMsg('This replaces the settings on this device');return}
+  clearTimeout(armed);armed=0;b.textContent='Resetting…';loadDefaults(true)})}
 // ---------- meter and playhead ----------
 const LEDS=[-36,-30,-24,-18,-12,-6,-3,-1];
 LEDS.forEach((_,i)=>{const d=document.createElement('i');d.style.height=(8+i*1.6)+'px';$('meter').appendChild(d)});
@@ -1485,7 +1513,7 @@ function frame(){
   requestAnimationFrame(frame)}
 
 // ---------- start ----------
-buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();kitFetch(ST.kitIdx);setView(ST.view==='sound'?'sound':'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
+buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();if(!hadSaved) loadDefaults(false);kitFetch(ST.kitIdx);setView(ST.view==='sound'?'sound':'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
 requestAnimationFrame(frame);
 </script>
 

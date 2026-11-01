@@ -7,6 +7,10 @@
 <title>Footsteps Lite</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#FF5A1F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Footsteps">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -55,7 +59,17 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .chainpop .cap{color:rgba(255,242,230,.65)}
 .chainpop .mini{border-color:var(--paper);color:var(--paper)}
 .chainpop .mini:active{background:var(--paper);color:var(--ink)}
-.cphead,.cprow{display:flex;align-items:center;gap:8px}
+.cphead,.cprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cptitle{font:600 17px var(--f-display);letter-spacing:-.01em}
+.cpstep{display:grid;gap:7px;padding-top:9px;border-top:1px solid rgba(255,242,230,.2)}
+.cplabel{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.cplabel b{font:600 13px var(--f-display)}
+.cplabel span{font:400 11px var(--f-mono);color:rgba(255,242,230,.6)}
+.cpintro .slot[aria-pressed="true"],.cpintro .slot.none[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:var(--ink);opacity:1}
+.cpintro .none{width:auto;padding:0 9px;font-size:11px}
+.cpseq .loop{font:400 15px var(--f-mono);color:rgba(255,242,230,.6);margin-left:2px}
+.cpfoot{padding-top:9px;border-top:1px solid rgba(255,242,230,.2)}
+.chainpop{max-height:calc(100dvh - 70px);overflow:auto}
 .cphead{justify-content:space-between}
 .cpseq{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;align-items:center}
 .cpseq button{width:34px;height:34px;border-radius:9px;border:2px solid var(--paper);background:var(--paper);color:var(--ink);font:500 13px var(--f-mono);position:relative}
@@ -74,14 +88,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .slot.playing::after{content:"";position:absolute;left:50%;bottom:-8px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--ink)}
 .slot.queued{animation:blink .5s steps(2,start) infinite}
 /* pick-up and fill patterns carry a small letter in the corner */
-.slot[data-role]::before{content:attr(data-role);position:absolute;top:-6px;right:-6px;min-width:13px;height:13px;padding:0 2px;border-radius:7px;background:var(--orange);color:var(--ink);border:1.5px solid var(--ink);font:600 8.5px/10px var(--f-mono)}
-.chainpop .slot[data-role]::before{border-color:var(--paper)}
-.cpseq button.pu{background:transparent;color:var(--paper);border-style:dashed}
-.cpseq button.fi{background:var(--orange-dk,#d9480f);border-color:var(--orange-dk,#d9480f);color:var(--paper)}
-.cpseq button.now{background:var(--orange);border-color:var(--orange);color:var(--ink)}
+.chainpop .cpseq button.now{background:var(--orange);border-color:var(--orange);color:var(--ink)}
 .cpseq .arrow{font:400 12px var(--f-mono);color:rgba(255,242,230,.6)}
-.cphint{margin-left:auto}
-@media (max-width:760px){.cphint{display:none}}
 @keyframes blink{50%{border-color:var(--paper)}}
 .toggle[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .spacer{flex:1}
@@ -90,6 +98,10 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .meter i.on{background:var(--ink)}
 .meter i.on.hot{background:var(--paper)}
 .views{display:flex;border:2px solid var(--ink);border-radius:10px;overflow:hidden}
+.fsbtn{display:grid;place-items:center;padding:0}
+@media (min-width:981px){.top{column-gap:12px}}
+@media (max-width:980px){.fsbtn{display:none}}
+.fsbtn .fs-out,.fsbtn.on .fs-in{display:none}.fsbtn.on .fs-out{display:inline}
 .views button{border:0;background:transparent;height:34px;padding:0 14px;font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
 .views button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
@@ -227,7 +239,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 @media (min-width:1000px) and (min-height:560px){.feel .kdial{width:46px;height:46px}.feel .klabel{font-size:12px}.feel .kvalue{font-size:10.5px}.feel{gap:18px;padding-top:10px}}
 .kl-s{display:none}
 @media (max-width:900px){.kl-l{display:none}.kl-s{display:inline}}
-@media (max-width:980px){#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:28px}.slots{gap:3px}}
+@media (max-width:1120px){#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:28px}.slots{gap:3px}}
 @media (max-width:760px){.feel .knobs{gap:1px}.feel .klabel{text-overflow:clip}.feel .fxbar{gap:3px}.feel .fxbar .btn{padding:0 6px;font-size:10.5px;height:30px}.feel .kitsw button{padding:0 7px}.feelhead .seg button{padding:0 5px}.bar .btn{padding:0 8px}.slot{width:23px}.views button{padding:0 8px}.ptools .mini{padding:0 5px;font-size:10px;letter-spacing:.02em}.feel{gap:8px}.feel .klabel{font-size:10px}
   /* small phones: the header keeps one row; the page switch shows only the other page */
   .top{gap:6px}.play{width:48px}.slot{width:22px}#chain{padding:0 5px;font-size:10px;letter-spacing:.02em}
@@ -260,6 +272,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     </div>
     <div class="spacer"></div>
     <div class="meter" id="meter" aria-hidden="true"></div>
+    <button class="mini fsbtn" id="fsBtn" aria-label="Full screen" title="Full screen"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path class="fs-in" d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path class="fs-out" d="M8 3v5H3M17 8h-5V3M12 17v-5h5M3 12h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="views" role="group" aria-label="Page">
       <button id="vSteps" aria-pressed="true">Steps</button>
       <button id="vSound" aria-pressed="false">Sound</button>
@@ -279,11 +292,17 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 
   <div class="artmenu" id="artMenu" role="menu" aria-label="Articulation" hidden></div>
   <div class="chainpop" id="chainPop" role="dialog" aria-label="Chain" hidden>
-    <div class="cphead"><span class="cap">Chain · plays in this order, one bar each</span><button class="mini" id="cpClose" aria-label="Close">✕</button></div>
-    <div class="cpseq" id="cpSeq" aria-live="polite"></div>
-    <div class="cprow"><span class="cap">Add</span><div class="slots" id="cpAdd"></div></div>
-    <div class="cprow"><span class="cap">Mark</span><div class="slots" id="cpRole"></div><span class="cap cphint">tap: pick-up · fill · normal</span></div>
-    <div class="cprow"><button class="mini" id="cpBack" title="Remove the last pattern">⌫</button><button class="mini" id="cpAll">Every pattern</button><span class="spacer"></span><button class="mini" id="cpOff">Chain off</button></div>
+    <div class="cphead"><span class="cptitle">Chain</span><button class="mini" id="cpClose" aria-label="Close">✕</button></div>
+    <div class="cpstep">
+      <div class="cplabel"><b>Start</b><span>once, each time you press play</span></div>
+      <div class="slots cpintro" id="cpIntro" role="group" aria-label="Start with"></div>
+    </div>
+    <div class="cpstep">
+      <div class="cplabel"><b>Then loop</b><span>tap a number to add it · tap a pattern in the order to take it out · put a fill where you want it, for example 1 1 1 5</span></div>
+      <div class="cpseq" id="cpSeq" aria-live="polite"></div>
+      <div class="cprow"><div class="slots" id="cpAdd" role="group" aria-label="Add to the loop"></div><button class="mini" id="cpBack" title="Take out the last one" aria-label="Take out the last one">⌫</button><button class="mini" id="cpAll" title="Loop every pattern that has steps">Reset</button></div>
+    </div>
+    <div class="cprow cpfoot"><span class="cap" id="cpSum"></span><span class="spacer"></span><button class="mini" id="cpOff">Chain off</button></div>
   </div>
   <section class="sound" id="soundView" hidden>
     <div class="band">
@@ -874,7 +893,7 @@ function normSlot(sl){const out=Object.fromEntries(ROWS.map(r=>{const a=Array.is
   return out}
 const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s].slice(0,16).map(c=>c==='x'?2:c==='o'?1:0)])));
 // the Footsteps groove as saved in Footsteps Mobile: patterns 1 and 2, chained
-const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],roles:{},view:'steps',kitIdx:0,mute:{},
+const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],intro:-1,view:'steps',kitIdx:0,mute:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
   feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0},
   fx:{ec:false,emix:30,etime:3,efb:40,etone:4.5,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
@@ -884,6 +903,7 @@ let hadSaved=false,noSave=false;
 try{const raw=localStorage.getItem(KEY);hadSaved=!!raw;const s=JSON.parse(raw||'null');
   if(s&&typeof s==='object'){const d=defaults();
     ST={...d,...s,feel:{...d.feel,...(s.feel||{})},fx:{...d.fx,...(s.fx||{})},mute:{...(s.mute||{})}};
+    if(s.roles&&!('intro' in s)){for(const k in s.roles) if(s.roles[k]==='pickup') ST.intro=+k}delete ST.roles;   // from the pick-up/fill marks
     ST.slots=Array.from({length:N_SLOTS},(_,i)=>normSlot((s.slots||[])[i]||{}));
     ST.cur=clamp(ST.cur|0,0,N_SLOTS-1);ST.tempo=clamp(+ST.tempo||80,40,200)}}catch(e){}
 let saveT=0;function save(){if(noSave) return;clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}},250)}
@@ -1364,15 +1384,15 @@ const timeOf=q=>anchorT+(q-anchorQ)*qn();
 // the chain: the order set in the chain editor, or every pattern that has steps
 // a pattern can be marked as the pick-up (played once, when play is pressed, before the chain) or as a fill
 // (played only where it is placed in the chain order)
-const roleOf=i=>(ST.roles&&ST.roles[i])||'';
-const pickupSlot=()=>{for(let i=0;i<N_SLOTS;i++) if(roleOf(i)==='pickup'&&slotHas(i)) return i;return -1};
-const autoChain=()=>{const L=[];for(let i=0;i<N_SLOTS;i++) if(slotHas(i)&&!roleOf(i)) L.push(i);return L};
-const chainList=()=>{const seq=Array.isArray(ST.chainSeq)?ST.chainSeq.filter(i=>roleOf(i)!=='pickup'):[];return seq.length?seq:autoChain()};
+// the start pattern plays once when play is pressed, then the loop repeats until stop
+const introSlot=()=>ST.intro>=0&&ST.intro<N_SLOTS&&slotHas(ST.intro)?ST.intro:-1;
+const autoChain=()=>{const L=[];for(let i=0;i<N_SLOTS;i++) if(slotHas(i)&&i!==ST.intro) L.push(i);return L};
+const chainList=()=>Array.isArray(ST.chainSeq)&&ST.chainSeq.length?ST.chainSeq:autoChain();
 const barPos=new Map();   // where in the chain each bar is, so a pattern can appear more than once
 // which pattern a bar plays: fixed the first time the bar is needed
 function getSlot(b){if(barSlot.has(b)) return barSlot.get(b);let s;
-  if(b===0){const L=chainList(),pu=pickupSlot();let pos=ST.chainSeq&&ST.chainSeq.length?0:Math.max(0,L.indexOf(ST.cur));
-    if(ST.chain&&pu>=0&&L.length){s=pu;pos=-1}          // the pick-up leads into the chain's first pattern
+  if(b===0){const L=chainList(),pu=introSlot();let pos=ST.chainSeq&&ST.chainSeq.length?0:Math.max(0,L.indexOf(ST.cur));
+    if(ST.chain&&pu>=0&&L.length){s=pu;pos=-1}          // the start pattern leads into the loop
     else s=ST.chain&&L.length?L[pos]:ST.cur;
     barPos.set(0,pos);queued=null}
   else{const prev=getSlot(b-1);
@@ -1415,31 +1435,30 @@ holdRepeat($('tDown'),()=>setTempo(ST.tempo-1));holdRepeat($('tUp'),()=>setTempo
 
 function renderSlots(){const box=$('slots');if(!box.children.length){for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Pattern '+(i+1));b.addEventListener('click',()=>pickSlot(i));box.appendChild(b)}}
   const ps=playing?playingSlot:-1;
-  [...box.children].forEach((b,i)=>{b.setAttribute('aria-pressed',i===ST.cur);b.classList.toggle('empty',!slotHas(i));b.classList.toggle('playing',i===ps);b.classList.toggle('queued',i===uiQueued&&i!==ps);setRole(b,i)});
-  $('chain').setAttribute('aria-pressed',ST.chain);$('chain').classList.toggle('custom',!!(ST.chainSeq&&ST.chainSeq.length));$('chain').title=ST.chainSeq&&ST.chainSeq.length?'Chain: '+ST.chainSeq.map(i=>i+1).join(' '):'Chain: every pattern with steps';renderChainPop()}
+  [...box.children].forEach((b,i)=>{b.setAttribute('aria-pressed',i===ST.cur);b.classList.toggle('empty',!slotHas(i));b.classList.toggle('playing',i===ps);b.classList.toggle('queued',i===uiQueued&&i!==ps)});
+  $('chain').setAttribute('aria-pressed',ST.chain);$('chain').classList.toggle('custom',!!(ST.chainSeq&&ST.chainSeq.length)||introSlot()>=0);$('chain').title=chainSummary();renderChainPop()}
+const chainSummary=()=>{const i=introSlot(),L=chainList();return (i>=0?'Start '+(i+1)+', then loop ':'Loop ')+(L.map(x=>x+1).join(' ')||'—')}
 // while playing, a picked pattern starts on the next bar; picking one turns Chain off
 function pickSlot(i){if(playing){if(ST.chain){ST.chain=false}queued=i===playingSlot?null:i;uiQueued=queued}ST.cur=i;renderSlots();renderGrid();save()}
 // Chain: a tap switches it on; a tap while it is on opens the chain editor (where it can also be switched off)
 $('chain').addEventListener('click',()=>{if(!ST.chain){ST.chain=true;queued=null;uiQueued=null;renderSlots();save();return}
   const p=$('chainPop');p.hidden=!p.hidden;renderChainPop()});
-function setRole(b,i){const r=roleOf(i);if(r) b.dataset.role=r==='pickup'?'P':'F';else delete b.dataset.role;
-  b.title=r==='pickup'?'Pick-up: plays once when you press play, before the chain':r==='fill'?'Fill: plays only where you place it in the chain':''}
-function renderChainPop(){const p=$('chainPop');if(!p||p.hidden) return;const seq=ST.chainSeq||[],box=$('cpSeq'),add=$('cpAdd');box.textContent='';
-  const curBar=Math.floor(Math.max(0,(ctx.currentTime-anchorT)/qn()+anchorQ)/4),cur=playing&&ST.chain?barPos.get(curBar):-2,pu=pickupSlot();
-  if(pu>=0){const b=document.createElement('button');b.className='pu';b.textContent=pu+1;b.title='Pick-up: once, when play is pressed';b.classList.toggle('now',cur===-1);
-    b.addEventListener('click',()=>{delete ST.roles[pu];chainChanged()});box.appendChild(b);const a=document.createElement('span');a.className='arrow';a.textContent='→';box.appendChild(a)}
-  if(!seq.length){const s=document.createElement('span');s.className='none';s.textContent='Every pattern with steps, in order: '+(autoChain().map(i=>i+1).join(' ')||'none yet');box.appendChild(s)}
-  seq.forEach((i,n)=>{if(roleOf(i)==='pickup') return;const b=document.createElement('button');b.textContent=i+1;b.title=roleOf(i)==='fill'?'Fill · tap to remove':'Remove';b.classList.toggle('fi',roleOf(i)==='fill');
-    b.addEventListener('click',()=>{ST.chainSeq.splice(n,1);chainChanged()});box.appendChild(b)});
-  if(seq.length&&cur>=0) [...box.querySelectorAll('button:not(.pu)')].forEach((b,j)=>b.classList.toggle('now',j===cur));
-  if(!add.children.length) for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Add pattern '+(i+1));
-    b.addEventListener('click',()=>{ST.chainSeq=(ST.chainSeq||[]).concat(i).slice(0,32);chainChanged()});add.appendChild(b)}
-  [...add.children].forEach((b,i)=>{b.classList.toggle('empty',!slotHas(i));b.disabled=roleOf(i)==='pickup';setRole(b,i)});
-  const rl=$('cpRole');if(!rl.children.length) for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Mark pattern '+(i+1));
-    b.addEventListener('click',()=>{ST.roles=ST.roles||{};const r=roleOf(i),next=r===''?'pickup':r==='pickup'?'fill':'';
-      if(next==='pickup') for(const k in ST.roles) if(ST.roles[k]==='pickup') delete ST.roles[k];   // one pick-up at a time
-      if(next) ST.roles[i]=next;else delete ST.roles[i];chainChanged()});rl.appendChild(b)}
-  [...rl.children].forEach((b,i)=>{b.classList.toggle('empty',!slotHas(i));setRole(b,i)})}
+function slotBtn(i,label,onTap){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label',label+' '+(i+1));b.addEventListener('click',onTap);return b}
+function renderChainPop(){const p=$('chainPop');if(!p||p.hidden) return;const seq=ST.chainSeq||[],box=$('cpSeq'),add=$('cpAdd'),intro=$('cpIntro');
+  const curBar=Math.floor(Math.max(0,(ctx.currentTime-anchorT)/qn()+anchorQ)/4),cur=playing&&ST.chain?barPos.get(curBar):-2;
+  // Start: none, or one pattern
+  if(!intro.children.length){const n=document.createElement('button');n.className='slot none';n.textContent='None';n.addEventListener('click',()=>{ST.intro=-1;chainChanged()});intro.appendChild(n);
+    for(let i=0;i<N_SLOTS;i++) intro.appendChild(slotBtn(i,'Start with pattern',()=>{ST.intro=ST.intro===i?-1:i;chainChanged()}))}
+  [...intro.children].forEach((b,k)=>{const i=k-1;b.setAttribute('aria-pressed',i<0?ST.intro<0||introSlot()<0:i===ST.intro);if(i>=0) b.classList.toggle('empty',!slotHas(i))});
+  // Loop: the order, and the numbers that add to it
+  box.textContent='';
+  if(!seq.length){const s=document.createElement('span');s.className='none';s.textContent='Every pattern with steps: '+(autoChain().map(i=>i+1).join(' ')||'none yet');box.appendChild(s)}
+  seq.forEach((i,n)=>{const b=document.createElement('button');b.textContent=i+1;b.title='Take out';b.classList.toggle('now',n===cur);b.addEventListener('click',()=>{ST.chainSeq.splice(n,1);chainChanged()});box.appendChild(b)});
+  if(seq.length){const l=document.createElement('span');l.className='loop';l.textContent='↻';l.title='repeats';box.appendChild(l)}
+  if(!add.children.length) for(let i=0;i<N_SLOTS;i++) add.appendChild(slotBtn(i,'Add pattern',()=>{ST.chainSeq=(ST.chainSeq||[]).concat(i).slice(0,32);chainChanged()}));
+  [...add.children].forEach((b,i)=>b.classList.toggle('empty',!slotHas(i)));
+  $('cpBack').disabled=!seq.length;$('cpAll').disabled=!seq.length;
+  $('cpSum').textContent='Plays: '+chainSummary()+(chainList().length?' ↻':'')}
 function chainChanged(){barPos.clear();[...barSlot.keys()].forEach(k=>{if(!playing||k>Math.floor(nextQ/4)) barSlot.delete(k)});renderSlots();save()}
 $('cpClose').addEventListener('click',()=>{$('chainPop').hidden=true});
 $('cpBack').addEventListener('click',()=>{if(ST.chainSeq&&ST.chainSeq.length){ST.chainSeq.pop();chainChanged()}});
@@ -1447,6 +1466,27 @@ $('cpAll').addEventListener('click',()=>{ST.chainSeq=[];chainChanged()});
 $('cpOff').addEventListener('click',()=>{ST.chain=false;$('chainPop').hidden=true;renderSlots();save()});
 document.addEventListener('pointerdown',e=>{const p=$('chainPop');if(!p.hidden&&!e.target.closest('#chainPop,#chain')) p.hidden=true},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape') $('chainPop').hidden=true});
+
+// ---------- full screen ----------
+// phones go full screen on the first touch; the button switches it on and off anywhere.
+// iPhone Safari cannot do this for a page, so there the button explains Add to Home Screen, which opens it full screen.
+(()=>{const d=document,el=d.documentElement,btn=$('fsBtn');
+  const can=!!(d.fullscreenEnabled||d.webkitFullscreenEnabled);
+  const isFs=()=>!!(d.fullscreenElement||d.webkitFullscreenElement);
+  const installed=matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches||navigator.standalone===true;
+  if(installed){btn.hidden=true;return}
+  const enter=()=>{const r=el.requestFullscreen?el.requestFullscreen({navigationUI:'hide'}):el.webkitRequestFullscreen&&el.webkitRequestFullscreen();
+    Promise.resolve(r).then(()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})};
+  const leave=()=>{(d.exitFullscreen||d.webkitExitFullscreen||(()=>{})).call(d)};
+  const sync=()=>{btn.classList.toggle('on',isFs());btn.setAttribute('aria-label',isFs()?'Leave full screen':'Full screen');btn.title=btn.getAttribute('aria-label')};
+  d.addEventListener('fullscreenchange',sync);d.addEventListener('webkitfullscreenchange',sync);
+  btn.addEventListener('click',()=>{if(!can){const s=$('kitStatus'),was=s.textContent;s.textContent='Full screen: Share → Add to Home Screen, then open it from there';setTimeout(()=>{if(s.textContent.startsWith('Full screen')) s.textContent=was},5000);return}
+    isFs()?leave():enter()});
+  if(matchMedia('(pointer: coarse)').matches){
+    if(can){const first=()=>{d.removeEventListener('pointerup',first,true);if(!isFs()) enter()};d.addEventListener('pointerup',first,true)}
+    else{let told=false;try{told=localStorage.getItem('footsteps-lite-fs-tip')==='1';localStorage.setItem('footsteps-lite-fs-tip','1')}catch(e){}
+      if(!told) setTimeout(()=>{const s=$('kitStatus'),was=s.textContent;s.textContent='Full screen: Share → Add to Home Screen, then open it from there';setTimeout(()=>{if(s.textContent.startsWith('Full screen')) s.textContent=was},7000)},2500)}}
+  sync()})();
 
 // ---------- UI: step grid ----------
 const pads=[],colPads=Array.from({length:16},()=>[]),names=[];

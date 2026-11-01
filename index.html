@@ -50,6 +50,21 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .mini{min-width:34px;height:34px;padding:0 8px;border:2px solid var(--ink);background:transparent;border-radius:9px;font:500 12px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
 .mini:active{background:var(--ink);color:var(--paper)}
 .mini:disabled{opacity:.35}
+#chain.custom{box-shadow:inset 0 -3px 0 var(--orange)}
+.chainpop{position:fixed;z-index:60;top:calc(54px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--paper);border-radius:14px;padding:12px;display:grid;gap:10px;box-shadow:0 12px 30px rgba(23,17,13,.35)}
+.chainpop .cap{color:rgba(255,242,230,.65)}
+.chainpop .mini{border-color:var(--paper);color:var(--paper)}
+.chainpop .mini:active{background:var(--paper);color:var(--ink)}
+.cphead,.cprow{display:flex;align-items:center;gap:8px}
+.cphead{justify-content:space-between}
+.cpseq{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;align-items:center}
+.cpseq button{width:34px;height:34px;border-radius:9px;border:2px solid var(--paper);background:var(--paper);color:var(--ink);font:500 13px var(--f-mono);position:relative}
+.cpseq button.now{background:var(--orange);border-color:var(--orange)}
+.cpseq button::after{content:"×";position:absolute;top:-7px;right:-6px;width:14px;height:14px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:10px;line-height:14px;opacity:0;transition:opacity .1s}
+.cpseq button:hover::after{opacity:1}
+.cpseq .none{font:400 12px var(--f-mono);color:rgba(255,242,230,.7)}
+.chainpop .slots .slot{border-color:var(--paper);color:var(--paper)}
+.chainpop .slots .slot.empty{opacity:.45}
 .ptools .mini{padding:0 7px;font-size:11px}
 .bpm{font:600 28px/1 var(--f-display);letter-spacing:-.04em;min-width:2.1em;text-align:center;font-variant-numeric:tabular-nums;touch-action:none;cursor:ns-resize;padding:2px 0}
 .slots{display:flex;gap:4px}
@@ -70,10 +85,17 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .views button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
 /* ---------- step grid ---------- */
-.view{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+.view{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;position:relative}
+/* desktop: the grid stops growing at a comfortable size and the page centres */
+#stepsView{justify-content:center}
+#stepsView .grid{max-height:350px}
+#app{max-width:1240px;margin-inline:auto;width:100%}
 /* drummer feel beside the grid: three compact knobs to a row */
 /* drummer feel: one row of compact knobs under the grid, each with its value beside the name */
-.feel{flex:none;display:flex;align-items:center;gap:14px;border-top:2px solid var(--ink);padding-top:7px;min-width:0}
+.feel{flex:none;display:flex;align-items:center;gap:12px;border-top:2px solid var(--ink);padding-top:7px;min-width:0}
+.feel .fxbar{display:flex;gap:4px;flex:none}
+.feel .fxbar .btn{height:32px;padding:0 9px}
+.feel .kitsw{flex:none}
 .feelhead{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
 .feelhead .seg button{height:26px;padding:0 7px;font-size:10px}
 .feel .knobs{flex:1;min-width:0;display:flex;justify-content:space-between;gap:4px;flex-wrap:nowrap}
@@ -119,7 +141,9 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .bar{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
 .bar .btn{height:32px;padding:0 11px}
 .fxbar{display:flex;gap:4px;margin-left:auto}
-.kitstat{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* loading status: a small chip over the grid's bottom-left corner, only while there is something to say */
+.kitstat{position:absolute;left:90px;top:0;z-index:5;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--ink);color:var(--paper);padding:5px 8px;border-radius:7px;pointer-events:none}
+.kitstat:empty{display:none}
 .btn{height:36px;padding:0 14px;border:2px solid var(--ink);background:transparent;border-radius:10px;font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .sep{width:2px;height:22px;background:var(--ink-30)}
@@ -140,6 +164,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .lanes{flex-basis:100%;flex-wrap:wrap}
 #setText{display:block;box-sizing:border-box;width:100%;height:9rem;margin-top:8px;border:0;border-radius:10px;padding:10px;background:var(--ink);color:var(--paper);font:400 11px/1.4 var(--f-mono);resize:vertical}
 .group.off .knobs{opacity:.42}
+.knob.rest .kdial{pointer-events:none}
+.knob.rest .kvalue{opacity:.6}
 .knob{width:70px;display:flex;flex-direction:column;align-items:center;gap:3px}
 .kdial{width:50px;height:50px;border-radius:50%;touch-action:none;cursor:ns-resize}
 .kdial svg{display:block;width:100%;height:100%}
@@ -189,8 +215,11 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 }
 @keyframes turn{0%,20%{transform:rotate(-90deg)}55%,100%{transform:rotate(0)}}
 @media (prefers-reduced-motion:reduce){.rotate svg{animation:none}}
+@media (min-width:1000px) and (min-height:560px){.feel .kdial{width:46px;height:46px}.feel .klabel{font-size:12px}.feel .kvalue{font-size:10.5px}.feel{gap:18px;padding-top:10px}}
+.kl-s{display:none}
+@media (max-width:900px){.kl-l{display:none}.kl-s{display:inline}}
 @media (max-width:980px){#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:28px}.slots{gap:3px}}
-@media (max-width:760px){.bar .btn{padding:0 8px}.slot{width:23px}.views button{padding:0 8px}.ptools .mini{padding:0 5px;font-size:10px;letter-spacing:.02em}.feel{gap:8px}.feel .klabel{font-size:10px}
+@media (max-width:760px){.feel .knobs{gap:1px}.feel .klabel{text-overflow:clip}.feel .fxbar{gap:3px}.feel .fxbar .btn{padding:0 6px;font-size:10.5px;height:30px}.feel .kitsw button{padding:0 7px}.feelhead .seg button{padding:0 5px}.bar .btn{padding:0 8px}.slot{width:23px}.views button{padding:0 8px}.ptools .mini{padding:0 5px;font-size:10px;letter-spacing:.02em}.feel{gap:8px}.feel .klabel{font-size:10px}
   /* small phones: the header keeps one row; the page switch shows only the other page */
   .top{gap:6px}.play{width:48px}.slot{width:22px}#chain{padding:0 5px;font-size:10px;letter-spacing:.02em}
   .top .views button[aria-pressed="true"]{display:none}.top .views button{padding:0 9px}}
@@ -230,18 +259,22 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 
   <section class="view" id="stepsView">
     <div class="grid" id="grid" title="Tap: on or off, higher in the box is louder · Drag sideways: paint · Drag up or down, or scroll, on a hit: velocity · Right-click or hold: articulation"></div>
-    <div class="feel" role="group" aria-label="Drummer feel">
+    <span class="cap kitstat" id="kitStatus" role="status"></span>
+    <div class="feel" role="group" aria-label="Drummer feel, effects and kit">
       <div class="feelhead"><span class="cap">Feel</span><span class="seg" id="swingSeg" role="group" aria-label="Swing on"><button data-v="16">16ths</button><button data-v="8">8ths</button></span></div>
       <div class="knobs" id="feelKnobs"></div>
-    </div>
-    <div class="bar">
-      <span class="cap kitstat" id="kitStatus" role="status"></span>
       <div class="fxbar" role="group" aria-label="Effects"><button class="btn toggle fxq" data-fx="rv" aria-pressed="true">Reverb</button><button class="btn toggle fxq" data-fx="ec" aria-pressed="false">Echo</button><button class="btn toggle fxq" data-fx="tape" aria-pressed="false">Tape</button></div>
       <div class="views kitsw" id="kitSeg" role="group" aria-label="Kit"></div>
     </div>
   </section>
 
   <div class="artmenu" id="artMenu" role="menu" aria-label="Articulation" hidden></div>
+  <div class="chainpop" id="chainPop" role="dialog" aria-label="Chain" hidden>
+    <div class="cphead"><span class="cap">Chain · plays in this order, one bar each</span><button class="mini" id="cpClose" aria-label="Close">✕</button></div>
+    <div class="cpseq" id="cpSeq" aria-live="polite"></div>
+    <div class="cprow"><span class="cap">Add</span><div class="slots" id="cpAdd"></div></div>
+    <div class="cprow"><button class="mini" id="cpBack" title="Remove the last pattern">⌫</button><button class="mini" id="cpAll">Every pattern</button><span class="spacer"></span><button class="mini" id="cpOff">Chain off</button></div>
+  </div>
   <section class="sound" id="soundView" hidden>
     <div class="band">
       <h2>Instruments <span class="cap" id="voiceMode"></span></h2>
@@ -831,10 +864,10 @@ function normSlot(sl){const out=Object.fromEntries(ROWS.map(r=>{const a=Array.is
   return out}
 const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s].slice(0,16).map(c=>c==='x'?2:c==='o'?1:0)])));
 // the Footsteps groove as saved in Footsteps Mobile: patterns 1 and 2, chained
-const defaults=()=>({tempo:80,cur:0,chain:true,view:'steps',kitIdx:0,mute:{},
+const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],view:'steps',kitIdx:0,mute:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
   feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0},
-  fx:{ec:false,emix:30,etime:3,efb:40,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
+  fx:{ec:false,emix:30,etime:3,efb:40,etone:4.5,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
 const KEY='footsteps-lite-v1';
 let ST=defaults();
 let hadSaved=false,noSave=false;
@@ -1096,7 +1129,7 @@ const levelGain=()=>Math.pow(ST.fx.level/70,1.6);
 function applyFx(now){if(!FXC) return;const F=FXC,c=ctx,t=c.currentTime,v=ST.fx,set=(p,x,tc=.03)=>now?p.setValueAtTime(x,t):p.setTargetAtTime(x,t,tc);
   // echo and reverb are send effects: each returns only its own sound, and the sends set how much of each lane goes in
   const k=1.9,age=.3,sec=echoSec(v.etime);
-  set(F.ec.dry.gain,0);set(F.ec.wet.gain,1);set(F.ec.fb.gain,v.efb/100);set(F.ec.lp.frequency,4500);
+  set(F.ec.dry.gain,0);set(F.ec.wet.gain,1);set(F.ec.fb.gain,v.efb/100);set(F.ec.lp.frequency,(v.etone||4.5)*1000);
   set(F.ec.dIn.gain,k/4);set(F.ec.dOut.gain,1/k);set(F.ec.wowG.gain,age*.0025);set(F.ec.flG.gain,age*.00018);
   if(now) F.ec.dl.delayTime.setValueAtTime(sec,t);else F.ec.dl.delayTime.setTargetAtTime(sec,t,.12);
   applySends(now);applyRv(now);set(LEVEL.gain,levelGain(),.02);
@@ -1119,9 +1152,9 @@ const TP_KNOBS=[{k:'tin',label:'Input',min:0,max:100,step:.5,def:50,fmt:tpDb},
 // to twice each machine's own figure (0.2% at most on the J-37), which is why its knobs were hardly audible
 const wfPct=v=>3*Math.pow(v/100,2);   // the 1.1 and 0.915 below were measured so each knob alone gives the speed error it shows
 // everything else stays at Footsteps Mobile's defaults: the machine's own speed (15 ips),
-// head spacing, coating and gap as there, and hiss at the machine's published figure
+// head spacing, coating and gap as there, with no hiss
 const TP_FIXED={tape:'ferric',Ms:1e5*Math.pow(20,.4182),a:5e3*Math.pow(40,.4016),k:5e3*Math.pow(40,.4572),c:.01+.89*.1798,
-  spacing:.05+49.95*Math.pow(.1711,3),thickness:1+49*Math.pow(.4286,2),gap:.5+19.5*Math.pow(.3234,2),wow:.5,flutter:.5,hiss:.5};
+  spacing:.05+49.95*Math.pow(.1711,3),thickness:1+49*Math.pow(.4286,2),gap:.5+19.5*Math.pow(.3234,2),wow:.5,flutter:.5,hiss:0};   // no tape hiss
 // the formula sets the tape's own magnetics (ceiling, knee, grip, give) and coating thickness, as in Footsteps Mobile
 const TP_COAT={ferric:10,sm468:14.5};
 function tpParams(){const m=TPL.MACHINES[ST.fx.tmach]?ST.fx.tmach:'j37',tape=TP_COAT[ST.fx.ttape]?ST.fx.ttape:'ferric',T=TPL.TAPES[tape];
@@ -1152,7 +1185,7 @@ async function tpAttach(c){
   const P=tpParams();
   TP.node=new AudioWorkletNode(c,'tape-proc',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{peaks:{[c.sampleRate+'|'+P.speed]:TPL.transportPeak(c.sampleRate,P.speed)},p:P}});
   try{TAPEIN.disconnect(AN)}catch(e){}TAPEIN.connect(TP.node);TP.node.connect(AN);TP.byp=null;tpSend();tpTick()}
-// the tape runs while something plays and for a few seconds after, so its hiss stops when the beat does
+// the tape runs while something plays and for a few seconds after, then it is bypassed
 function tpTick(){if(!TP.node) return;const live=!!ST.fx.tape&&(playing||performance.now()-TP.lastHit<3000);
   if(TP.byp!==!live){TP.byp=!live;tpPost({bypass:!live})}}
 setInterval(tpTick,200);
@@ -1318,12 +1351,15 @@ const barSlot=new Map();
 const AHEAD=matchMedia('(pointer:coarse)').matches?.22:.12;
 const qn=()=>60/ST.tempo;
 const timeOf=q=>anchorT+(q-anchorQ)*qn();
-const chainList=()=>{const L=[];for(let i=0;i<N_SLOTS;i++) if(slotHas(i)) L.push(i);return L};
+// the chain: the order set in the chain editor, or every pattern that has steps
+const autoChain=()=>{const L=[];for(let i=0;i<N_SLOTS;i++) if(slotHas(i)) L.push(i);return L};
+const chainList=()=>Array.isArray(ST.chainSeq)&&ST.chainSeq.length?ST.chainSeq:autoChain();
+const barPos=new Map();   // where in the chain each bar is, so a pattern can appear more than once
 // which pattern a bar plays: fixed the first time the bar is needed
 function getSlot(b){if(barSlot.has(b)) return barSlot.get(b);let s;
-  if(b===0){const L=chainList();s=ST.chain&&L.length?(L.includes(ST.cur)?ST.cur:L[0]):ST.cur;queued=null}
+  if(b===0){const L=chainList();let pos=ST.chainSeq&&ST.chainSeq.length?0:Math.max(0,L.indexOf(ST.cur));s=ST.chain&&L.length?L[pos]:ST.cur;barPos.set(0,pos);queued=null}
   else{const prev=getSlot(b-1);
-    if(ST.chain){const L=chainList();s=L.length?L[(L.indexOf(prev)+1)%L.length]:prev}
+    if(ST.chain){const L=chainList(),pos=L.length?((barPos.get(b-1)??Math.max(0,L.indexOf(prev)))+1)%L.length:0;s=L.length?L[pos]:prev;barPos.set(b,pos);if(barPos.size>12) barPos.delete(barPos.keys().next().value)}
     else if(queued!=null){s=queued;queued=null}
     else s=prev}
   barSlot.set(b,s);if(barSlot.size>12) barSlot.delete(barSlot.keys().next().value);return s}
@@ -1333,7 +1369,7 @@ try{const u=URL.createObjectURL(new Blob(['let i=0;onmessage=e=>{clearInterval(i
 let tickI=0;const tickOn=on=>{if(ticker) ticker.postMessage(on?25:0);else{clearInterval(tickI);if(on) tickI=setInterval(schedule,25)}};
 let wake=null;
 async function play(){await ensureAudio();if(playing) return;
-  grooveReset();barSlot.clear();barPlans.clear();PLAYER.v={};E.lastHit={};E.lastAny=null;queued=ST.chain?null:queued;uiQueued=null;
+  grooveReset();barSlot.clear();barPos.clear();barPlans.clear();PLAYER.v={};E.lastHit={};E.lastAny=null;queued=ST.chain?null:queued;uiQueued=null;
   anchorQ=0;nextQ=0;anchorT=ctx.currentTime+.06;playing=true;schedule();tickOn(true);uiPlay();
   try{if(navigator.wakeLock) wake=await navigator.wakeLock.request('screen')}catch(e){}}
 function stop(){if(!playing) return;playing=false;tickOn(false);const now=ctx.currentTime;
@@ -1363,10 +1399,26 @@ holdRepeat($('tDown'),()=>setTempo(ST.tempo-1));holdRepeat($('tUp'),()=>setTempo
 function renderSlots(){const box=$('slots');if(!box.children.length){for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Pattern '+(i+1));b.addEventListener('click',()=>pickSlot(i));box.appendChild(b)}}
   const ps=playing?playingSlot:-1;
   [...box.children].forEach((b,i)=>{b.setAttribute('aria-pressed',i===ST.cur);b.classList.toggle('empty',!slotHas(i));b.classList.toggle('playing',i===ps);b.classList.toggle('queued',i===uiQueued&&i!==ps)});
-  $('chain').setAttribute('aria-pressed',ST.chain)}
+  $('chain').setAttribute('aria-pressed',ST.chain);$('chain').classList.toggle('custom',!!(ST.chainSeq&&ST.chainSeq.length));$('chain').title=ST.chainSeq&&ST.chainSeq.length?'Chain: '+ST.chainSeq.map(i=>i+1).join(' '):'Chain: every pattern with steps';renderChainPop()}
 // while playing, a picked pattern starts on the next bar; picking one turns Chain off
 function pickSlot(i){if(playing){if(ST.chain){ST.chain=false}queued=i===playingSlot?null:i;uiQueued=queued}ST.cur=i;renderSlots();renderGrid();save()}
-$('chain').addEventListener('click',()=>{ST.chain=!ST.chain;if(ST.chain){queued=null;uiQueued=null}renderSlots();save()});
+// Chain: a tap switches it on; a tap while it is on opens the chain editor (where it can also be switched off)
+$('chain').addEventListener('click',()=>{if(!ST.chain){ST.chain=true;queued=null;uiQueued=null;renderSlots();save();return}
+  const p=$('chainPop');p.hidden=!p.hidden;renderChainPop()});
+function renderChainPop(){const p=$('chainPop');if(!p||p.hidden) return;const seq=ST.chainSeq||[],box=$('cpSeq'),add=$('cpAdd');box.textContent='';
+  if(!seq.length){const s=document.createElement('span');s.className='none';s.textContent='Every pattern with steps, in order: '+(autoChain().map(i=>i+1).join(' ')||'none yet');box.appendChild(s)}
+  const cur=playing&&ST.chain?barPos.get(Math.floor(Math.max(0,(ctx.currentTime-anchorT)/qn()+anchorQ)/4)):-1;
+  seq.forEach((i,n)=>{const b=document.createElement('button');b.textContent=i+1;b.title='Remove';b.classList.toggle('now',n===cur);b.addEventListener('click',()=>{ST.chainSeq.splice(n,1);chainChanged()});box.appendChild(b)});
+  if(!add.children.length) for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Add pattern '+(i+1));
+    b.addEventListener('click',()=>{ST.chainSeq=(ST.chainSeq||[]).concat(i).slice(0,32);chainChanged()});add.appendChild(b)}
+  [...add.children].forEach((b,i)=>b.classList.toggle('empty',!slotHas(i)))}
+function chainChanged(){barPos.clear();[...barSlot.keys()].forEach(k=>{if(!playing||k>Math.floor(nextQ/4)) barSlot.delete(k)});renderSlots();save()}
+$('cpClose').addEventListener('click',()=>{$('chainPop').hidden=true});
+$('cpBack').addEventListener('click',()=>{if(ST.chainSeq&&ST.chainSeq.length){ST.chainSeq.pop();chainChanged()}});
+$('cpAll').addEventListener('click',()=>{ST.chainSeq=[];chainChanged()});
+$('cpOff').addEventListener('click',()=>{ST.chain=false;$('chainPop').hidden=true;renderSlots();save()});
+document.addEventListener('pointerdown',e=>{const p=$('chainPop');if(!p.hidden&&!e.target.closest('#chainPop,#chain')) p.hidden=true},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') $('chainPop').hidden=true});
 
 // ---------- UI: step grid ----------
 const pads=[],colPads=Array.from({length:16},()=>[]),names=[];
@@ -1482,17 +1534,21 @@ const knobRefs={};
 function arcPath(f1){const r=22,a0=135*Math.PI/180,a1=(135+270*f1)*Math.PI/180,x0=28+r*Math.cos(a0),y0=28+r*Math.sin(a0),x1=28+r*Math.cos(a1),y1=28+r*Math.sin(a1);
   return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${r} ${r} 0 ${f1*270>180?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`}
 function knob(spec,obj,onChange){const el=document.createElement('div');el.className='knob';
-  el.innerHTML=`<div class="kdial" role="slider" tabindex="0" aria-label="${spec.label}" aria-valuemin="${spec.min}" aria-valuemax="${spec.max}"><svg viewBox="0 0 56 56" aria-hidden="true"><path class="ktrack" d="${arcPath(1)}"/><path class="kval"/><circle class="kdisc" cx="28" cy="28" r="15"/><line class="kptr" x1="28" y1="28" x2="28" y2="28"/></svg></div><div class="klabel">${spec.label}</div><div class="kvalue"></div>`;
+  el.innerHTML=`<div class="kdial" role="slider" tabindex="0" aria-label="${spec.label}" aria-valuemin="${spec.min}" aria-valuemax="${spec.max}"><svg viewBox="0 0 56 56" aria-hidden="true"><path class="ktrack" d="${arcPath(1)}"/><path class="kval"/><circle class="kdisc" cx="28" cy="28" r="15"/><line class="kptr" x1="28" y1="28" x2="28" y2="28"/></svg></div><div class="klabel">${spec.short?`<span class="kl-l">${spec.label}</span><span class="kl-s">${spec.short}</span>`:spec.label}</div><div class="kvalue"></div>`;
   const dial=el.firstChild,val=el.querySelector('.kval'),ptr=el.querySelector('.kptr'),txt=el.querySelector('.kvalue'),range=spec.max-spec.min;
   // drawAt shows a position (f, 0..1) and a value; the knob sits at its stored value except while it travels (see glide)
   const drawAt=(f,v)=>{f=clamp(f,0,1.04);el._f=f;const a=(135+270*f)*Math.PI/180;
     val.setAttribute('d',f>.004?arcPath(Math.min(1,f)):'');ptr.setAttribute('x2',(28+13*Math.cos(a)).toFixed(2));ptr.setAttribute('y2',(28+13*Math.sin(a)).toFixed(2));
     txt.textContent=spec.fmt(v)};
-  const draw=()=>{const v=obj[spec.k];el._raf&&cancelAnimationFrame(el._raf);el._raf=0;drawAt((v-spec.min)/range,v);const s=spec.fmt(v);dial.setAttribute('aria-valuenow',v);dial.setAttribute('aria-valuetext',s)};
+  // a knob whose effect is switched off rests fully left (its setting is kept and comes back when the effect does)
+  const rest=()=>!!(spec.off&&spec.off());
+  const target=()=>rest()?0:clamp((obj[spec.k]-spec.min)/range,0,1);
+  const draw=()=>{const v=obj[spec.k],r=rest();el._raf&&cancelAnimationFrame(el._raf);el._raf=0;el.classList.toggle('rest',r);drawAt(target(),v);if(r) txt.textContent='Off';
+    const s=r?'Off':spec.fmt(v);dial.setAttribute('aria-valuenow',v);dial.setAttribute('aria-valuetext',s);dial.tabIndex=r?-1:0};
   // a motorised move, like a recallable mixing desk: from position f0 to the stored value, after a short delay; it eases out,
   // overshoots a touch and settles. A hand on the knob stops the motor
   el._label=spec.label;
-  el.glide=(f0,delay)=>{const v1=obj[spec.k],f1=clamp((v1-spec.min)/range,0,1),d=Math.abs(f1-f0);if(d<.003){draw();return}
+  el.glide=(f0,delay)=>{el._raf&&cancelAnimationFrame(el._raf);const f1=target(),d=Math.abs(f1-f0);if(d<.003){draw();return}
     const dur=180+420*Math.sqrt(d),t0=performance.now()+delay,ease=x=>{const c=1.4;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
     const step=now=>{const x=clamp((now-t0)/dur,0,1),f=f0+(f1-f0)*ease(x);
       drawAt(f,clamp(Math.round((spec.min+range*clamp(f,0,1))/spec.step)*spec.step,spec.min,spec.max));
@@ -1506,13 +1562,17 @@ function knob(spec,obj,onChange){const el=document.createElement('div');el.class
   dial.addEventListener('dblclick',()=>set(spec.def));
   dial.addEventListener('keydown',e=>{const k={ArrowUp:1,ArrowRight:1,ArrowDown:-1,ArrowLeft:-1,PageUp:10,PageDown:-10}[e.key];if(k){e.preventDefault();set(obj[spec.k]+k*spec.step)}if(e.key==='Home') set(spec.min);if(e.key==='End') set(spec.max)});
   dial.addEventListener('wheel',e=>{e.preventDefault();set(obj[spec.k]+(e.deltaY<0?1:-1)*spec.step)},{passive:false});
+  el.redraw=draw;el.move=(delay)=>el.glide(el._f??target(),delay||0);   // travel from where it shows now to where it belongs
   draw();knobRefs[spec.k]=draw;return el}
+// move a row of knobs to their settings one after another, like motor faders
+function motor(box,from){if(!box) return;const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  [...box.children].forEach((el,i)=>{if(!el.glide) return;if(still){el.redraw();return}el.glide(from??el._f??0,i*28)})}
 const pct=v=>Math.round(v)+'%';
-const FEEL_K=[{k:'swing',label:'Swing',min:0,max:100,step:1,def:4,fmt:pct},{k:'loose',label:'Looseness',min:0,max:100,step:1,def:24,fmt:pct},
-  {k:'kghost',label:'Kick ghosts',min:0,max:100,step:1,def:8,fmt:pct},{k:'ghost',label:'Snare ghosts',min:0,max:100,step:1,def:0,fmt:pct},
-  {k:'hat',label:'Hat variation',min:0,max:100,step:1,def:0,fmt:pct},{k:'hghost',label:'Hat ghosts',min:0,max:100,step:1,def:0,fmt:pct},{k:'touch',label:'Touch',min:0,max:100,step:1,def:50,fmt:pct}];
+const FEEL_K=[{k:'swing',label:'Swing',min:0,max:100,step:1,def:4,fmt:pct},{k:'loose',label:'Looseness',short:'Loose',min:0,max:100,step:1,def:24,fmt:pct},
+  {k:'kghost',label:'Kick ghosts',short:'Kick gh',min:0,max:100,step:1,def:8,fmt:pct},{k:'ghost',label:'Snare ghosts',short:'Snr gh',min:0,max:100,step:1,def:0,fmt:pct},
+  {k:'hat',label:'Hat variation',short:'Hat var',min:0,max:100,step:1,def:0,fmt:pct},{k:'hghost',label:'Hat ghosts',short:'Hat gh',min:0,max:100,step:1,def:0,fmt:pct},{k:'touch',label:'Touch',min:0,max:100,step:1,def:50,fmt:pct}];
 const fxCh=()=>applyFx(false);
-const FX_GROUPS={ecKnobs:[{k:'emix',label:'Amount',min:0,max:100,step:1,def:30,fmt:pct},{k:'etime',label:'Time',min:0,max:6,step:1,def:3,fmt:echoTxt},{k:'efb',label:'Repeats',min:0,max:95,step:1,def:40,fmt:pct}],
+const FX_GROUPS={ecKnobs:[{k:'emix',label:'Amount',min:0,max:100,step:1,def:30,fmt:pct},{k:'etime',label:'Time',min:0,max:6,step:1,def:3,fmt:echoTxt},{k:'efb',label:'Repeats',min:0,max:95,step:1,def:40,fmt:pct},{k:'etone',label:'Tone',min:1.5,max:12,step:.5,def:4.5,fmt:v=>(+v).toFixed(1)+' kHz'}],
   rvKnobs:[{k:'rmix',label:'Amount',min:0,max:100,step:1,def:18,fmt:pct},{k:'rdec',label:'Decay',min:.3,max:6,step:.1,def:1.6,fmt:v=>(+v).toFixed(1)+' s'},{k:'rtone',label:'Tone',min:1.5,max:16,step:.5,def:8,fmt:v=>(+v).toFixed(1)+' kHz'}],
   outKnobs:[{k:'level',label:'Level',min:0,max:100,step:1,def:70,fmt:v=>v<=0?'Off':(20*Math.log10(levelGain())).toFixed(1)+' dB'},
     {k:'lim',label:'Threshold',min:-24,max:0,step:.5,def:-1,fmt:v=>(+v).toFixed(1)+' dB'},{k:'rel',label:'Release',min:10,max:500,step:5,def:80,fmt:v=>Math.round(v)+' ms'}]};
@@ -1548,21 +1608,30 @@ function renderVoice(){const box=$('laneSeg');
     if(moving) el.glide(was.has(s.label)?was.get(s.label):0,i*28)});
   const ks=KIT.rows[R.id];$('voiceMode').textContent=ks&&KIT.def&&KIT.def.sounds[ks]?KIT.def.sounds[ks].name+(sampledRow(R.id)?'':' (loading)')+(R.id==='CH'||R.id==='OH'?(R.id==='OH'?' · also loose and hat crash':'')+' · Decay and Tight are its own, the other knobs are shared with '+(R.id==='OH'?'Hat':'Hat open'):''):''}
 function buildKitSeg(){KITS.forEach((K,i)=>{const b=document.createElement('button');b.textContent=K.label;b.addEventListener('click',()=>{ST.kitIdx=i;save();kitFetch(i);kitUI()});$('kitSeg').appendChild(b)});kitUI()}
+// an effect in use: switched on globally, or (echo and reverb) sent to from any instrument
+const fxUsed=k=>ST.fx[k==='fec'?'ec':'rv']||ROWS.some(R=>vsp(R.id,k)>0);
+const FX_OFF={ecKnobs:()=>!fxUsed('fec'),rvKnobs:()=>!fxUsed('frv'),tpKnobs:()=>!ST.fx.tape};
+// every knob row on the sound page travels to where it belongs (resting fully left while its effect is off)
+const fxMotor=()=>['ecKnobs','rvKnobs','tpKnobs'].forEach(id=>motor($(id)));
 function buildSound(){renderVoice();FEEL_K.forEach(s=>$('feelKnobs').appendChild(knob(s,ST.feel)));
-  Object.entries(FX_GROUPS).forEach(([box,list])=>list.forEach(s=>$(box).appendChild(knob(s,ST.fx,fxCh))));
+  Object.entries(FX_GROUPS).forEach(([box,list])=>list.forEach(s=>$(box).appendChild(knob({...s,off:FX_OFF[box]},ST.fx,fxCh))));
   $('swingSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b) return;ST.feel.swing8=b.dataset.v==='8';renderSound();save()});
-  $('rvSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.v===ST.fx.rtype) return;ST.fx.rtype=b.dataset.v;ST.fx.rdec=RV_DEF[b.dataset.v][0];knobRefs.rdec();renderSound();fxCh();save()});
-  document.querySelectorAll('.fxq').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fx;ST.fx[k]=!ST.fx[k];renderSound();if(k==='tape') tpTick();else fxCh();save()}));
-  TP_KNOBS.forEach(s=>$('tpKnobs').appendChild(knob(s,ST.fx,tpSend)));
+  $('rvSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.v===ST.fx.rtype) return;ST.fx.rtype=b.dataset.v;ST.fx.rdec=RV_DEF[b.dataset.v][0];renderSound();motor($('rvKnobs'));fxCh();save()});
+  document.querySelectorAll('.fxq').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fx;ST.fx[k]=!ST.fx[k];renderSound();fxMotor();if(k==='tape') tpTick();else fxCh();save()}));
+  TP_KNOBS.forEach(s=>$('tpKnobs').appendChild(knob({...s,off:FX_OFF.tpKnobs},ST.fx,tpSend)));
   ['j37','atr100'].forEach(m=>{const b=document.createElement('button');b.dataset.v=m;b.textContent=TPL.MACHINES[m].label;b.addEventListener('click',()=>{ST.fx.tmach=m;renderSound();tpSend();save()});$('tpSeg').appendChild(b)});
   ['ferric','sm468'].forEach(k=>{const b=document.createElement('button');b.dataset.v=k;b.textContent=TPL.TAPES[k].label;b.addEventListener('click',()=>{ST.fx.ttape=k;renderSound();tpSend();save()});$('tpTapeSeg').appendChild(b)})}
 function renderSound(){document.querySelectorAll('.fxq').forEach(b=>b.setAttribute('aria-pressed',!!ST.fx[b.dataset.fx]));
-  const used=k=>ST.fx[k==='fec'?'ec':'rv']||ROWS.some(R=>vsp(R.id,k)>0);
+  const used=fxUsed;
   $('gTp').classList.toggle('off',!ST.fx.tape);[...$('tpSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.tmach));[...$('tpTapeSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.ttape));
   $('gEc').classList.toggle('off',!used('fec'));$('gRv').classList.toggle('off',!used('frv'));
   [...$('swingSeg').children].forEach(b=>b.setAttribute('aria-pressed',(b.dataset.v==='8')===!!ST.feel.swing8));
   [...$('rvSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.rtype))}
-function setView(v){ST.view=v;$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');save()}
+const swept=new Set();
+function powerOn(v){if(swept.has(v)) return;swept.add(v);
+  const rows=v==='steps'?['feelKnobs']:['voiceKnobs','ecKnobs','rvKnobs','outKnobs','tpKnobs'];
+  rows.forEach((id,n)=>{const box=$(id);if(!box) return;[...box.children].forEach((el,i)=>{if(el.glide&&!matchMedia('(prefers-reduced-motion: reduce)').matches) el.glide(0,120+n*60+i*28)})})}
+function setView(v){ST.view=v;requestAnimationFrame(()=>powerOn(v));$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');save()}
 $('vSteps').addEventListener('click',()=>setView('steps'));$('vSound').addEventListener('click',()=>setView('sound'));
 
 // ---------- defaults.json: the starting point for any browser that has no settings of its own ----------

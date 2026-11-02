@@ -190,6 +190,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .name.muted{opacity:.38;text-decoration:line-through}
 .name.solo span{box-shadow:inset 0 -2px 0 var(--ink)}
 .name.solo::after{content:'S';font:600 9px var(--f-mono);margin-left:4px;opacity:.7}
+.verstamp{margin-left:auto;opacity:.6}
 .artmenu .sep{height:1px;min-height:1px;width:100%;justify-self:stretch;background:rgba(255,242,230,.2);margin:4px 0}
 .pad{min-width:0;min-height:0;padding:0;border:0;border-radius:7px;background:var(--pad);transition:background .05s;-webkit-touch-callout:none}
 .pad.dn{background:var(--pad-beat)}
@@ -395,7 +396,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     <div class="band">
       <h2>Settings <span class="cap">saved on this device as you go</span></h2>
       <div class="group" style="flex:1 1 100%">
-        <div class="ghead"><button class="btn" id="copySet">Copy settings</button><button class="btn" id="resetSet">Reset to default</button><span class="cap" id="setStatus" role="status"></span></div>
+        <div class="ghead"><button class="btn" id="copySet">Copy settings</button><button class="btn" id="resetSet">Reset to default</button><span class="cap" id="setStatus" role="status"></span><span class="cap verstamp" title="Which version of the app this is">Version 2026-11-02 23:30</span></div>
         <textarea id="setText" readonly hidden aria-label="Settings to save as defaults.json"></textarea>
       </div>
       <div class="group" style="flex:1 1 100%">

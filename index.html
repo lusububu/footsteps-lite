@@ -1137,12 +1137,13 @@ function hitDrum(E,id,t,vel,x){const art=x&&x.art,k=sampleKey(id,x);if(art) want
   const own=art&&k!==KIT.rows[id];   // this kit has a recording of the articulation
   // a kit without the recording plays the lane's normal stroke, and makes the flam and the roll from it
   if(art==='flam'&&!own){playSample(E,id,t-(.016+Math.random()*.012),vel*.32,k,false);playSample(E,id,t,vel,k,false);return}
-  // the roll (where the kit has no recording of one): a press roll of light bounces about 26 ms apart, hands alternating,
-  // each cut short so they do not pile up into a rattle, swelling a little towards the end, the last one left to ring
-  if(art==='roll'&&!own){const len=x.len||.12,n=Math.max(4,Math.round(len/.026));let at=t;
-    for(let i=0;i<n;i++){const last=i===n-1,f=i/(n-1||1),hand=i%2?.93:1;
-      const v=vel*(i===0?.78:(.5+.18*f)*hand*(1+nrm()*.05));
-      playSample(E,id,at,v,k,false,last?0:.05);at+=len/n*(1+nrm()*.08)}return}
+  // the roll (where the kit has no recording of one): a buzz roll. The strokes come about 19 ms apart (a little uneven) and
+  // use the recordings of soft strokes, which have little attack, played at the roll's level; each is cut short so they
+  // blend into one sound rather than a row of hits. The roll swells slightly, and its last stroke is a normal one, left to ring
+  if(art==='roll'&&!own){const len=x.len||.12,n=Math.max(5,Math.round(len/.019)),soft=clamp(vel*.32,.1,.3);let at=t;
+    for(let i=0;i<n;i++){const last=i===n-1,f=i/(n-1||1);
+      const v=vel*(i===0?.62:last?.8:(.36+.16*f)*(1+nrm()*.1));
+      playSample(E,id,at,v,k,last?false:soft*(1+nrm()*.15),last?0:.028);at+=len/n*(1+nrm()*.15)}return}
   if(art==='pedal'&&!own) vel*=.45;
   playSample(E,id,t,vel,k,x&&x.fill?'any':x&&x.ghost?'soft':false,art==='roll'?x.len:0)}
 
@@ -1160,6 +1161,7 @@ const sampledRow=id=>!!KIT.rows[id]&&soundReady(KIT.rows[id]);
 // an articulation's sound in the kit file; the hat's are listed under CH even when they play through the open hat
 function artMap(voice,art){const A=KIT.arts||(KIT.def&&KIT.def.articulations)||{};return (A[voice]||{})[art]||(voice==='OH'?(A.CH||{})[art]:undefined)}
 function sampleKey(id,x){if(!KIT.def) return null;let k=KIT.rows[id];const art=x&&x.art;
+  if(k&&!soundReady(k)&&KIT.prev&&KIT.prev[id]&&soundReady(KIT.prev[id])) k=KIT.prev[id];   // a newly picked sound still loading
   if(art){const h=artMap(id,art);if(h&&soundReady(h)) k=h;else if(id==='OH') k=KIT.rows.CH}   // a missing loose hat or hat crash plays the closed hat
   return k&&soundReady(k)?k:null}
 const artInKit=(id,art)=>{const h=artMap(id,art);return !!(h&&KIT.def.sounds[h])};
@@ -1183,11 +1185,14 @@ function artKeysInUse(A){A=A||{};const out=new Set();
   ST.slots.forEach(sl=>{for(const k in ART){const R=ROWS.find(x=>x.k===k);if(!R) continue;sl.art[k].forEach((ai,j)=>{if(!ai||!sl[k][j]) return;const key=ART[k][ai][0],voice=k==='h'?hatVoice(key):R.id,m=(A[voice]||{})[key]||(voice==='OH'?(A.CH||{})[key]:null);if(m) out.add(m)})}});
   return [...out]}
 // load one sound of the current kit on demand (an articulation picked or played for the first time); until it is in, the lane's own sound plays
-const wanting=new Set();
-async function kitWant(key){const K=KIT,s=K.def&&K.def.sounds[key];if(!s||wanting.has(K.idx+'|'+key)||soundReady(key)) return;wanting.add(K.idx+'|'+key);
+// sounds of the current kit that are loading (or loaded) on demand. Kept on the kit itself: when the kit is picked again
+// (a new folder or a new kit3.json) it is a new kit object and loads them again
+async function kitWant(key){const K=KIT,s=K.def&&K.def.sounds[key];K.want=K.want||new Set();if(!s||K.want.has(key)||soundReady(key)) return;K.want.add(key);
   const tks=s.layers.flatMap(L=>L.takes).filter(tk=>!tk.buf);K.total+=tks.length;kitUI();
-  for(const tk of tks){if(KIT!==K) return;try{tk.ab=await K.read(K.folder,tk.file);if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
-    catch(e){K.failed++;whyMissing(K,tk.file,e);console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}roomLoad()}
+  let next=0;const worker=async()=>{while(next<tks.length){if(KIT!==K) return;const tk=tks[next++];
+    try{tk.ab=await K.read(K.folder,tk.file);if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
+    catch(e){K.failed++;whyMissing(K,tk.file,e);console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}};
+  await Promise.all([worker(),worker(),worker(),worker()]);roomLoad()}
 function wantArt(voice,art){const h=KIT.def&&artMap(voice,art);if(h) kitWant(h)}
 // extra microphones: a kit can carry more recordings of each hit, from its overheads (take.oh) and its room mics
 // (take.room). Each loads only while its knob is up, and plays with the hit, under the same envelope, at the knob's level
@@ -1217,7 +1222,7 @@ function applyChoices(K){const d=K.def||{};K.rows={...(d.rows||{})};K.arts={};K.
   for(const id in d.choices||{}){const c=choiceOf(K,id);if(!c) continue;if(c.row) K.rows[id]=c.row;
     if(c.articulations) K.arts[id]={...(K.arts[id]||{}),...c.articulations};if(c.labels) K.labels[id]={...(K.labels[id]||{}),...c.labels}}}
 function pickChoice(id,i){const f=kitFileOf(KIT);ST.choice=ST.choice||{};ST.choice[f]={...(ST.choice[f]||{}),[id]:i};save();
-  applyChoices(KIT);kitWant(KIT.rows[id]);artKeysInUse(KIT.arts).forEach(kitWant);renderVoice();renderGrid();kitUI()}
+  const was=KIT.rows[id];KIT.prev=KIT.prev||{};if(was&&soundReady(was)) KIT.prev[id]=was;applyChoices(KIT);kitWant(KIT.rows[id]);artKeysInUse(KIT.arts).forEach(kitWant);renderVoice();renderGrid();kitUI()}
 // the first sample that would not load, and why, for the status line
 function whyMissing(K,file,e){if(K.why1) return;const n=e&&e.name,m=String(e&&e.message||'');
   const where=K.local?'your folder':'the site';
@@ -1243,7 +1248,8 @@ function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=
   let li=Ls.findIndex(L=>v<=L.upTo);if(li<0) li=Ls.length-1;
   // a hat fill picks any of the recorded layers (never the same one twice running); the level below brings them all to the
   // fill's own level, so fills change colour from stroke to stroke without jumping in loudness
-  if(anyLayer==='soft'){const c=Ls.map((L,i)=>i).filter(i=>has(Ls[i])).slice(0,2);if(c.length){s.lastGhost=((s.lastGhost|0)+1)%c.length;li=c[s.lastGhost]}}   // a ghost note: the two softest layers, taking turns
+  if(typeof anyLayer==='number'){li=Ls.findIndex(L=>anyLayer*100<=L.upTo);if(li<0) li=Ls.length-1}
+  else if(anyLayer==='soft'){const c=Ls.map((L,i)=>i).filter(i=>has(Ls[i])).slice(0,2);if(c.length){s.lastGhost=((s.lastGhost|0)+1)%c.length;li=c[s.lastGhost]}}   // a ghost note: the two softest layers, taking turns
   else if(anyLayer){const c=Ls.map((L,i)=>i).filter(i=>has(Ls[i])&&(i!==s.lastFill||Ls.filter(has).length<2));if(c.length){li=c[Math.floor(Math.random()*c.length)];s.lastFill=li}}
   if(!has(Ls[li])){let best=-1;for(let d=1;d<Ls.length&&best<0;d++){if(li-d>=0&&has(Ls[li-d])) best=li-d;else if(li+d<Ls.length&&has(Ls[li+d])) best=li+d}if(best<0) return false;li=best}
   // variation: where the kit has layers close together (Kit 3 has up to 24), a stroke moves among the neighbouring ones that

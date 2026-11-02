@@ -365,7 +365,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     <div class="band">
       <h2>Effects <span class="cap">switch and amount for the whole kit · each instrument can add its own</span></h2>
       <div class="group" id="gEc"><div class="ghead"><button class="btn toggle fxq" data-fx="ec" aria-pressed="false">Echo</button></div><div class="knobs" id="ecKnobs"></div></div>
-      <div class="group" id="gRm"><div class="ghead"><span class="cap">Room mics</span></div><div class="knobs" id="roomKnobs"></div></div>
+      <div class="group" id="gRm"><div class="ghead"><span class="cap">Microphones</span></div><div class="knobs" id="roomKnobs"></div></div>
       <div class="group" id="gRv"><div class="ghead"><button class="btn toggle fxq" data-fx="rv" aria-pressed="true">Reverb</button><div class="seg" id="rvSeg"><button data-v="plate">Plate</button><button data-v="hall">Hall</button><button data-v="room">Room</button></div></div><div class="knobs" id="rvKnobs"></div></div>
       <div class="group"><div class="ghead"><span class="cap">Output and limiter</span></div><div class="knobs" id="outKnobs"></div></div>
     </div>
@@ -1005,7 +1005,7 @@ const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s
 const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],intro:-1,view:'steps',kitIdx:0,mute:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
   feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0},
-  fx:{ec:false,emix:30,etime:3,efb:40,etone:4.5,room:0,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
+  fx:{ec:false,emix:30,etime:3,efb:40,etone:4.5,oh:73,room:0,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
 const KEY='footsteps-lite-v1';
 let ST=defaults();
 let hadSaved=false,noSave=false;
@@ -1157,19 +1157,25 @@ async function kitWant(key){const K=KIT,s=K.def&&K.def.sounds[key];if(!s||wantin
   for(const tk of tks){if(KIT!==K) return;try{tk.ab=await K.read(K.folder,tk.file);if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
     catch(e){K.failed++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}roomLoad()}
 function wantArt(voice,art){const h=KIT.def&&artMap(voice,art);if(h) kitWant(h)}
-// room microphones: a kit can carry a second recording of each hit from its room mics (take.room). They load only
-// while the Room knob is up, and play with the hit, under the same envelope, at the knob's level
-const kitHasRooms=(K=KIT)=>{if(!K||!K.def||!K.def.sounds) return false;if(K.hasRooms==null) K.hasRooms=Object.values(K.def.sounds).some(s=>s.layers.some(L=>L.takes.some(tk=>tk.room)));return K.hasRooms};
-const roomGain=()=>{const v=(+ST.fx.room||0)/100;return v<=0?0:1.6*Math.pow(v,1.5)};   // about the pack's own room level at 73%
-async function roomLoad(){const K=KIT;if(!ctx||!kitHasRooms(K)||!(ST.fx.room>0)) return;
-  const jobs=Object.values(K.def.sounds).flatMap(s=>s.layers.flatMap(L=>L.takes)).filter(tk=>tk.buf&&tk.room&&!tk.roomBuf&&!tk._roomReq);
-  if(!jobs.length) return;jobs.forEach(tk=>tk._roomReq=true);K.rTotal=(K.rTotal|0)+jobs.length;K.rDone=K.rDone|0;kitUI();
+// extra microphones: a kit can carry more recordings of each hit, from its overheads (take.oh) and its room mics
+// (take.room). Each loads only while its knob is up, and plays with the hit, under the same envelope, at the knob's level
+const STEMS={oh:{k:'oh',label:'overheads'},room:{k:'room',label:'room mics'}};
+const kitHas=(kind,K=KIT)=>{if(!K||!K.def||!K.def.sounds) return false;K.has=K.has||{};
+  if(K.has[kind]==null) K.has[kind]=Object.values(K.def.sounds).some(s=>s.layers.some(L=>L.takes.some(tk=>tk[kind])));return K.has[kind]};
+const kitHasRooms=(K=KIT)=>kitHas('room',K);
+const stemGain=kind=>{const v=(+ST.fx[kind]||0)/100;return v<=0?0:1.6*Math.pow(v,1.5)};   // the pack's own level at 73%
+const roomGain=()=>stemGain('room');
+async function stemLoad(kind){const K=KIT;if(!ctx||!kitHas(kind,K)||!(ST.fx[kind]>0)) return;
+  const bk=kind+'Buf',rq='_'+kind+'Req';
+  const jobs=Object.values(K.def.sounds).flatMap(s=>s.layers.flatMap(L=>L.takes)).filter(tk=>tk.buf&&tk[kind]&&!tk[bk]&&!tk[rq]);
+  if(!jobs.length) return;jobs.forEach(tk=>tk[rq]=true);K.st=K.st||{};const st=K.st[kind]=K.st[kind]||{total:0,done:0};st.total+=jobs.length;kitUI();
   let next=0;const worker=async()=>{while(next<jobs.length){if(KIT!==K) return;const tk=jobs[next++];
-    try{const ab=await K.read(K.folder,tk.room);
-      tk.roomBuf=await new Promise(ok=>{try{const p=ctx.decodeAudioData(ab,ok,()=>ok(null));if(p&&p.catch) p.catch(()=>ok(null))}catch(e){ok(null)}})}
-    catch(e){console.warn('Room sample not loaded:',tk.room,e&&e.message)}
-    K.rDone++;kitUI()}};
+    try{const ab=await K.read(K.folder,tk[kind]);
+      tk[bk]=await new Promise(ok=>{try{const p=ctx.decodeAudioData(ab,ok,()=>ok(null));if(p&&p.catch) p.catch(()=>ok(null))}catch(e){ok(null)}})}
+    catch(e){console.warn('Sample not loaded:',tk[kind],e&&e.message)}
+    st.done++;kitUI()}};
   await Promise.all([worker(),worker(),worker()])}
+const roomLoad=()=>{stemLoad('oh');stemLoad('room')};
 // a kit takes over once its lane sounds are in (or wait only for the audio to start); its articulations keep loading after
 function kitDone(K){if(LOADING!==K||K.bDone<K.bTotal) return;LOADING=null;KIT=K;applyBuses();renderVoice();kitUI();renderSound();motor($('roomKnobs'));roomLoad()}
 function bufPeak(b){let m=1e-6;for(let ch=0;ch<b.numberOfChannels;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){const a=d[i]<0?-d[i]:d[i];if(a>m) m=a}}return m}
@@ -1183,7 +1189,8 @@ function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;queueMicr
   if(!K.def){el.textContent='Loading '+KITS[K.idx].label;return}
   const got=K.ready+K.pend.length;
   el.textContent=K.failed?`${K.failed} of ${K.total} samples missing`:K.bDone<K.bTotal?`${KITS[K.idx].label}: samples ${got}/${K.bTotal}`+(K!==KIT?' (the other kit plays meanwhile)':''):
-    got<K.total?`Loading articulations ${got-K.bTotal}/${K.total-K.bTotal}`:(K.pend.length?'Samples ready: press Play':K.rTotal&&K.rDone<K.rTotal?`Loading room mics ${K.rDone}/${K.rTotal}`:(LOCAL.note||''))}
+    got<K.total?`Loading articulations ${got-K.bTotal}/${K.total-K.bTotal}`:(K.pend.length?'Samples ready: press Play':stemStatus(K)||(LOCAL.note||''))}
+const stemStatus=K=>{for(const kind in STEMS){const s=K.st&&K.st[kind];if(s&&s.done<s.total) return `Loading ${STEMS[kind].label} ${s.done}/${s.total}`}return ''};
 // one hit: the layer is picked by velocity, takes rotate, and the level follows the velocity inside the layer
 function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=s.layers,v=vel*100,has=L=>L.takes.some(tk=>tk.buf);
   let li=Ls.findIndex(L=>v<=L.upTo);if(li<0) li=Ls.length-1;
@@ -1206,14 +1213,15 @@ function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=
   if(dk<.995){const len=.04+dk*dk*dur;g.gain.setValueAtTime(gain,T);g.gain.setTargetAtTime(0,T+len*.35,len*.22+.005);stopAt=T+len*1.6+.05}
   if(tt>.005){const hold=TIGHT_MAX[id]+(TIGHT_MIN[id]-TIGHT_MAX[id])*Math.pow(tt,.7),tau=.004+.03*(1-tt);if(T+hold+tau*8<stopAt){g.gain.cancelScheduledValues(T);g.gain.setValueAtTime(gain,T);g.gain.setTargetAtTime(0,T+hold,tau);stopAt=T+hold+tau*8}}
   if(len>0&&T+len<stopAt){g.gain.cancelScheduledValues(T);g.gain.setValueAtTime(gain,T);g.gain.setValueAtTime(gain,T+len);g.gain.setTargetAtTime(0,T+len,.03);stopAt=T+len+.25}
-  let outNode=g;const tone=vsp(id,'stone');if(tone<19.5){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=tone*1000;f.Q.value=.6;g.connect(f);outNode=f;const fd=()=>{try{f.disconnect()}catch(e){}};setTimeout(fd,((tk.roomBuf?Math.max(tk.buf.duration,tk.roomBuf.duration):tk.buf.duration)+Math.max(0,t-c.currentTime)+1)*1000)}
+  let outNode=g;const tone=vsp(id,'stone');if(tone<19.5){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=tone*1000;f.Q.value=.6;g.connect(f);outNode=f;const fd=()=>{try{f.disconnect()}catch(e){}};setTimeout(fd,(Math.max(tk.buf.duration,tk.ohBuf?tk.ohBuf.duration:0,tk.roomBuf?tk.roomBuf.duration:0)+Math.max(0,t-c.currentTime)+1)*1000)}
   // choke: a closed hat cuts a ringing open hat, and so on, as kit.json's chokedBy lists
   for(const [k2,list] of Object.entries(KIT.voices)){const cs=KIT.def.sounds[k2];if(!cs||!(cs.chokedBy||[]).includes(key)) continue;
     list.forEach(vo=>{if(vo.start<T&&vo.end>T){vo.g.gain.cancelScheduledValues(T);vo.g.gain.setTargetAtTime(0,T,.012)}})}
   const off=Math.max(0,((tk.startMs||0)-1)/1000);src.connect(g);outNode.connect(E.buses[id]);src.start(T,off);if(stopAt<Infinity) src.stop(stopAt);liveAdd(src,T);
   let alive=1,tail=tk.buf.duration;const fin=()=>{if(--alive<=0){try{g.disconnect()}catch(e){}}};
-  const rgn=roomGain();if(tk.roomBuf&&rgn>0){alive++;const rs=c.createBufferSource(),rg=c.createGain();rs.buffer=tk.roomBuf;rs.playbackRate.value=src.playbackRate.value;rg.gain.value=rgn;
-    rs.connect(rg);rg.connect(g);rs.start(T,off);if(stopAt<Infinity) rs.stop(stopAt);liveAdd(rs,T);tail=Math.max(tail,tk.roomBuf.duration);
+  for(const kind in STEMS){const buf=tk[kind+'Buf'],sg=stemGain(kind);if(!buf||!(sg>0)) continue;
+    alive++;const rs=c.createBufferSource(),rg=c.createGain();rs.buffer=buf;rs.playbackRate.value=src.playbackRate.value;rg.gain.value=sg;
+    rs.connect(rg);rg.connect(g);rs.start(T,off);if(stopAt<Infinity) rs.stop(stopAt);liveAdd(rs,T);tail=Math.max(tail,buf.duration);
     rs.addEventListener('ended',()=>{try{rg.disconnect()}catch(e){}fin()},{once:true})}
   src.addEventListener('ended',fin,{once:true});
   const list=(KIT.voices[key]||[]).filter(vo=>vo.end>c.currentTime);list.push({g,start:T,end:T+tail-off});KIT.voices[key]=list;
@@ -1971,8 +1979,9 @@ function buildKitSeg(){KITS.forEach((K,i)=>{const b=document.createElement('butt
     if(i>=2){b.hidden=!(LOCAL.handle||LOCAL.files);fetch(K.file,{method:'HEAD',cache:'no-cache'}).then(r=>{if(r.ok) b.hidden=false}).catch(()=>{})}});kitUI()}
 // an effect in use: switched on globally, or (echo and reverb) sent to from any instrument
 const fxUsed=k=>ST.fx[k==='fec'?'ec':'rv']||ROWS.some(R=>vsp(R.id,k)>0);
-const FX_OFF={ecKnobs:()=>!fxUsed('fec'),rvKnobs:()=>!fxUsed('frv'),tpKnobs:()=>!ST.fx.tape,roomKnobs:()=>!kitHasRooms()};
-const ROOM_K={k:'room',label:'Level',min:0,max:100,step:1,def:0,fmt:v=>v<=0?'Off':Math.round(v)+'%'};
+const FX_OFF={ecKnobs:()=>!fxUsed('fec'),rvKnobs:()=>!fxUsed('frv'),tpKnobs:()=>!ST.fx.tape};
+const MIC_K=[{k:'oh',label:'Overheads',min:0,max:100,step:1,def:73,fmt:v=>v<=0?'Off':Math.round(v)+'%',off:()=>!kitHas('oh')},
+  {k:'room',label:'Room',min:0,max:100,step:1,def:0,fmt:v=>v<=0?'Off':Math.round(v)+'%',off:()=>!kitHas('room')}];
 // every knob row on the sound page travels to where it belongs (resting fully left while its effect is off)
 const fxMotor=()=>['ecKnobs','rvKnobs','tpKnobs','roomKnobs'].forEach(id=>motor($(id)));
 function buildSound(){renderVoice();FEEL_K.forEach(s=>$('feelKnobs').appendChild(knob(s,ST.feel)));
@@ -1981,13 +1990,13 @@ function buildSound(){renderVoice();FEEL_K.forEach(s=>$('feelKnobs').appendChild
   $('rvSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.v===ST.fx.rtype) return;ST.fx.rtype=b.dataset.v;ST.fx.rdec=RV_DEF[b.dataset.v][0];renderSound();motor($('rvKnobs'));fxCh();save()});
   document.querySelectorAll('.fxq').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fx;ST.fx[k]=!ST.fx[k];renderSound();fxMotor();if(k==='tape') tpTick();else fxCh();save()}));
   TP_KNOBS.forEach(s=>$('tpKnobs').appendChild(knob({...s,off:FX_OFF.tpKnobs},ST.fx,tpSend)));
-  $('roomKnobs').appendChild(knob({...ROOM_K,off:FX_OFF.roomKnobs},ST.fx,()=>roomLoad()));
+  MIC_K.forEach(s=>$('roomKnobs').appendChild(knob(s,ST.fx,()=>stemLoad(s.k))));
   ['j37','atr100'].forEach(m=>{const b=document.createElement('button');b.dataset.v=m;b.textContent=TPL.MACHINES[m].label;b.addEventListener('click',()=>{ST.fx.tmach=m;renderSound();tpSend();save()});$('tpSeg').appendChild(b)});
   ['ferric','sm468'].forEach(k=>{const b=document.createElement('button');b.dataset.v=k;b.textContent=TPL.TAPES[k].label;b.addEventListener('click',()=>{ST.fx.ttape=k;renderSound();tpSend();save()});$('tpTapeSeg').appendChild(b)})}
 function renderSound(){document.querySelectorAll('.fxq').forEach(b=>b.setAttribute('aria-pressed',!!ST.fx[b.dataset.fx]));
   const used=fxUsed;
   $('gTp').classList.toggle('off',!ST.fx.tape);[...$('tpSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.tmach));[...$('tpTapeSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.ttape));
-  $('gEc').classList.toggle('off',!used('fec'));$('gRm').classList.toggle('off',!kitHasRooms());$('gRv').classList.toggle('off',!used('frv'));
+  $('gEc').classList.toggle('off',!used('fec'));$('gRm').classList.toggle('off',!kitHas('oh')&&!kitHas('room'));$('gRv').classList.toggle('off',!used('frv'));
   [...$('swingSeg').children].forEach(b=>b.setAttribute('aria-pressed',(b.dataset.v==='8')===!!ST.feel.swing8));
   [...$('rvSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.rtype))}
 const swept=new Set();

@@ -172,6 +172,9 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .name{display:flex;align-items:center;gap:7px;min-width:0;border:0;background:transparent;padding:0 6px 0 0;text-align:left;font:600 14px/1 var(--f-display);letter-spacing:-.02em;white-space:nowrap;overflow:hidden}
 .name code{font:500 10px var(--f-mono);letter-spacing:.06em;color:var(--ink-60);flex:none;width:18px}
 .name.muted{opacity:.38;text-decoration:line-through}
+.name.solo span{box-shadow:inset 0 -2px 0 var(--ink)}
+.name.solo::after{content:'S';font:600 9px var(--f-mono);margin-left:4px;opacity:.7}
+.artmenu .sep{height:1px;min-height:1px;width:100%;justify-self:stretch;background:rgba(255,242,230,.2);margin:4px 0}
 .pad{min-width:0;min-height:0;padding:0;border:0;border-radius:7px;background:var(--pad);transition:background .05s;-webkit-touch-callout:none}
 .pad.dn{background:var(--pad-beat)}
 .pad[data-v="1"]{background:var(--soft)}
@@ -366,7 +369,6 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     <div class="band">
       <h2>Effects <span class="cap">switch and amount for the whole kit · each instrument can add its own</span></h2>
       <div class="group" id="gEc"><div class="ghead"><button class="btn toggle fxq" data-fx="ec" aria-pressed="false">Echo</button></div><div class="knobs" id="ecKnobs"></div></div>
-      <div class="group" id="gRm"><div class="ghead"><span class="cap">Microphones</span></div><div class="knobs" id="roomKnobs"></div></div>
       <div class="group" id="gRv"><div class="ghead"><button class="btn toggle fxq" data-fx="rv" aria-pressed="true">Reverb</button><div class="seg" id="rvSeg"><button data-v="plate">Plate</button><button data-v="hall">Hall</button><button data-v="room">Room</button></div></div><div class="knobs" id="rvKnobs"></div></div>
       <div class="group"><div class="ghead"><span class="cap">Output and limiter</span></div><div class="knobs" id="outKnobs"></div></div>
     </div>
@@ -932,7 +934,7 @@ const $=id=>document.getElementById(id);
 const ROWS=[{k:'k',id:'BD',name:'Kick'},{k:'s',id:'SD',name:'Snare'},{k:'h',id:'CH',name:'Hat'},{k:'lt',id:'LT',name:'Lo tom'},{k:'ht',id:'HT',name:'Hi tom'},
   {k:'cy',id:'CY',name:'Cymbal'},{k:'cr',id:'CR',name:'Crash'},
   // percussion lanes: shown only with a kit that has these sounds (Kit 3)
-  {k:'cp',id:'CP',name:'Clap',extra:true},{k:'sh',id:'SH',name:'Shaker',extra:true},{k:'tb',id:'TB',name:'Tambourine',short:'Tamb.',extra:true}];
+  {k:'cp',id:'CP',name:'Clap',extra:true},{k:'sh',id:'SH',name:'Shaker',extra:true},{k:'tb',id:'TB',name:'Tambourine',short:'Tamb.',extra:true},{k:'cb',id:'CB',name:'Cowbell',extra:true}];
 const laneOn=R=>!R.extra||!!(KIT&&KIT.def&&KIT.rows&&KIT.rows[R.id]&&KIT.def.sounds[KIT.rows[R.id]]);
 const ROW_ID=Object.fromEntries(ROWS.map(r=>[r.k,r.id])),ROW_OF=Object.fromEntries(ROWS.map(r=>[r.id,r.k]));
 const N_SLOTS=8;
@@ -996,7 +998,7 @@ const ART={
   h:[['','Closed',''],['half','Loose','LO'],['open','Open','OP'],['shank','Shank','SH'],['bell','Bell','BL'],['pedal','Pedal','PD'],['hcrash','Hat crash','HC'],
      ['closed','Closed, lighter','CL'],['tedge','Closed tight, edge','TE'],['halfo','Half open','HO'],['halfoedge','Half open, edge','HE'],['qedge','Loose, edge','LE'],
      ['tq','Three-quarter open','3Q'],['tqedge','Three-quarter open, edge','3E'],['psplash','Foot splash','FS']],
-  cy:[['','Ride',''],['bell','Bell','BL'],['edge','Edge','ED'],['cowbell','Cowbell','CB']],
+  cy:[['','Ride',''],['bell','Bell','BL'],['edge','Edge','ED']],
   lt:[['','Tom',''],['flam','Flam','FL'],['mid','Mid tom','MT']],
   ht:[['','Tom',''],['flam','Flam','FL']],
   cr:[['','Crash',''],['large','Crash 18"','18'],['bell','Bell','BL'],['lbell','18" bell','B8'],['choke','18" choke','CK'],['splash','Splash','SP'],['schoke','Splash choke','SC'],
@@ -1004,15 +1006,16 @@ const ART={
   k:[['','Kick',''],['wood','Second beater','WB']],
   cp:[['','Clap',''],['long','Long','LG']],
   sh:[['','Shaker',''],['hard','Hard','HD']],
-  tb:[['','Tambourine',''],['left','Left','LT'],['right','Right','RT']]};
+  tb:[['','Tambourine',''],['left','Left','LT'],['right','Right','RT']],
+  cb:[['','Cowbell','']]};
 // the articulations every kit lists (the ones further down show only where the kit has them), and a kit's own names for them
-const ART_BASE={s:6,h:7,cy:2,lt:2,ht:2,cr:7,k:1,cp:1,sh:1,tb:1};
-const artLabel=(voice,key,name)=>{const L=KIT.def&&KIT.def.labels;return (L&&L[voice]&&L[voice][key])||(L&&voice==='OH'&&L.CH&&L.CH[key])||name};
+const ART_BASE={s:6,h:7,cy:2,lt:2,ht:2,cr:7,k:1,cp:1,sh:1,tb:1,cb:1};
+const artLabel=(voice,key,name)=>{const L=KIT.labels||(KIT.def&&KIT.def.labels);return (L&&L[voice]&&L[voice][key])||(L&&voice==='OH'&&L.CH&&L.CH[key])||name};
 // older saves kept the hat articulation in ha (0 closed, 1 loose, 2 open: the same order) and even older ones had open hats in their own row
 function normSlot(sl){const out=Object.fromEntries(ROWS.map(r=>{const a=Array.isArray(sl[r.k])?sl[r.k]:[];return [r.k,Array.from({length:16},(_,j)=>[0,1,2].includes(a[j])?a[j]:0)]}));
   const vel=sl.vel&&typeof sl.vel==='object'?sl.vel:{};out.vel={};ROWS.forEach(r=>{const a=Array.isArray(vel[r.k])?vel[r.k]:[];if(a.some(x=>x!=null)) out.vel[r.k]=Array.from({length:16},(_,j)=>out[r.k][j]&&isFinite(a[j])&&a[j]!=null?clamp(Math.round(a[j]),5,130):null)});
   const art=sl.art&&typeof sl.art==='object'?sl.art:{h:sl.ha};out.art={};
-  const moved=[];[['s',11,'cp',0],['s',12,'cp',1],['h',15,'sh',0],['h',16,'sh',1],['h',17,'tb',0],['h',18,'tb',1],['h',19,'tb',2]].forEach(([from,idx,to,ai])=>{
+  const moved=[];[['s',11,'cp',0],['s',12,'cp',1],['h',15,'sh',0],['h',16,'sh',1],['h',17,'tb',0],['h',18,'tb',1],['h',19,'tb',2],['cy',3,'cb',0]].forEach(([from,idx,to,ai])=>{
     const a=Array.isArray(art[from])?art[from]:[];a.forEach((x,j)=>{if(x!==idx||!out[from][j]||j>15) return;out[to][j]=out[from][j];out[from][j]=0;
       if(out.vel[from]&&out.vel[from][j]!=null){out.vel[to]=out.vel[to]||Array(16).fill(null);out.vel[to][j]=out.vel[from][j];out.vel[from][j]=null}moved.push([to,j,ai])})});
   for(const k in ART){const a=Array.isArray(art[k])?art[k]:[];out.art[k]=Array.from({length:16},(_,j)=>out[k][j]&&Number.isInteger(a[j])&&a[j]>0&&a[j]<ART[k].length?a[j]:0)}
@@ -1021,7 +1024,7 @@ function normSlot(sl){const out=Object.fromEntries(ROWS.map(r=>{const a=Array.is
   return out}
 const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s].slice(0,16).map(c=>c==='x'?2:c==='o'?1:0)])));
 // the Footsteps groove as saved in Footsteps Mobile: patterns 1 and 2, chained
-const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],intro:-1,view:'steps',kitIdx:0,mute:{},
+const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],intro:-1,view:'steps',kitIdx:0,mute:{},solo:{},choice:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
   feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0},
   fx:{ec:false,emix:30,etime:3,efb:40,etone:4.5,oh:73,room:0,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
@@ -1049,8 +1052,8 @@ const SAMPLE_DEF={slevel:75,span:0,stune:0,sdecay:100,stone:20,stight:0,fec:0,fr
 
 // ---------- voice tables ----------
 // Tight: how long each voice may ring at full Tight before its gate closes (seconds), from Footsteps Mobile
-const TIGHT_MIN={BD:.09,SD:.07,LT:.08,HT:.06,CY:.12,CR:.15,OH:.07,CH:.025,CP:.05,SH:.03,TB:.05},TIGHT_MAX={BD:1.2,SD:.45,LT:.6,HT:.45,CY:2,CR:3,OH:1,CH:.12,CP:.6,SH:.3,TB:.8};
-const BUS_TRIM={BD:0.92,SD:0.95,LT:1.07,HT:1.06,CY:0.95,CR:0.95,OH:0.95,CH:1.0,CP:1.0,SH:1.0,TB:1.0};
+const TIGHT_MIN={BD:.09,SD:.07,LT:.08,HT:.06,CY:.12,CR:.15,OH:.07,CH:.025,CP:.05,SH:.03,TB:.05,CB:.05},TIGHT_MAX={BD:1.2,SD:.45,LT:.6,HT:.45,CY:2,CR:3,OH:1,CH:.12,CP:.6,SH:.3,TB:.8,CB:.8};
+const BUS_TRIM={BD:0.92,SD:0.95,LT:1.07,HT:1.06,CY:0.95,CR:0.95,OH:0.95,CH:1.0,CP:1.0,SH:1.0,TB:1.0,CB:1.0};
 // the open-sounding hats (open, loose, hat crash) share every hat knob except Decay and Tight, which each tab sets on its own;
 // mute follows the hat lane too
 const PARAM_HOST={OH:'CH'},SHARED_K=['shift','swg','slevel','span','stune','stone','fec','frv'];
@@ -1112,7 +1115,7 @@ const LIVE=new Set();
 function liveAdd(o,t){o._t=t;LIVE.add(o);o.addEventListener('ended',()=>{LIVE.delete(o);try{o.disconnect()}catch(e){}},{once:true})}
 
 // one bus per voice (level, pan, mute); the open hat shares the hat lane's settings
-const VOICES=['BD','SD','CH','OH','LT','HT','CY','CR','CP','SH','TB'];
+const VOICES=['BD','SD','CH','OH','LT','HT','CY','CR','CP','SH','TB','CB'];
 // each voice: level and mute, pan, then the dry mix and a send to each effect (after the level, so a muted lane is silent in the effects too)
 function createEngine(c,out){const E={ctx:c,buses:{},pan:{},sends:{}};
   VOICES.forEach(id=>{const g=c.createGain(),pn=c.createStereoPanner(),S={ec:c.createGain(),rv:c.createGain()};g.connect(pn);pn.connect(out.dry);
@@ -1126,14 +1129,20 @@ function applySends(now){if(!E) return;const t=ctx.currentTime,F=ST.fx,set=(p,x)
   RV.need=rv}
 const vsp=(id,k)=>{const v=+ST.snd[vkey(id,k)];return isFinite(v)&&ST.snd[vkey(id,k)]!=null?v:SAMPLE_DEF[k]};
 function applyBuses(){if(!E) return;const t=ctx.currentTime,lvl=Math.pow(.55,1.4)*.45/.25*.75;
-  VOICES.forEach(id=>{const l=vsp(id,'slevel')/100,m=ST.mute[ROW_OF[id]||ROW_OF[PARAM_HOST[id]]];
+  const solo=ST.solo&&Object.values(ST.solo).some(Boolean);
+  VOICES.forEach(id=>{const l=vsp(id,'slevel')/100,lane=ROW_OF[id]||ROW_OF[PARAM_HOST[id]],m=ST.mute[lane]||(solo&&!ST.solo[lane]);
     E.buses[id].gain.setTargetAtTime(m?0:l*l*1.3*BUS_TRIM[id]*lvl*Math.SQRT2,t,.008);E.pan[id].pan.value=clamp(vsp(id,'span')/100,-1,1)})}
 // a hit: the sample for this voice (the loose hat for a loose step); silent until its samples have loaded
 function hitDrum(E,id,t,vel,x){const art=x&&x.art,k=sampleKey(id,x);if(art) wantArt(id,art);if(!k) return;TP.lastHit=performance.now();
   const own=art&&k!==KIT.rows[id];   // this kit has a recording of the articulation
   // a kit without the recording plays the lane's normal stroke, and makes the flam and the roll from it
   if(art==='flam'&&!own){playSample(E,id,t-(.016+Math.random()*.012),vel*.32,k,false);playSample(E,id,t,vel,k,false);return}
-  if(art==='roll'&&!own){const len=x.len||.12,n=Math.max(3,Math.round(len/.032)),sp=len/n;for(let i=0;i<n;i++) playSample(E,id,t+i*sp+nrm()*.0015,vel*(i?(.5+.12*i/n)*(1+nrm()*.06):1),k,false);return}
+  // the roll (where the kit has no recording of one): a press roll of light bounces about 26 ms apart, hands alternating,
+  // each cut short so they do not pile up into a rattle, swelling a little towards the end, the last one left to ring
+  if(art==='roll'&&!own){const len=x.len||.12,n=Math.max(4,Math.round(len/.026));let at=t;
+    for(let i=0;i<n;i++){const last=i===n-1,f=i/(n-1||1),hand=i%2?.93:1;
+      const v=vel*(i===0?.78:(.5+.18*f)*hand*(1+nrm()*.05));
+      playSample(E,id,at,v,k,false,last?0:.05);at+=len/n*(1+nrm()*.08)}return}
   if(art==='pedal'&&!own) vel*=.45;
   playSample(E,id,t,vel,k,x&&x.fill?'any':x&&x.ghost?'soft':false,art==='roll'?x.len:0)}
 
@@ -1149,7 +1158,7 @@ const soundReady=key=>{const s=KIT.def&&KIT.def.sounds[key];return !!s&&s.layers
 const sampledRow=id=>!!KIT.rows[id]&&soundReady(KIT.rows[id]);
 // the sound a hit plays: the articulation's recording when the kit has one, otherwise the lane's normal stroke
 // an articulation's sound in the kit file; the hat's are listed under CH even when they play through the open hat
-function artMap(voice,art){const A=(KIT.def&&KIT.def.articulations)||{};return (A[voice]||{})[art]||(voice==='OH'?(A.CH||{})[art]:undefined)}
+function artMap(voice,art){const A=KIT.arts||(KIT.def&&KIT.def.articulations)||{};return (A[voice]||{})[art]||(voice==='OH'?(A.CH||{})[art]:undefined)}
 function sampleKey(id,x){if(!KIT.def) return null;let k=KIT.rows[id];const art=x&&x.art;
   if(art){const h=artMap(id,art);if(h&&soundReady(h)) k=h;else if(id==='OH') k=KIT.rows.CH}   // a missing loose hat or hat crash plays the closed hat
   return k&&soundReady(k)?k:null}
@@ -1160,17 +1169,17 @@ async function kitFetch(i){i=clamp(i|0,0,KITS.length-1);if(LOADING&&LOADING.idx=
   try{K.def=await src.json()}
   catch(e){K.missing=true;K.why=e&&e.why;if(K.why){LOCAL.note=K.why;$('folderStatus').textContent=K.why}else if(i===K3&&(LOCAL.handle||LOCAL.files)){LOCAL.note='Kit 3: kit3.json could not be read ('+(e&&e.message)+')';$('folderStatus').textContent=LOCAL.note}if(LOADING===K) LOADING=null;kitUI();if(first&&i!==0) setTimeout(()=>kitFetch(0),50);return}
   if(i===K3) LOCAL.note='';
-  const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');K.rows=k.rows||{};
+  const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');applyChoices(K);
   const takes=keys=>{const J=[];new Set(keys.filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>J.push(tk)))});return J.sort((a,b)=>(a.seconds||1)-(b.seconds||1))};
   // articulation recordings load only when a pattern uses them or one is picked (Kit 2's would otherwise add about 100 MB)
-  const base=takes(Object.values(K.rows)),extra=takes(artKeysInUse(k)).filter(tk=>!base.includes(tk));K.folder=folder;
+  const base=takes(Object.values(K.rows)),extra=takes(artKeysInUse(K.arts)).filter(tk=>!base.includes(tk));K.folder=folder;
   base.forEach(tk=>tk._base=true);const jobs=base.concat(extra);K.total=jobs.length;K.bTotal=base.length;K.bDone=0;kitUI();
   let next=0;const worker=async()=>{while(next<jobs.length){if(LOADING!==K&&KIT!==K) return;const tk=jobs[next++];   // stops if another kit was picked meanwhile
     try{tk.ab=await K.read(folder,tk.file);if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);if(tk._base) K.bDone++;kitUI();kitDone(K)}}
     catch(e){K.failed++;whyMissing(K,tk.file,e);if(tk._base) K.bDone++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI();kitDone(K)}}};
   await Promise.all([worker(),worker(),worker(),worker()]);kitDone(K)}
 // the articulation sounds the saved patterns use, in a kit's own names
-function artKeysInUse(def){const A=def.articulations||{},out=new Set();
+function artKeysInUse(A){A=A||{};const out=new Set();
   ST.slots.forEach(sl=>{for(const k in ART){const R=ROWS.find(x=>x.k===k);if(!R) continue;sl.art[k].forEach((ai,j)=>{if(!ai||!sl[k][j]) return;const key=ART[k][ai][0],voice=k==='h'?hatVoice(key):R.id,m=(A[voice]||{})[key]||(voice==='OH'?(A.CH||{})[key]:null);if(m) out.add(m)})}});
   return [...out]}
 // load one sound of the current kit on demand (an articulation picked or played for the first time); until it is in, the lane's own sound plays
@@ -1186,9 +1195,9 @@ const STEMS={oh:{k:'oh',label:'overheads'},room:{k:'room',label:'room mics'}};
 const kitHas=(kind,K=KIT)=>{if(!K||!K.def||!K.def.sounds) return false;K.has=K.has||{};
   if(K.has[kind]==null) K.has[kind]=Object.values(K.def.sounds).some(s=>s.layers.some(L=>L.takes.some(tk=>tk[kind])));return K.has[kind]};
 const kitHasRooms=(K=KIT)=>kitHas('room',K);
-const stemGain=kind=>{const v=(+ST.fx[kind]||0)/100;return v<=0?0:1.6*Math.pow(v,1.5)};   // the pack's own level at 73%
+const stemGain=kind=>1;   // at the pack's own level: the overheads and the room are part of the kit's sound
 const roomGain=()=>stemGain('room');
-async function stemLoad(kind){const K=KIT;if(!ctx||!kitHas(kind,K)||!(ST.fx[kind]>0)) return;
+async function stemLoad(kind){const K=KIT;if(!ctx||!kitHas(kind,K)) return;
   const bk=kind+'Buf',rq='_'+kind+'Req';
   const jobs=Object.values(K.def.sounds).flatMap(s=>s.layers.flatMap(L=>L.takes)).filter(tk=>tk.buf&&tk[kind]&&!tk[bk]&&!tk[rq]);
   if(!jobs.length) return;jobs.forEach(tk=>tk[rq]=true);K.st=K.st||{};const st=K.st[kind]=K.st[kind]||{total:0,done:0};st.total+=jobs.length;kitUI();
@@ -1199,13 +1208,23 @@ async function stemLoad(kind){const K=KIT;if(!ctx||!kitHas(kind,K)||!(ST.fx[kind
     st.done++;kitUI()}};
   await Promise.all([worker(),worker(),worker()])}
 const roomLoad=()=>{stemLoad('oh');stemLoad('room')};
+// a kit can offer more than one sound for a lane ("choices" in its kit file: the two snares, both kick beaters, both
+// crashes ...). The pick is kept per kit, and each choice brings the articulations and names that go with it
+const kitFileOf=K=>(KITS[K.idx]||{}).file||'';
+function choiceOf(K,id){const C=K.def&&K.def.choices&&K.def.choices[id];if(!C||!C.length) return null;const m=(ST.choice||{})[kitFileOf(K)]||{};return C[clamp(m[id]|0,0,C.length-1)]}
+function applyChoices(K){const d=K.def||{};K.rows={...(d.rows||{})};K.arts={};K.labels={};
+  for(const v in d.articulations||{}) K.arts[v]={...d.articulations[v]};for(const v in d.labels||{}) K.labels[v]={...d.labels[v]};
+  for(const id in d.choices||{}){const c=choiceOf(K,id);if(!c) continue;if(c.row) K.rows[id]=c.row;
+    if(c.articulations) K.arts[id]={...(K.arts[id]||{}),...c.articulations};if(c.labels) K.labels[id]={...(K.labels[id]||{}),...c.labels}}}
+function pickChoice(id,i){const f=kitFileOf(KIT);ST.choice=ST.choice||{};ST.choice[f]={...(ST.choice[f]||{}),[id]:i};save();
+  applyChoices(KIT);kitWant(KIT.rows[id]);artKeysInUse(KIT.arts).forEach(kitWant);renderVoice();renderGrid();kitUI()}
 // the first sample that would not load, and why, for the status line
 function whyMissing(K,file,e){if(K.why1) return;const n=e&&e.name,m=String(e&&e.message||'');
   const where=K.local?'your folder':'the site';
   const why=n==='Decode'?'could not be decoded':n==='NotFoundError'||/not in the folder|404/.test(m)?(K.local?'not found in your folder':'not on the site'):n==='NotAllowedError'||n==='SecurityError'?'no permission to read '+where:(m||n||'error');
   K.why1=(K.local&&LOCAL.base&&LOCAL.base.length?LOCAL.base.join('/')+'/':'')+(K.def&&K.def.folder?K.def.folder+'/':'')+file+' ('+why+')'}
 // a kit takes over once its lane sounds are in (or wait only for the audio to start); its articulations keep loading after
-function kitDone(K){if(LOADING!==K||K.bDone<K.bTotal) return;LOADING=null;KIT=K;applyBuses();renderVoice();applyLanes();scoreSoon();kitUI();renderSound();motor($('roomKnobs'));roomLoad()}
+function kitDone(K){if(LOADING!==K||K.bDone<K.bTotal) return;LOADING=null;KIT=K;applyBuses();renderVoice();applyLanes();scoreSoon();kitUI();renderSound();roomLoad()}
 function bufPeak(b){let m=1e-6;for(let ch=0;ch<b.numberOfChannels;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){const a=d[i]<0?-d[i]:d[i];if(a>m) m=a}}return m}
 function kitDecode(tk,K){const ab=tk.ab;tk.ab=null;
   return new Promise(ok=>{const wasPend=K.pend.includes(tk),done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);K.ready++}else{K.failed++;whyMissing(K,tk.file,{name:'Decode'})}if(tk._base&&!wasPend) K.bDone++;kitUI();if(b&&E&&K===KIT) applyBuses();kitDone(K);ok()};
@@ -1230,9 +1249,11 @@ function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=
   // variation: where the kit has layers close together (Kit 3 has up to 24), a stroke moves among the neighbouring ones that
   // cover nearly the same strength, and among their takes, never playing the same recording twice running. The level below
   // still follows the velocity, so this changes the colour of the hit, not how loud it is
-  if(!anyLayer){const near=[li-1,li,li+1].filter(i=>i>=0&&i<Ls.length&&has(Ls[i])&&Math.abs(Ls[i].upTo-Ls[li].upTo)<=9);
-    if(near.length>1) li=near[Math.floor(Math.random()*near.length)]}
-  const L=Ls[li],takes=L.takes.filter(tk=>tk.buf),pool=takes.length>1?takes.filter(x=>x!==s.lastTk):takes;const tk=pool[Math.floor(Math.random()*pool.length)];s.lastTk=tk;
+  const near=anyLayer?[li]:Ls.map((L,i)=>i).filter(i=>has(Ls[i])&&Math.abs(Ls[i].upTo-Ls[li].upTo)<=9);
+  let cand=near.flatMap(i=>Ls[i].takes.filter(tk=>tk.buf).map(tk=>[i,tk]));
+  if(cand.length>1) cand=cand.filter(([,tk])=>tk!==s.lastTk);
+  if(cand.length===1&&cand[0][1]===s.lastTk){const all=Ls.flatMap((L,i)=>has(L)?L.takes.filter(tk=>tk.buf&&tk!==s.lastTk).map(tk=>[i,tk]):[]).sort((a,b)=>Math.abs(a[0]-li)-Math.abs(b[0]-li));if(all.length) cand=[all[0]]}
+  const pick=cand[Math.floor(Math.random()*cand.length)];li=pick[0];const L=Ls[li],tk=pick[1];s.lastTk=tk;
   // level follows the velocity (amplitude in proportion), whichever layer plays: the soft layers are recorded far
   // quieter (the soft hats about 19 dB under the hard ones), which would leave ghost notes and hat fills inaudible
   const top=Math.max(...Ls.flatMap(L2=>L2.takes.filter(x=>x.buf).map(x=>x.pk||1))),corr=clamp(20*Math.log10(Math.max(vel,.03))-20*Math.log10((tk.pk||top)/top),-24,20);
@@ -1641,11 +1662,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') $('chainPop').hidde
 // kick in the bottom space, low tom in the second space, snare in the third, high tom in the top space,
 // ride on the top line, hi-hat in the space above, crash on the ledger line above, hat pedal below the staff.
 // Hands are written stems up, feet stems down. 16 steps per bar, 16th notes, beamed by the beat.
-const SC_POS={k:7,s:3,h:-1,lt:5,ht:1,cy:0,cr:-2,cp:4,sh:-3,tb:-4};
-const SC_NAME={cp:'clap',sh:'shkr',tb:'tamb'};
+const SC_POS={k:7,s:3,h:-1,lt:5,ht:1,cy:0,cr:-2,cp:4,sh:-3,tb:-4,cb:-5};
+const SC_NAME={cp:'clap',sh:'shkr',tb:'tamb',cb:'cb'};
 let scMode=null,scGeo=[],scShown=-1;
 function scNote(P,k,j){const a=ART[k]&&P.art[k]&&P.art[k][j]?ART[k][P.art[k][j]][0]:'';
-  const n={k,pos:SC_POS[k],head:['h','cy','cr','cp','sh','tb'].includes(k)?'x':'n',foot:k==='k'};
+  const n={k,pos:SC_POS[k],head:['h','cy','cr','cp','sh','tb'].includes(k)?'x':k==='cb'?'d':'n',foot:k==='k'};
   if(SC_NAME[k]&&P[k].findIndex(Boolean)===j) n.txt=SC_NAME[k]+(a?' '+a:'');
   if(k==='h'){if(a==='pedal'){n.pos=9;n.foot=true}else if(a==='psplash'){n.pos=9;n.foot=true;n.open='o'}else if(['open','tq','tqedge','halfo'].includes(a)) n.open='o';else if(['half','qedge','halfoedge'].includes(a)) n.open='h';
     else if(a==='bell') n.head='d';else if(a==='hcrash'){n.head='cx';n.open='o'}else if(/^shaker|^tamb/.test(a)) n.txt=a.startsWith('shaker')?'shkr':'tamb'}
@@ -1653,7 +1674,7 @@ function scNote(P,k,j){const a=ART[k]&&P.art[k]&&P.art[k][j]?ART[k][P.art[k][j]]
     else if(a==='clap'||a==='clapl'){n.head='x';n.txt='clap'}}
   if((k==='lt'||k==='ht')&&a==='flam') n.grace=1;
   if(k==='lt'&&a==='mid') n.pos=2;
-  if(k==='cy'){if(a==='bell') n.head='d';else if(a==='cowbell'){n.head='d';n.txt='cb'}}
+  if(k==='cy'&&a==='bell') n.head='d';
   if(k==='cr'){if(a==='bell'||a==='lbell') n.head='d';if(a==='choke'||a==='schoke') n.choke=1;if(a==='splash'||a==='schoke') n.pos=-3}
   const v=stepVel(P,k,j),lane=P[k].map((x,i)=>x?stepVel(P,k,i):null).filter(x=>x!=null);
   if(v<=.4) n.ghost=1;else if(v>=.95&&lane.some(x=>x>.4&&x<.8)) n.acc=1;   // accents only stand out against softer strokes that are not ghosts
@@ -1779,7 +1800,7 @@ function scRest(o,kind,x,y,sp){const f=v=>v.toFixed(1),u=v=>f(v*sp);
     for(let i=0;i<dots;i++){const dy=y-.55*sp+i*.9*sp,dx=x-.32*sp-i*.25*sp;o.push(`<circle cx="${f(dx)}" cy="${f(dy)}" r="${u(.25)}"/><path d="M${f(dx)} ${f(dy+.1*sp)}q${u(.4)} ${u(.25)} ${u(.8)} ${u(-.2)}" fill="none" stroke-width="${u(.13)}"/>`)}}}
 function scoreKey(){const host=$('scoreKey');if(!host||host.dataset.done) return;host.dataset.done=1;
   const sp=7,hw=.62*sp,y0=3.5*sp,items=[['Kick',{pos:7,head:'n'}],['Lo tom',{pos:5,head:'n'}],['Snare',{pos:3,head:'n'}],['Cross-stick',{pos:3,head:'cx'}],['Rimshot',{pos:3,head:'sl'}],['Hi tom',{pos:1,head:'n'}],
-    ['Ride',{pos:0,head:'x'}],['Ride bell',{pos:0,head:'d'}],['Hat',{pos:-1,head:'x'}],['Hat foot',{pos:9,head:'x'}],['Crash',{pos:-2,head:'x'}],['Splash',{pos:-3,head:'x'}],['Clap',{pos:4,head:'x'}],['Shaker',{pos:-3,head:'x'}],['Tambourine',{pos:-4,head:'x'}]];
+    ['Ride',{pos:0,head:'x'}],['Ride bell',{pos:0,head:'d'}],['Hat',{pos:-1,head:'x'}],['Hat foot',{pos:9,head:'x'}],['Crash',{pos:-2,head:'x'}],['Splash',{pos:-3,head:'x'}],['Clap',{pos:4,head:'x'}],['Shaker',{pos:-3,head:'x'}],['Tambourine',{pos:-4,head:'x'}],['Cowbell',{pos:-5,head:'d'}]];
   const step=9*sp,W=items.length*step+2*sp,o=[];
   for(let l=0;l<5;l++) o.push(`<line x1="0" x2="${W}" y1="${y0+l*sp}" y2="${y0+l*sp}" stroke-width="1" class="scline"/>`);
   items.forEach(([name,n],i)=>{const x=sp*2+i*step+step/2,y=y0+n.pos*sp/2;scHead(o,n,x,y,sp,hw);
@@ -1835,7 +1856,11 @@ function applyLanes(){let n=0;ROWS.forEach((R,r)=>{const on=laneOn(R);if(on) n++
 function buildGrid(){const g=$('grid');g.appendChild(document.createElement('div'));
   for(let j=0;j<16;j++){const n=document.createElement('div');n.className='num'+(j%4===0?' dn':'')+(j&&j%4===0?' b4':'');n.textContent=j+1;g.appendChild(n)}
   ROWS.forEach((R,r)=>{const nm=document.createElement('button');nm.className='name';nm.innerHTML=`<code>${R.id}</code><span>${R.short?`<span class="nfull">${R.name}</span><span class="nshort">${R.short}</span>`:R.name}</span>`;nm.setAttribute('aria-label','Mute '+R.name);
-    nm.addEventListener('click',()=>{ST.mute[R.k]=!ST.mute[R.k];applyBuses();renderGrid();save()});g.appendChild(nm);names.push(nm);pads[r]=[];
+    let held=0,ht=0;
+    nm.addEventListener('click',()=>{if(performance.now()-held<600) return;ST.mute[R.k]=!ST.mute[R.k];applyBuses();renderGrid();save()});
+    nm.addEventListener('contextmenu',e=>{e.preventDefault();openLaneMenu(r,e.clientX,e.clientY)});
+    nm.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse') return;clearTimeout(ht);ht=setTimeout(()=>{held=performance.now();openLaneMenu(r,e.clientX,e.clientY)},480)});
+    ['pointerup','pointerleave','pointercancel'].forEach(ev=>nm.addEventListener(ev,()=>clearTimeout(ht)));g.appendChild(nm);names.push(nm);pads[r]=[];
     for(let j=0;j<16;j++){const p=document.createElement('button');p.className='pad'+(j%4===0?' dn':'')+(j&&j%4===0?' b4':'');p.dataset.r=r;p.dataset.j=j;p.setAttribute('aria-label',R.name+' step '+(j+1));
       g.appendChild(p);pads[r][j]=p;colPads[j].push(p)}});
   // Tap a step to switch it on or off. Where you tap sets the velocity: the step fills from the bottom up to the finger, so the
@@ -1903,6 +1928,22 @@ function openArtMenu(r,j,x,y){const R=ROWS[r],L=ART[R.k];if(!laneHasArts(R.k)) r
   m.hidden=false;const W=innerWidth,H=innerHeight,w=m.offsetWidth,hh=m.offsetHeight;
   m.style.left=clamp(x+6,8,W-w-8)+'px';m.style.top=clamp(y+6,8,H-hh-8)+'px';
   const first=m.querySelector('[aria-checked="true"]')||m.querySelector('button');if(first) first.focus({preventScroll:true})}
+// the lane menu: mute, solo, and the kit's sounds for this lane
+function openLaneMenu(r,x,y){const R=ROWS[r],m=$('artMenu');closeArtMenu();m.textContent='';
+  const h=document.createElement('h3');h.textContent=R.name;m.appendChild(h);
+  const item=(label,on,fn,role)=>{const b=document.createElement('button');b.setAttribute('role',role||'menuitemcheckbox');b.setAttribute('aria-checked',!!on);
+    b.innerHTML=`<span>${label}</span>`;b.addEventListener('click',()=>{fn();closeArtMenu()});m.appendChild(b);return b};
+  item('Mute',ST.mute[R.k],()=>{ST.mute[R.k]=!ST.mute[R.k];applyBuses();renderGrid();save()});
+  item('Solo',ST.solo&&ST.solo[R.k],()=>{ST.solo=ST.solo||{};ST.solo[R.k]=!ST.solo[R.k];applyBuses();renderGrid();save()});
+  const ids=R.k==='h'?['CH','OH']:[R.id];
+  ids.forEach(id=>{const C=KIT.def&&KIT.def.choices&&KIT.def.choices[id];if(!C||C.length<2) return;
+    const s=document.createElement('div');s.className='sep';m.appendChild(s);
+    if(ids.length>1){const h2=document.createElement('h3');h2.textContent=id==='OH'?'Open hat':'Closed hat';m.appendChild(h2)}
+    const cur=choiceOf(KIT,id);C.forEach((c,i)=>item(c.name,c===cur,()=>pickChoice(id,i),'menuitemradio'))});
+  if(ST.solo&&Object.values(ST.solo).some(Boolean)){const s=document.createElement('div');s.className='sep';m.appendChild(s);
+    const b=document.createElement('button');b.className='clear';b.textContent='Clear all solos';b.addEventListener('click',()=>{ST.solo={};applyBuses();renderGrid();save();closeArtMenu()});m.appendChild(b)}
+  m.hidden=false;const W=innerWidth,H=innerHeight,w=m.offsetWidth,hh=m.offsetHeight;
+  m.style.left=clamp(x+6,8,W-w-8)+'px';m.style.top=clamp(y+6,8,H-hh-8)+'px';const f=m.querySelector('button');if(f) f.focus({preventScroll:true})}
 function closeArtMenu(){const m=$('artMenu');if(m.hidden) return;m.hidden=true;artAt=null}
 function setArt(r,j,i){const R=ROWS[r],sl=ST.slots[ST.cur];if(!sl[R.k][j]) sl[R.k][j]=2;sl.art[R.k][j]=i;if(i){const key=ART[R.k][i][0];wantArt(R.k==='h'?hatVoice(key):R.id,key)}
   ensureAudio().then(()=>{if(!playing) hearStep(r,j)});renderGrid();save()}
@@ -1915,7 +1956,8 @@ function hearStep(r,j){const R=ROWS[r],sl=ST.slots[ST.cur],v=sl[R.k][j];if(!v) r
   if(art==='open') id='OH';else if(art){x={art,len:art==='roll'?qn()/4:0};if(R.k==='h') id=hatVoice(art)}
   hitDrum(E,id,ctx.currentTime+.02,stepVel(sl,R.k,j),x)}
 function renderGrid(){scoreSoon();const sl=ST.slots[ST.cur];
-  ROWS.forEach((R,r)=>{const m=!!ST.mute[R.k];names[r].classList.toggle('muted',m);names[r].setAttribute('aria-pressed',m);
+  const solo=ST.solo&&Object.values(ST.solo).some(Boolean);
+  ROWS.forEach((R,r)=>{const m=!!ST.mute[R.k]||(solo&&!ST.solo[R.k]);names[r].classList.toggle('muted',m);names[r].classList.toggle('solo',!!(ST.solo&&ST.solo[R.k]));names[r].setAttribute('aria-pressed',!!ST.mute[R.k]);
     for(let j=0;j<16;j++){const p=pads[r][j];p.dataset.v=sl[R.k][j];p.classList.toggle('mut',m);
       const vx=sl.vel&&sl.vel[R.k]&&sl[R.k][j]?sl.vel[R.k][j]:null;p.classList.toggle('vx',vx!=null);if(vx!=null) p.style.setProperty('--fill',(vx>=100?100:vx*.8)+'%');p.dataset.vel=sl[R.k][j]?Math.round(stepVel(sl,R.k,j)*100):''   // the fill sits where a tap of that velocity lands
       const vtxt=sl[R.k][j]?', velocity '+Math.round(stepVel(sl,R.k,j)*100)+'%':'';
@@ -2025,28 +2067,26 @@ function buildKitSeg(){KITS.forEach((K,i)=>{const b=document.createElement('butt
 // an effect in use: switched on globally, or (echo and reverb) sent to from any instrument
 const fxUsed=k=>ST.fx[k==='fec'?'ec':'rv']||ROWS.some(R=>vsp(R.id,k)>0);
 const FX_OFF={ecKnobs:()=>!fxUsed('fec'),rvKnobs:()=>!fxUsed('frv'),tpKnobs:()=>!ST.fx.tape};
-const MIC_K=[{k:'oh',label:'Overheads',min:0,max:100,step:1,def:73,fmt:v=>v<=0?'Off':Math.round(v)+'%',off:()=>!kitHas('oh')},
-  {k:'room',label:'Room',min:0,max:100,step:1,def:0,fmt:v=>v<=0?'Off':Math.round(v)+'%',off:()=>!kitHas('room')}];
+
 // every knob row on the sound page travels to where it belongs (resting fully left while its effect is off)
-const fxMotor=()=>['ecKnobs','rvKnobs','tpKnobs','roomKnobs'].forEach(id=>motor($(id)));
+const fxMotor=()=>['ecKnobs','rvKnobs','tpKnobs'].forEach(id=>motor($(id)));
 function buildSound(){renderVoice();FEEL_K.forEach(s=>$('feelKnobs').appendChild(knob(s,ST.feel)));
   Object.entries(FX_GROUPS).forEach(([box,list])=>list.forEach(s=>$(box).appendChild(knob({...s,off:FX_OFF[box]},ST.fx,fxCh))));
   $('swingSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b) return;ST.feel.swing8=b.dataset.v==='8';renderSound();save()});
   $('rvSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.v===ST.fx.rtype) return;ST.fx.rtype=b.dataset.v;ST.fx.rdec=RV_DEF[b.dataset.v][0];renderSound();motor($('rvKnobs'));fxCh();save()});
   document.querySelectorAll('.fxq').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fx;ST.fx[k]=!ST.fx[k];renderSound();fxMotor();if(k==='tape') tpTick();else fxCh();save()}));
   TP_KNOBS.forEach(s=>$('tpKnobs').appendChild(knob({...s,off:FX_OFF.tpKnobs},ST.fx,tpSend)));
-  MIC_K.forEach(s=>$('roomKnobs').appendChild(knob(s,ST.fx,()=>stemLoad(s.k))));
   ['j37','atr100'].forEach(m=>{const b=document.createElement('button');b.dataset.v=m;b.textContent=TPL.MACHINES[m].label;b.addEventListener('click',()=>{ST.fx.tmach=m;renderSound();tpSend();save()});$('tpSeg').appendChild(b)});
   ['ferric','sm468'].forEach(k=>{const b=document.createElement('button');b.dataset.v=k;b.textContent=TPL.TAPES[k].label;b.addEventListener('click',()=>{ST.fx.ttape=k;renderSound();tpSend();save()});$('tpTapeSeg').appendChild(b)})}
 function renderSound(){document.querySelectorAll('.fxq').forEach(b=>b.setAttribute('aria-pressed',!!ST.fx[b.dataset.fx]));
   const used=fxUsed;
   $('gTp').classList.toggle('off',!ST.fx.tape);[...$('tpSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.tmach));[...$('tpTapeSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.ttape));
-  $('gEc').classList.toggle('off',!used('fec'));$('gRm').classList.toggle('off',!kitHas('oh')&&!kitHas('room'));$('gRv').classList.toggle('off',!used('frv'));
+  $('gEc').classList.toggle('off',!used('fec'));$('gRv').classList.toggle('off',!used('frv'));
   [...$('swingSeg').children].forEach(b=>b.setAttribute('aria-pressed',(b.dataset.v==='8')===!!ST.feel.swing8));
   [...$('rvSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ST.fx.rtype))}
 const swept=new Set();
 function powerOn(v){if(swept.has(v)) return;swept.add(v);
-  const rows=v==='steps'?['feelKnobs']:['voiceKnobs','ecKnobs','roomKnobs','rvKnobs','outKnobs','tpKnobs'];
+  const rows=v==='steps'?['feelKnobs']:['voiceKnobs','ecKnobs','rvKnobs','outKnobs','tpKnobs'];
   rows.forEach((id,n)=>{const box=$(id);if(!box) return;[...box.children].forEach((el,i)=>{if(el.glide&&!matchMedia('(prefers-reduced-motion: reduce)').matches) el.glide(0,120+n*60+i*28)})})}
 function setView(v){ST.view=v;if(v!=='score') requestAnimationFrame(()=>powerOn(v));$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('scoreView').hidden=v!=='score';
   $('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');$('vScore').setAttribute('aria-pressed',v==='score');if(v==='score') scoreRender();save()}

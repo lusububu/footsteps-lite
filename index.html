@@ -1571,8 +1571,6 @@ function scoreRender(){const host=$('score');if(!host||$('scoreView').hidden) re
       const lp=(m.rs?2.6:1.6)*sp,rp=(m.re?2:1)*sp,w=(mw-lp-rp)/16;
       scGeo.push({x:mx,y:y0,w:mw,lp,slot:w,sp,m});
       o.push(`<rect class="schl" data-m="${sy*per+mi}" x="${mx.toFixed(1)}" y="${(y0-7*sp).toFixed(1)}" width="${mw.toFixed(1)}" height="${(16*sp).toFixed(1)}"/>`);
-      // the bar's label: which pattern it is
-      T(mx+lp-.6*sp,y0-6.3*sp,m.label,1.3*sp,'sclabel');
       if(m.rs){L(mx+.35*sp,y0,mx+.35*sp,y0+4*sp,.5*sp);L(mx+1*sp,y0,mx+1*sp,y0+4*sp,1);o.push(`<circle cx="${mx+1.55*sp}" cy="${y0+1.5*sp}" r="${.24*sp}"/><circle cx="${mx+1.55*sp}" cy="${y0+2.5*sp}" r="${.24*sp}"/>`)}
       const ex=mx+mw;
       if(m.re){o.push(`<circle cx="${ex-1.55*sp}" cy="${y0+1.5*sp}" r="${.24*sp}"/><circle cx="${ex-1.55*sp}" cy="${y0+2.5*sp}" r="${.24*sp}"/>`);L(ex-1*sp,y0,ex-1*sp,y0+4*sp,1);L(ex-.35*sp,y0,ex-.35*sp,y0+4*sp,.5*sp)}

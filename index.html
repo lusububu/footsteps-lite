@@ -1048,7 +1048,7 @@ const slotHas=i=>ROWS.some(r=>ST.slots[i][r.k].some(Boolean));
 const SND_DEF={v_SD_shift:-2,v_CH_swg:0,v_CY_swg:0};
 ST.snd={...SND_DEF,...(ST.snd&&typeof ST.snd==='object'?ST.snd:{})};
 // knobs for a sampled lane: level, pan, tune (semitones), decay (100 = the whole recording), tone (lowpass, 20 kHz = open), tight
-const SAMPLE_DEF={slevel:75,span:0,stune:0,sdecay:100,stone:20,stight:0,fec:0,frv:0};   // fec/frv: this lane's own echo and reverb amounts
+const SAMPLE_DEF={slevel:75,span:0,stune:0,sdecay:100,stone:20,stight:0,fec:0,frv:0,sroll:18,srollv:40};   // fec/frv: this lane's own echo and reverb amounts
 
 // ---------- voice tables ----------
 // Tight: how long each voice may ring at full Tight before its gate closes (seconds), from Footsteps Mobile
@@ -1137,13 +1137,14 @@ function hitDrum(E,id,t,vel,x){const art=x&&x.art,k=sampleKey(id,x);if(art) want
   const own=art&&k!==KIT.rows[id];   // this kit has a recording of the articulation
   // a kit without the recording plays the lane's normal stroke, and makes the flam and the roll from it
   if(art==='flam'&&!own){playSample(E,id,t-(.016+Math.random()*.012),vel*.32,k,false);playSample(E,id,t,vel,k,false);return}
-  // the roll (where the kit has no recording of one): a buzz roll. The strokes come about 19 ms apart (a little uneven) and
-  // use the recordings of soft strokes, which have little attack, played at the roll's level; each is cut short so they
-  // blend into one sound rather than a row of hits. The roll swells slightly, and its last stroke is a normal one, left to ring
-  if(art==='roll'&&!own){const len=x.len||.12,n=Math.max(5,Math.round(len/.019)),soft=clamp(vel*.32,.1,.3);let at=t;
+  // the roll (where the kit has no recording of one): soft strokes at the Snare's Roll speed (strokes a second) and Roll
+  // level (how loud the strokes inside the roll are against the step). They use the recordings of soft strokes, which have
+  // little attack, alternate hands a little, and each is cut short so they blend; the last stroke is a normal one, left to ring
+  if(art==='roll'&&!own){const len=x.len||.12,rate=clamp(vsp(id,'sroll'),8,40),inner=clamp(vsp(id,'srollv'),10,100)/100;
+    const n=Math.max(3,Math.round(len*rate)),gap=len/n,soft=clamp(vel*.3,.08,.3),cut=Math.min(.07,gap*1.4);let at=t;
     for(let i=0;i<n;i++){const last=i===n-1,f=i/(n-1||1);
-      const v=vel*(i===0?.62:last?.8:(.36+.16*f)*(1+nrm()*.1));
-      playSample(E,id,at,v,k,last?false:soft*(1+nrm()*.15),last?0:.028);at+=len/n*(1+nrm()*.15)}return}
+      const v=vel*(i===0?Math.min(1,inner*1.3):last?.75:inner*(.85+.25*f)*(i%2?.88:1)*(1+nrm()*.08));
+      playSample(E,id,at,v,k,last?false:soft*(1+nrm()*.15),last?0:cut);at+=gap*(1+nrm()*.12)}return}
   if(art==='pedal'&&!own) vel*=.45;
   playSample(E,id,t,vel,k,x&&x.fill?'any':x&&x.ghost?'soft':false,art==='roll'?x.len:0)}
 
@@ -2050,6 +2051,8 @@ function voiceSpecs(R){const id=R.id,key=k=>vkey(id,k);
     {k:key('span'),label:'Pan',min:-100,max:100,step:1,def:0,fmt:panTxt,apply:true},
     {k:key('shift'),label:'Timing',min:-50,max:50,step:1,def:SND_DEF[key('shift')]||0,fmt:msTxt}];
   if(id==='CH'||id==='OH'||id==='CY') L.push({k:key('swg'),label:'Swing',min:0,max:100,step:1,def:0,fmt:pct});
+  // the roll is made from single strokes (where the kit has no recording of one): how fast, and how loud inside
+  if(id==='SD') L.push({k:key('sroll'),label:'Roll speed',min:8,max:40,step:1,def:18,fmt:v=>Math.round(v)+'/s'},{k:key('srollv'),label:'Roll level',min:10,max:100,step:1,def:40,fmt:pct});
   const plus=v=>v>0?'+'+Math.round(v)+'%':'Off';
   L.push({k:key('fec'),label:'Echo',min:0,max:100,step:1,def:0,fmt:plus,fx:true},
     {k:key('frv'),label:'Reverb',min:0,max:100,step:1,def:0,fmt:plus,fx:true});

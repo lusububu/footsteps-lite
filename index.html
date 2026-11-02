@@ -936,23 +936,35 @@ const N_SLOTS=8;
 // Kits 1 and 2 (and a kit3.json on the site) come from the site. Kit 3 can also come from a folder on this device:
 // picked once under Settings, its files are read straight from the disk and never uploaded. Where the browser can
 // (Chrome, Edge), the folder is remembered and only needs a tap to open again after a reload.
-const LOCAL={handle:null,files:null,name:'',note:''};
+const LOCAL={handle:null,files:null,name:'',note:'',base:[]};
 const segs=p=>String(p).split('/').filter(s=>s&&s!=='.');
 function kitSource(i){
   if(i===2&&(LOCAL.handle||LOCAL.files)){
+    // a path inside the picked folder: the kit file can sit anywhere in it, and the samples are found from where it is
     const file=async parts=>{
-      if(LOCAL.files){const f=LOCAL.files.get(parts.join('/'))||LOCAL.files.get(parts.join('/').toLowerCase());if(!f) throw new Error('not in the folder: '+parts.join('/'));return f}
+      if(LOCAL.files){const k=parts.join('/'),f=LOCAL.files.get(k)||LOCAL.files.get(k.toLowerCase());if(!f) throw new Error('not in the folder: '+k);return f}
       let d=LOCAL.handle;for(const p of parts.slice(0,-1)) d=await d.getDirectoryHandle(p);return (await d.getFileHandle(parts.at(-1))).getFile()};
+    // look for kit3.json in the picked folder and the folders inside it (nearest first, a few levels down)
+    const findJson=async()=>{
+      if(LOCAL.files){const ks=[...new Set([...LOCAL.files.keys()])].filter(k=>/(^|\/)kit3\.json$/i.test(k)).sort((a,b)=>a.split('/').length-b.split('/').length);
+        return ks.length?{f:LOCAL.files.get(ks[0]),base:ks[0].split('/').slice(0,-1)}:null}
+      let level=[{d:LOCAL.handle,path:[]}],seen=0;
+      for(let depth=0;depth<4&&level.length;depth++){const next=[];
+        for(const {d,path} of level){
+          for await (const [name,h] of d.entries()){if(++seen>20000) return null;
+            if(h.kind==='file'&&name.toLowerCase()==='kit3.json') return {f:await h.getFile(),base:path};
+            if(h.kind==='directory') next.push({d:h,path:[...path,name]})}}
+        level=next}
+      return null};
     return {
       json:async()=>{
         if(LOCAL.handle){let p=await LOCAL.handle.queryPermission({mode:'read'});
           if(p!=='granted'){try{p=await LOCAL.handle.requestPermission({mode:'read'})}catch(e){}}
           if(p!=='granted'){const e=new Error('permission');e.why='Kit 3: tap Kit 3 to open your kit folder again';throw e}}
-        let f=null;try{f=await file(['kit3.json'])}catch(e){}
-        if(!f&&LOCAL.files) f=[...LOCAL.files.entries()].find(([k])=>/^[^/]+\.json$/i.test(k))?.[1];
-        if(!f){const e=new Error('no json');e.why='Kit 3: no kit3.json in '+LOCAL.name;throw e}
-        return JSON.parse(await f.text())},
-      read:async(folder,p)=>(await file([...segs(folder),...segs(p)])).arrayBuffer()}}
+        const hit=await findJson();
+        if(!hit){const e=new Error('no json');e.why='Kit 3: no kit3.json in “'+LOCAL.name+'” or the folders inside it. Pick the folder the script wrote (the one with kit3.json)';throw e}
+        LOCAL.base=hit.base;return JSON.parse(await hit.f.text())},
+      read:async(folder,p)=>(await file([...(LOCAL.base||[]),...segs(folder),...segs(p)])).arrayBuffer()}}
   return {
     json:async()=>{const r=await fetch(KITS[i].file,{cache:'no-cache'});if(!r.ok) throw new Error(r.status);return r.json()},
     read:async(folder,p)=>{const r=await fetch([...segs(folder),...segs(p)].map(encodeURIComponent).join('/'));if(!r.ok) throw new Error(r.status);return r.arrayBuffer()}}}
@@ -1123,7 +1135,7 @@ async function kitFetch(i){i=clamp(i|0,0,KITS.length-1);if(LOADING&&LOADING.idx=
   const K=newKit(i),first=!KIT.def;LOADING=K;if(first) KIT=K;kitUI();
   const src=kitSource(i);K.read=src.read;
   try{K.def=await src.json()}
-  catch(e){K.missing=true;K.why=e&&e.why;if(K.why) LOCAL.note=K.why;if(LOADING===K) LOADING=null;kitUI();if(first&&i!==0) setTimeout(()=>kitFetch(0),50);return}
+  catch(e){K.missing=true;K.why=e&&e.why;if(K.why){LOCAL.note=K.why;$('folderStatus').textContent=K.why}else if(i===2&&(LOCAL.handle||LOCAL.files)){LOCAL.note='Kit 3: kit3.json could not be read ('+(e&&e.message)+')';$('folderStatus').textContent=LOCAL.note}if(LOADING===K) LOADING=null;kitUI();if(first&&i!==0) setTimeout(()=>kitFetch(0),50);return}
   if(i===2) LOCAL.note='';
   const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');K.rows=k.rows||{};
   const takes=keys=>{const J=[];new Set(keys.filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>J.push(tk)))});return J.sort((a,b)=>(a.seconds||1)-(b.seconds||1))};
@@ -1164,7 +1176,7 @@ function bufPeak(b){let m=1e-6;for(let ch=0;ch<b.numberOfChannels;ch++){const d=
 function kitDecode(tk,K){const ab=tk.ab;tk.ab=null;
   return new Promise(ok=>{const wasPend=K.pend.includes(tk),done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);K.ready++}else K.failed++;if(tk._base&&!wasPend) K.bDone++;kitUI();if(b&&E&&K===KIT) applyBuses();kitDone(K);ok()};
     try{const p=ctx.decodeAudioData(ab,done,()=>done(null));if(p&&p.catch) p.catch(()=>{})}catch(e){done(null)}})}
-function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;queueMicrotask(()=>{el.title=el.textContent});
+function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;queueMicrotask(()=>{el.title=el.textContent;if(LOCAL.note&&K.idx!==2&&!K.missing) el.textContent=LOCAL.note});
   [...$('kitSeg').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===K.idx));
   if(K.idx<0){el.textContent='';return}
   if(K.missing){el.textContent=K.why||KITS[K.idx].label+': samples not found. Open the page from GitHub Pages or a local server';return}

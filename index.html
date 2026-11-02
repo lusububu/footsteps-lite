@@ -161,7 +161,23 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 .feelhead{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
 .feelhead .seg button{height:26px;padding:0 7px;font-size:10px}
 .feel .knobs{flex:1;min-width:0;display:flex;justify-content:space-between;gap:4px;flex-wrap:nowrap}
-.feel .knob{flex:1 1 0;min-width:0;width:auto;display:grid;grid-template-columns:auto;justify-items:center;gap:1px}
+.feel .fcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.feel .knob{min-width:0;width:auto;display:grid;grid-template-columns:auto;justify-items:center;gap:1px}
+/* short screens (phones on their side): each knob is a small dial with its name and value beside it */
+@media (max-height:520px){
+  .feel{padding-top:5px;align-items:center}
+  .feel .fcol{gap:3px}
+  .feel .knob{grid-template-columns:auto 1fr;grid-template-rows:auto auto;justify-items:start;align-items:center;column-gap:4px;row-gap:0}
+  .feel .knob .kdial{grid-row:1/3;width:26px;height:26px}
+  .feel .klabel{font-size:9.5px;max-width:100%;align-self:end}
+  .feel .kvalue{font-size:8.5px;align-self:start}
+  .feel .fxbar{flex-direction:column;gap:2px}
+  .feel .fxbar .btn.toggle{height:21px;padding:0 6px;font-size:9.5px}
+  .feel .kitsw{flex-direction:column}
+  .feel .kitsw button{height:26px;padding:0 9px}
+  .feelhead .seg{flex-direction:column}
+  .feelhead .seg button{height:21px}
+}
 .feel .kdial{width:34px;height:34px}
 .feel .klabel{font-size:11px;line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .feel .kvalue{font-size:9.5px}
@@ -1026,7 +1042,7 @@ const pat=o=>normSlot(Object.fromEntries(Object.entries(o).map(([k,s])=>[k,[...s
 // the Footsteps groove as saved in Footsteps Mobile: patterns 1 and 2, chained
 const defaults=()=>({tempo:80,cur:0,chain:true,chainSeq:[],intro:-1,view:'steps',kitIdx:0,mute:{},solo:{},choice:{},
   slots:[pat({k:'x.......x.......',s:'....x.......x...',h:'x.x...xx.xx...xx'}),pat({k:'x...x...x.......',s:'....x.......x...',h:'x.x...xx.xx.....',o:'..............x.'})].concat(Array.from({length:N_SLOTS-2},()=>pat({}))),
-  feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0},
+  feel:{swing:4,swing8:false,loose:24,kghost:8,ghost:0,hat:0,touch:50,hfill:0,hghost:0,kvar:0,svar:0,intensity:50},
   fx:{ec:false,emix:30,etime:3,efb:40,etone:4.5,oh:73,room:0,rv:true,rtype:'plate',rmix:18,rdec:1.6,rtone:8,level:70,lim:-1,rel:80,tape:false,tmach:'j37',ttape:'ferric',twow:20,tflut:20,tin:50,tbias:50,tout:50}});
 const KEY='footsteps-lite-v1';
 // the kits: Kit 2 from the site, Kit 3 from the site or a folder on this device (Kit 1 was removed). Saves name the kit by
@@ -1048,7 +1064,7 @@ const slotHas=i=>ROWS.some(r=>ST.slots[i][r.k].some(Boolean));
 const SND_DEF={v_SD_shift:-2,v_CH_swg:0,v_CY_swg:0};
 ST.snd={...SND_DEF,...(ST.snd&&typeof ST.snd==='object'?ST.snd:{})};
 // knobs for a sampled lane: level, pan, tune (semitones), decay (100 = the whole recording), tone (lowpass, 20 kHz = open), tight
-const SAMPLE_DEF={slevel:75,span:0,stune:0,sdecay:100,stone:20,stight:0,fec:0,frv:0,sroll:18,srollv:40};   // fec/frv: this lane's own echo and reverb amounts
+const SAMPLE_DEF={slevel:75,span:0,stune:0,sdecay:100,stone:20,stight:0,fec:0,frv:0};   // fec/frv: this lane's own echo and reverb amounts
 
 // ---------- voice tables ----------
 // Tight: how long each voice may ring at full Tight before its gate closes (seconds), from Footsteps Mobile
@@ -1137,14 +1153,14 @@ function hitDrum(E,id,t,vel,x){const art=x&&x.art,k=sampleKey(id,x);if(art) want
   const own=art&&k!==KIT.rows[id];   // this kit has a recording of the articulation
   // a kit without the recording plays the lane's normal stroke, and makes the flam and the roll from it
   if(art==='flam'&&!own){playSample(E,id,t-(.016+Math.random()*.012),vel*.32,k,false);playSample(E,id,t,vel,k,false);return}
-  // the roll (where the kit has no recording of one): soft strokes at the Snare's Roll speed (strokes a second) and Roll
-  // level (how loud the strokes inside the roll are against the step). They use the recordings of soft strokes, which have
-  // little attack, alternate hands a little, and each is cut short so they blend; the last stroke is a normal one, left to ring
-  if(art==='roll'&&!own){const len=x.len||.12,rate=clamp(vsp(id,'sroll'),8,40),inner=clamp(vsp(id,'srollv'),10,100)/100;
+  // the roll (where the kit has no recording of one): soft strokes, 18 a second, at about 10% of the step. They use the
+  // recordings of soft strokes, which have little attack, alternate hands a little, and each is cut short so they blend.
+  // It ends as it goes: no louder last stroke, the last one only rings a little longer
+  if(art==='roll'&&!own){const len=x.len||.12,rate=18,inner=.1;
     const n=Math.max(3,Math.round(len*rate)),gap=len/n,soft=clamp(vel*.3,.08,.3),cut=Math.min(.07,gap*1.4);let at=t;
     for(let i=0;i<n;i++){const last=i===n-1,f=i/(n-1||1);
-      const v=vel*(i===0?Math.min(1,inner*1.3):last?.75:inner*(.85+.25*f)*(i%2?.88:1)*(1+nrm()*.08));
-      playSample(E,id,at,v,k,last?false:soft*(1+nrm()*.15),last?0:cut);at+=gap*(1+nrm()*.12)}return}
+      const v=vel*(i===0?inner*1.3:inner*(.85+.25*f)*(i%2?.88:1)*(1+nrm()*.08));
+      playSample(E,id,at,v,k,soft*(1+nrm()*.15),last?cut*2.5:cut);at+=gap*(1+nrm()*.12)}return}
   if(art==='pedal'&&!own) vel*=.45;
   playSample(E,id,t,vel,k,x&&x.fill?'any':x&&x.ghost?'soft':false,art==='roll'?x.len:0)}
 
@@ -1505,7 +1521,18 @@ function barPlan(b,P){const old=barPlans.get(b);if(old) return old;
         const alt=ranked.find(c=>c!==out&&!pick.includes(c)&&!pick.some(p=>Math.abs(p[0]-c[0])<1));if(alt) pick.push(alt);else pick.push(out)}
       // soft, a touch louder where they lead into a beat
       pick.forEach(([j,w])=>hg.set(j,.11+.06*Math.min(1,w)+Math.random()*.04))}}
-  const plan={gs,gk,go,hs,hf,hg,swj:nrm()*1.5*(.5+L)};
+  // Kick variation: now and then a kick is left out (most often on the e and a, less on the and, never on beat 1), and in the
+  // last bar of four a kick may push into the next bar from the a of beat 4.
+  // Snare variation: off-beat snares are sometimes left out (never the backbeat), a backbeat is now and then a flam, and the last
+  // bar of four may end with a snare on the a of beat 4. Both also widen how the strength of their strokes moves (in drumsFor)
+  const KV=(F.kvar||0)/100,SV=(F.svar||0)/100,ks=new Set(),ka=new Map(),ss=new Set(),sf=new Set(),sa=new Map();
+  for(let j=1;j<spb;j++){const pos=j%4,w=pos===0?(j===8?.03:.06):pos===2?.15:.32;
+    if(row('k')[j]&&!P.art.k[j]&&Math.random()<KV*w*(ks.has(j-1)?.3:1)) ks.add(j);
+    if(row('s')[j]&&!P.art.s[j]&&j!==4&&j!==12&&Math.random()<SV*w) ss.add(j)}
+  [4,12].forEach(j=>{if(row('s')[j]&&!P.art.s[j]&&Math.random()<SV*.08) sf.add(j)});
+  if(last&&!row('k')[15]&&!row('s')[15]&&has('k',16)&&Math.random()<KV*.35) ka.set(15,.55+.15*Math.random());
+  if(last&&!row('s')[15]&&!row('k')[15]&&!ka.has(15)&&Math.random()<SV*.3) sa.set(15,.45+.2*Math.random());
+  const plan={gs,gk,go,hs,hf,hg,ks,ka,ss,sf,sa,swj:nrm()*1.5*(.5+L)};
   barPlans.set(b,plan);if(barPlans.size>16) barPlans.delete(barPlans.keys().next().value);return plan}
 // ---------- the drummer's body: what happens to a hit just before it is played ----------
 // which limb plays a hit: the hat hands come from the hat pattern (right leads), the hi-hat foot and the kick foot are the feet,
@@ -1530,7 +1557,7 @@ function shapeHits(E,evs,qn){const F=ST.feel,last=E.lastHit||(E.lastHit={}),touc
     if(lt==null||at>lt) last[limb]=at;
     return [at,id,curve(vel),x]})}
 // the hits that fall inside one slice of the timeline (q in quarter notes from the start)
-function drumsFor(t,q0,lq,qn){const F=ST.feel,L=F.loose/100,H=F.hat/100,now=ctx.currentTime;
+function drumsFor(t,q0,lq,qn){const F=ST.feel,L=F.loose/100,H=F.hat/100,KV=(F.kvar||0)/100,SV=(F.svar||0)/100,now=ctx.currentTime,INT=intensityGain();
   const b0=Math.max(0,Math.floor((q0-.5)/4+1e-9)),b1=Math.ceil((q0+lq+.5)/4-1e-9);
   const fresh=q0<1e-6,sB=bandSigma(),sL=(.8+L*5)/1000,evs=[];
   const hit=(k,j,b,q0w,v,o)=>{o=o||{};const id=o.id||ROW_ID[k];let q=q0w+clamp((+ST.snd[vkey(id,'shift')]||0)/100,-.5,.5);
@@ -1538,11 +1565,11 @@ function drumsFor(t,q0,lq,qn){const F=ST.feel,L=F.loose/100,H=F.hat/100,now=ctx.
     if(q<q0-1e-9||q>=q0+lq-1e-9) return;
     const LL=Math.max(.2,L),gst=b*16+Math.floor(j),bt=beatOf(gst),hat=id==='CH'||id==='OH';
     // touch: the band's slow 1/f swell, this voice's own, and a small per-hit part
-    const vf=(1+loudDev('band',bt)*(.025+.07*L))*(1+loudDev(id,bt)*(.02+.05*L+(hat?.08*H:0)))*(1+nrm()*(.03+.06*L));
+    const vf=(1+loudDev('band',bt)*(.025+.07*L))*(1+loudDev(id,bt)*(.02+.05*L+(hat?.08*H:0)+(id==='BD'?.09*KV:id==='SD'?.09*SV:0)))*(1+nrm()*(.03+.06*L+(id==='BD'?.06*KV:id==='SD'?.06*SV:0)));
     // timing: the shared 1/f band clock, this limb's own series, a trace of white noise, a little earlier when struck harder
     let dev=bandDev(gst)*sB+limbDev(o.limb||id)*sL+nrm()*.001*LL-(vf-1)*.012;
     if(v<.3) dev+=.002+.004*L;
-    const at=t+(q-q0)*qn+dev,vel=Math.max(.05,v*vf);
+    const at=t+(q-q0)*qn+dev,vel=clamp(v*vf*INT,.03,1.6);
     if(at<now) return;
     evs.push([at,id,vel,o.art?{art:o.art,len:o.len}:o.fill?{fill:1}:o.ghost?{ghost:1}:null,limbOf(id,o)])};
   for(let b=b0;b<b1;b++){const P=ST.slots[getSlot(b)],has=(k,j)=>!!P[k][((j%16)+16)%16],PL=barPlan(b,P),sp=(j,id)=>b*4+stepPos(j,id,PL.swj);
@@ -1553,13 +1580,16 @@ function drumsFor(t,q0,lq,qn){const F=ST.feel,L=F.loose/100,H=F.hat/100,now=ctx.
         if(!v){
           if(R.k==='s'&&PL.gs.has(j)) hit('s',j,b,q,PL.gs.get(j));
           else if(R.k==='k'&&PL.gk.has(j)) hit('k',j,b,q,.35);
+          else if(R.k==='k'&&PL.ka&&PL.ka.has(j)) hit('k',j,b,q,PL.ka.get(j));
+          else if(R.k==='s'&&PL.sa&&PL.sa.has(j)) hit('s',j,b,q,PL.sa.get(j));
           else if(R.k==='h'&&PL.hf.has(j)) hit('h',j,b,q,fillVel(P,j-.5)*PL.hf.get(j),{limb:j%2?'CHL':'CHR',fill:true});
           else if(R.k==='h'&&PL.hg.has(j)) hit('h',j,b,q,PL.hg.get(j),{limb:'CHL',ghost:true});
           continue}
         let vel=stepVel(P,R.k,j),limb;
         if(R.k==='h'&&PL.hg.has(j+.5)) hit('h',j+.5,b,b*4+(stepPos(j,'CH',PL.swj)+stepPos(j+1,'CH',PL.swj))/2,PL.hg.get(j+.5),{limb:'CHL',ghost:true});
         if(R.k==='h'&&PL.hf.has(j+.5)) hit('h',j+.5,b,b*4+(stepPos(j,'CH',PL.swj)+stepPos(j+1,'CH',PL.swj))/2,fillVel(P,j)*PL.hf.get(j+.5),{limb:'CHL',fill:true});
-        const ai=ART[R.k]?P.art[R.k][j]|0:0,art=ai?ART[R.k][ai][0]:'';
+        if((R.k==='k'&&PL.ks&&PL.ks.has(j))||(R.k==='s'&&PL.ss&&PL.ss.has(j))) continue;
+        const ai=ART[R.k]?P.art[R.k][j]|0:0,art=ai?ART[R.k][ai][0]:(R.k==='s'&&PL.sf&&PL.sf.has(j)?'flam':'');
         if(R.k==='h'){if(PL.hs.has(j)) continue;
           if(art==='pedal'){hit('h',j,b,q,vel,{limb:'HF',art});continue}   // the foot, not a hand
           limb=hand(j);if(limb==='CHL') vel*=.82;
@@ -2027,11 +2057,18 @@ function knob(spec,obj,onChange){const el=document.createElement('div');el.class
   draw();knobRefs[spec.k]=draw;return el}
 // move a row of knobs to their settings one after another, like motor faders
 function motor(box,from){if(!box) return;const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  [...box.children].forEach((el,i)=>{if(!el.glide) return;if(still){el.redraw();return}el.glide(from??el._f??0,i*28)})}
+  [...box.querySelectorAll('.knob')].forEach((el,i)=>{if(!el.glide) return;if(still){el.redraw();return}el.glide(from??el._f??0,i*28)})}
 const pct=v=>Math.round(v)+'%';
+// Intensity: every stroke a little harder or softer (50% leaves them as programmed). Harder strokes also reach the louder
+// recordings, so the kit changes colour as well as level
+const intensityGain=()=>{const i=(ST.feel.intensity??50)/100;return i<=.5?.4+1.2*i:1+1.2*(i-.5)};
 const FEEL_K=[{k:'swing',label:'Swing',min:0,max:100,step:1,def:4,fmt:pct},{k:'loose',label:'Looseness',short:'Loose',min:0,max:100,step:1,def:24,fmt:pct},
   {k:'kghost',label:'Kick ghosts',short:'Kick gh',min:0,max:100,step:1,def:8,fmt:pct},{k:'ghost',label:'Snare ghosts',short:'Snr gh',min:0,max:100,step:1,def:0,fmt:pct},
-  {k:'hat',label:'Hat variation',short:'Hat var',min:0,max:100,step:1,def:0,fmt:pct},{k:'hghost',label:'Hat ghosts',short:'Hat gh',min:0,max:100,step:1,def:0,fmt:pct},{k:'touch',label:'Touch',min:0,max:100,step:1,def:50,fmt:pct}];
+  {k:'hat',label:'Hat variation',short:'Hat var',min:0,max:100,step:1,def:0,fmt:pct},{k:'hghost',label:'Hat ghosts',short:'Hat gh',min:0,max:100,step:1,def:0,fmt:pct},{k:'touch',label:'Touch',min:0,max:100,step:1,def:50,fmt:pct},
+  {k:'kvar',label:'Kick variation',short:'Kick var',min:0,max:100,step:1,def:0,fmt:pct},{k:'svar',label:'Snare variation',short:'Snr var',min:0,max:100,step:1,def:0,fmt:pct},
+  {k:'intensity',label:'Intensity',short:'Intens.',min:0,max:100,step:1,def:50,fmt:v=>{const g=(v<=50?.4+1.2*v/100:1+1.2*(v/100-.5));return Math.abs(g-1)<.005?'As set':(g>1?'+':'')+Math.round((g-1)*100)+'%'}}];
+// the feel knobs in columns: the timing pair, then kick, snare and hat, then touch and intensity
+const FEEL_COLS=[['swing','loose'],['kghost','kvar'],['ghost','svar'],['hat','hghost'],['touch','intensity']];
 const fxCh=()=>applyFx(false);
 const FX_GROUPS={ecKnobs:[{k:'emix',label:'Amount',min:0,max:100,step:1,def:30,fmt:pct},{k:'etime',label:'Time',min:0,max:6,step:1,def:3,fmt:echoTxt},{k:'efb',label:'Repeats',min:0,max:95,step:1,def:40,fmt:pct},{k:'etone',label:'Tone',min:1.5,max:12,step:.5,def:4.5,fmt:v=>(+v).toFixed(1)+' kHz'}],
   rvKnobs:[{k:'rmix',label:'Amount',min:0,max:100,step:1,def:18,fmt:pct},{k:'rdec',label:'Decay',min:.3,max:6,step:.1,def:1.6,fmt:v=>(+v).toFixed(1)+' s'},{k:'rtone',label:'Tone',min:1.5,max:16,step:.5,def:8,fmt:v=>(+v).toFixed(1)+' kHz'}],
@@ -2051,8 +2088,6 @@ function voiceSpecs(R){const id=R.id,key=k=>vkey(id,k);
     {k:key('span'),label:'Pan',min:-100,max:100,step:1,def:0,fmt:panTxt,apply:true},
     {k:key('shift'),label:'Timing',min:-50,max:50,step:1,def:SND_DEF[key('shift')]||0,fmt:msTxt}];
   if(id==='CH'||id==='OH'||id==='CY') L.push({k:key('swg'),label:'Swing',min:0,max:100,step:1,def:0,fmt:pct});
-  // the roll is made from single strokes (where the kit has no recording of one): how fast, and how loud inside
-  if(id==='SD') L.push({k:key('sroll'),label:'Roll speed',min:8,max:40,step:1,def:18,fmt:v=>Math.round(v)+'/s'},{k:key('srollv'),label:'Roll level',min:10,max:100,step:1,def:40,fmt:pct});
   const plus=v=>v>0?'+'+Math.round(v)+'%':'Off';
   L.push({k:key('fec'),label:'Echo',min:0,max:100,step:1,def:0,fmt:plus,fx:true},
     {k:key('frv'),label:'Reverb',min:0,max:100,step:1,def:0,fmt:plus,fx:true});
@@ -2079,7 +2114,7 @@ const FX_OFF={ecKnobs:()=>!fxUsed('fec'),rvKnobs:()=>!fxUsed('frv'),tpKnobs:()=>
 
 // every knob row on the sound page travels to where it belongs (resting fully left while its effect is off)
 const fxMotor=()=>['ecKnobs','rvKnobs','tpKnobs'].forEach(id=>motor($(id)));
-function buildSound(){renderVoice();FEEL_K.forEach(s=>$('feelKnobs').appendChild(knob(s,ST.feel)));
+function buildSound(){renderVoice();FEEL_COLS.forEach(col=>{const c=document.createElement('div');c.className='fcol';col.forEach(k=>c.appendChild(knob(FEEL_K.find(s=>s.k===k),ST.feel)));$('feelKnobs').appendChild(c)});
   Object.entries(FX_GROUPS).forEach(([box,list])=>list.forEach(s=>$(box).appendChild(knob({...s,off:FX_OFF[box]},ST.fx,fxCh))));
   $('swingSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b) return;ST.feel.swing8=b.dataset.v==='8';renderSound();save()});
   $('rvSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.v===ST.fx.rtype) return;ST.fx.rtype=b.dataset.v;ST.fx.rdec=RV_DEF[b.dataset.v][0];renderSound();motor($('rvKnobs'));fxCh();save()});
@@ -2096,7 +2131,7 @@ function renderSound(){document.querySelectorAll('.fxq').forEach(b=>b.setAttribu
 const swept=new Set();
 function powerOn(v){if(swept.has(v)) return;swept.add(v);
   const rows=v==='steps'?['feelKnobs']:['voiceKnobs','ecKnobs','rvKnobs','outKnobs','tpKnobs'];
-  rows.forEach((id,n)=>{const box=$(id);if(!box) return;[...box.children].forEach((el,i)=>{if(el.glide&&!matchMedia('(prefers-reduced-motion: reduce)').matches) el.glide(0,120+n*60+i*28)})})}
+  rows.forEach((id,n)=>{const box=$(id);if(!box) return;[...box.querySelectorAll('.knob')].forEach((el,i)=>{if(el.glide&&!matchMedia('(prefers-reduced-motion: reduce)').matches) el.glide(0,120+n*60+i*28)})})}
 function setView(v){ST.view=v;if(v!=='score') requestAnimationFrame(()=>powerOn(v));$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('scoreView').hidden=v!=='score';
   $('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');$('vScore').setAttribute('aria-pressed',v==='score');if(v==='score') scoreRender();save()}
 $('vSteps').addEventListener('click',()=>setView('steps'));$('vSound').addEventListener('click',()=>setView('sound'));$('vScore').addEventListener('click',()=>setView('score'));

@@ -102,6 +102,46 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 @media (min-width:981px){.top{column-gap:12px}}
 @media (max-width:980px){.fsbtn{display:none}}
 .fsbtn .fs-out,.fsbtn.on .fs-in{display:none}.fsbtn.on .fs-out{display:inline}
+.scoreview{gap:8px}
+.sctools{display:flex;align-items:center;gap:10px;flex:none}
+.sctools .seg button{height:30px;padding:0 10px}
+.scnote{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.score{flex:1;min-height:0;overflow:auto;background:var(--paper);border-radius:12px;padding:10px 12px;color:var(--ink);overscroll-behavior:contain}
+.scsvg{display:block;fill:var(--ink);stroke:var(--ink)}
+.scsvg text{stroke:none;font-family:"Times New Roman",Times,serif}
+.scsvg .sctime{font-weight:700}
+.scsvg .sclabel{font-family:var(--f-mono);font-weight:600}
+.scsvg .scsmall{font-family:var(--f-mono);font-weight:500}
+.scsvg .sctempo{font-weight:700}
+.scsvg .scital{font-style:italic}
+.scsvg .scacc{font-family:var(--f-display);font-weight:600}
+.scsvg .schl{fill:transparent;stroke:none;rx:6px}
+.scsvg .schl.on{fill:rgba(255,90,31,.14)}
+.scsvg .scph{stroke:var(--orange)}
+.sckeybox{flex:none}
+.sckeybox summary{cursor:pointer;padding:2px 0}
+#scoreKey{background:var(--paper);border-radius:12px;padding:8px 12px;margin-top:6px;overflow-x:auto}
+#scoreKey svg{display:block;fill:var(--ink);stroke:var(--ink)}
+#scoreKey text{stroke:none;font-family:var(--f-display);font-weight:500}
+.scmarks{display:flex;flex-wrap:wrap;gap:4px 16px;font:400 11px var(--f-mono);margin-top:4px}
+.scmarks b{font:600 13px "Times New Roman",serif;margin-right:4px}
+@media (max-width:760px){.scnote{display:none}}
+@media print{
+  @page{size:A4 landscape;margin:12mm}
+  html,body{background:#fff!important}
+  body *{visibility:hidden}
+  #scoreView,#scoreView *{visibility:visible}
+  #scoreView{position:absolute;inset:0;display:block!important}
+  .sctools,.sckeybox summary{display:none!important}
+  .sckeybox{display:block}.sckeybox:not([open]) #scoreKey{display:block}
+  .score,#scoreKey{background:#fff;overflow:visible;padding:0}
+  .scsvg .schl.on{fill:transparent}.scsvg .scph{display:none}
+  .rotate{display:none!important}
+}
+.views button .vi{display:none;fill:currentColor}
+@media (min-width:1121px){.top .views button{padding:0 11px}.meter{width:44px;overflow:hidden}}
+@media (max-width:1351px){.meter{display:none}}
+@media (max-width:1250px){.top .views button .vi{display:block}.top .views button .vt{display:none}.top .views button{padding:0 9px}}
 .views button{border:0;background:transparent;height:34px;padding:0 14px;font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
 .views button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
@@ -110,7 +150,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 /* desktop: the grid stops growing at a comfortable size and the page centres */
 #stepsView{justify-content:center}
 #stepsView .grid{max-height:350px}
-#app{max-width:1240px;margin-inline:auto;width:100%}
+#app{max-width:1320px;margin-inline:auto;width:100%}
 /* drummer feel beside the grid: three compact knobs to a row */
 /* drummer feel: one row of compact knobs under the grid, each with its value beside the name */
 .feel{flex:none;display:flex;align-items:center;gap:12px;border-top:2px solid var(--ink);padding-top:7px;min-width:0}
@@ -239,7 +279,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 @media (min-width:1000px) and (min-height:560px){.feel .kdial{width:46px;height:46px}.feel .klabel{font-size:12px}.feel .kvalue{font-size:10.5px}.feel{gap:18px;padding-top:10px}}
 .kl-s{display:none}
 @media (max-width:900px){.kl-l{display:none}.kl-s{display:inline}}
-@media (max-width:1120px){#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:28px}.slots{gap:3px}}
+@media (max-width:1180px){#tDown,#tUp,.meter{display:none}.top{gap:8px}.slot{width:28px}.slots{gap:3px}}
 @media (max-width:760px){.feel .knobs{gap:1px}.feel .klabel{text-overflow:clip}.feel .fxbar{gap:3px}.feel .fxbar .btn{padding:0 6px;font-size:10.5px;height:30px}.feel .kitsw button{padding:0 7px}.feelhead .seg button{padding:0 5px}.bar .btn{padding:0 8px}.slot{width:23px}.views button{padding:0 8px}.ptools .mini{padding:0 5px;font-size:10px;letter-spacing:.02em}.feel{gap:8px}.feel .klabel{font-size:10px}
   /* small phones: the header keeps one row; the page switch shows only the other page */
   .top{gap:6px}.play{width:48px}.slot{width:22px}#chain{padding:0 5px;font-size:10px;letter-spacing:.02em}
@@ -274,8 +314,9 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     <div class="meter" id="meter" aria-hidden="true"></div>
     <button class="mini fsbtn" id="fsBtn" aria-label="Full screen" title="Full screen"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path class="fs-in" d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path class="fs-out" d="M8 3v5H3M17 8h-5V3M12 17v-5h5M3 12h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="views" role="group" aria-label="Page">
-      <button id="vSteps" aria-pressed="true">Steps</button>
-      <button id="vSound" aria-pressed="false">Sound</button>
+      <button id="vSteps" aria-pressed="true" aria-label="Steps" title="Steps"><svg class="vi" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/></svg><span class="vt">Steps</span></button>
+      <button id="vSound" aria-pressed="false" aria-label="Sound" title="Sound"><svg class="vi" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="8" y1="8" x2="4.2" y2="4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="vt">Sound</span></button>
+      <button id="vScore" aria-pressed="false" aria-label="Score" title="Score"><svg class="vi" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><ellipse cx="5" cy="12" rx="2.6" ry="1.9" transform="rotate(-20 5 12)"/><line x1="7.3" y1="11.5" x2="7.3" y2="2" stroke="currentColor" stroke-width="1.5"/><path d="M7.3 2c.5 2 3.6 2.4 3.2 5.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="vt">Score</span></button>
     </div>
   </header>
 
@@ -304,6 +345,16 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     </div>
     <div class="cprow cpfoot"><span class="cap" id="cpSum"></span><span class="spacer"></span><button class="mini" id="cpOff">Chain off</button></div>
   </div>
+  <section class="view scoreview" id="scoreView" hidden>
+    <div class="sctools">
+      <span class="seg" id="scSeg" role="group" aria-label="Show"><button data-v="pattern">This pattern</button><button data-v="chain">Chain</button></span>
+      <span class="cap scnote">Written as programmed · the drummer's own ghost notes and timing are not written</span>
+      <span class="spacer"></span>
+      <button class="mini" id="scPrint">Print</button>
+    </div>
+    <div class="score" id="score"></div>
+    <details class="sckeybox"><summary class="cap">Key</summary><div id="scoreKey"></div></details>
+  </section>
   <section class="sound" id="soundView" hidden>
     <div class="band">
       <h2>Instruments <span class="cap" id="voiceMode"></span></h2>
@@ -1409,11 +1460,11 @@ async function play(){await ensureAudio();if(playing) return;
   grooveReset();barSlot.clear();barPos.clear();barPlans.clear();PLAYER.v={};E.lastHit={};E.lastAny=null;queued=ST.chain?null:queued;uiQueued=null;
   anchorQ=0;nextQ=0;anchorT=ctx.currentTime+.06;playing=true;schedule();tickOn(true);uiPlay();
   try{if(navigator.wakeLock) wake=await navigator.wakeLock.request('screen')}catch(e){}}
-function stop(){if(!playing) return;playing=false;tickOn(false);const now=ctx.currentTime;
+function stop(){if(!playing) return;playing=false;tickOn(false);scoreTick(null,0);const now=ctx.currentTime;
   // hits already scheduled for the next fraction of a second are taken back; anything already sounding rings out
   LIVE.forEach(s=>{if(s._t>now+.005) try{s.stop()}catch(e){}});
   queued=null;uiQueued=null;uiPlay();try{if(wake) wake.release()}catch(e){}wake=null}
-function setTempo(nt){nt=clamp(Math.round(nt),40,200);if(nt===ST.tempo) return;
+function setTempo(nt){nt=clamp(Math.round(nt),40,200);if(nt===ST.tempo) return;scoreSoon();
   if(playing){anchorT=timeOf(nextQ);anchorQ=nextQ}   // re-anchor so the beat keeps its place
   ST.tempo=nt;$('bpm').textContent=nt;$('bpm').setAttribute('aria-valuenow',nt);if(FXC) applyFx(false);if(knobRefs.etime) knobRefs.etime();save()}
 
@@ -1436,7 +1487,7 @@ holdRepeat($('tDown'),()=>setTempo(ST.tempo-1));holdRepeat($('tUp'),()=>setTempo
 function renderSlots(){const box=$('slots');if(!box.children.length){for(let i=0;i<N_SLOTS;i++){const b=document.createElement('button');b.className='slot';b.textContent=i+1;b.setAttribute('aria-label','Pattern '+(i+1));b.addEventListener('click',()=>pickSlot(i));box.appendChild(b)}}
   const ps=playing?playingSlot:-1;
   [...box.children].forEach((b,i)=>{b.setAttribute('aria-pressed',i===ST.cur);b.classList.toggle('empty',!slotHas(i));b.classList.toggle('playing',i===ps);b.classList.toggle('queued',i===uiQueued&&i!==ps)});
-  $('chain').setAttribute('aria-pressed',ST.chain);$('chain').classList.toggle('custom',!!(ST.chainSeq&&ST.chainSeq.length)||introSlot()>=0);$('chain').title=chainSummary();renderChainPop()}
+  scoreSoon();$('chain').setAttribute('aria-pressed',ST.chain);$('chain').classList.toggle('custom',!!(ST.chainSeq&&ST.chainSeq.length)||introSlot()>=0);$('chain').title=chainSummary();renderChainPop()}
 const chainSummary=()=>{const i=introSlot(),L=chainList();return (i>=0?'Start '+(i+1)+', then loop ':'Loop ')+(L.map(x=>x+1).join(' ')||'—')}
 // while playing, a picked pattern starts on the next bar; picking one turns Chain off
 function pickSlot(i){if(playing){if(ST.chain){ST.chain=false}queued=i===playingSlot?null:i;uiQueued=queued}ST.cur=i;renderSlots();renderGrid();save()}
@@ -1466,6 +1517,171 @@ $('cpAll').addEventListener('click',()=>{ST.chainSeq=[];chainChanged()});
 $('cpOff').addEventListener('click',()=>{ST.chain=false;$('chainPop').hidden=true;renderSlots();save()});
 document.addEventListener('pointerdown',e=>{const p=$('chainPop');if(!p.hidden&&!e.target.closest('#chainPop,#chain')) p.hidden=true},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape') $('chainPop').hidden=true});
+
+// ---------- score: the patterns in drum notation ----------
+// Positions follow the usual drum-set key (Weinberg, Guide to Standardized Drumset Notation, PAS 1998):
+// kick in the bottom space, low tom in the second space, snare in the third, high tom in the top space,
+// ride on the top line, hi-hat in the space above, crash on the ledger line above, hat pedal below the staff.
+// Hands are written stems up, feet stems down. 16 steps per bar, 16th notes, beamed by the beat.
+const SC_POS={k:7,s:3,h:-1,lt:5,ht:1,cy:0,cr:-2};
+let scMode=null,scGeo=[],scShown=-1;
+function scNote(P,k,j){const a=ART[k]&&P.art[k]&&P.art[k][j]?ART[k][P.art[k][j]][0]:'';
+  const n={k,pos:SC_POS[k],head:['h','cy','cr'].includes(k)?'x':'n',foot:k==='k'};
+  if(k==='h'){if(a==='pedal'){n.pos=9;n.foot=true}else if(a==='open') n.open='o';else if(a==='half') n.open='h';else if(a==='bell') n.head='d';else if(a==='hcrash'){n.head='cx';n.open='o'}}
+  if(k==='s'){if(a==='xstick') n.head='cx';else if(a==='rim') n.head='sl';else if(a==='off') n.txt='w/o';else if(a==='flam') n.grace=1;else if(a==='roll') n.trem=1}
+  if((k==='lt'||k==='ht')&&a==='flam') n.grace=1;
+  if(k==='cy'&&a==='bell') n.head='d';
+  if(k==='cr'){if(a==='bell'||a==='lbell') n.head='d';if(a==='choke'||a==='schoke') n.choke=1;if(a==='splash'||a==='schoke') n.pos=-3}
+  const v=stepVel(P,k,j),lane=P[k].map((x,i)=>x?stepVel(P,k,i):null).filter(x=>x!=null);
+  if(v<=.4) n.ghost=1;else if(v>=.95&&lane.some(x=>x>.4&&x<.8)) n.acc=1;   // accents only stand out against softer strokes that are not ghosts
+  return n}
+// one voice of one beat: rests and notes with their length in 16ths
+function scBeat(ev,b){const out=[],on=[];for(let s=0;s<4;s++) if(ev[b*4+s].length) on.push(s);
+  if(!on.length) return null;
+  const g=on[0];if(g===1) out.push({s:0,d:1,rest:1});else if(g===2) out.push({s:0,d:2,rest:1});else if(g===3){out.push({s:0,d:2,rest:1});out.push({s:2,d:1,rest:1})}
+  on.forEach((s,i)=>out.push({s,d:(i+1<on.length?on[i+1]:4)-s,notes:ev[b*4+s]}));return out}
+function scMeasures(){const mode=scMode||(ST.chain?'chain':'pattern'),M=[];
+  if(mode==='chain'&&ST.chain){const i=introSlot(),L=chainList();if(i>=0) M.push({slot:i,label:'Start · '+(i+1)});
+    L.forEach((s,n)=>M.push({slot:s,label:String(s+1),rs:n===0,re:n===L.length-1,loop:n}));
+    if(!L.length&&i<0) M.push({slot:ST.cur,label:String(ST.cur+1),rs:1,re:1})}
+  else M.push({slot:ST.cur,label:'Pattern '+(ST.cur+1),rs:1,re:1,loop:0});
+  return {mode,M}}
+function scoreRender(){const host=$('score');if(!host||$('scoreView').hidden) return;
+  const {mode,M}=scMeasures();
+  [...$('scSeg').children].forEach(b=>{b.setAttribute('aria-pressed',b.dataset.v===mode);if(b.dataset.v==='chain') b.disabled=!ST.chain});
+  const W=Math.max(300,host.clientWidth-26),sp=clamp(W/150,6.5,8.5),hw=.62*sp,st=p=>p*sp/2;   // staff step → y offset from the top line
+  const head0=5.2*sp,tsig=3*sp,minMw=34*sp,sysH=18.5*sp,top0=10.8*sp;
+  const per=Math.max(1,Math.min(M.length,Math.floor((W-head0-tsig)/minMw)));
+  const mw=(W-head0-tsig*(1))/per;   // same width for every bar so the bars line up between systems
+  const systems=Math.ceil(M.length/per),H=top0+systems*sysH+2*sp;
+  let o=[];const L=(x1,y1,x2,y2,w,c)=>o.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="${w}"${c?` class="${c}"`:''}/>`);
+  const T=(x,y,s,sz,cls,anchor)=>o.push(`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${sz}"${cls?` class="${cls}"`:''}${anchor?` text-anchor="${anchor}"`:''}>${s}</text>`);
+  scGeo=[];
+  // the tempo and feel go over the first bar
+  {const nx=head0+.5*sp,ny=1.45*sp;o.push(`<ellipse cx="${nx}" cy="${ny}" rx="${.5*sp}" ry="${.36*sp}" transform="rotate(-20 ${nx} ${ny})"/><line x1="${nx+.45*sp}" y1="${ny}" x2="${nx+.45*sp}" y2="${ny-2.1*sp}" stroke-width="1.1"/>`);
+   T(head0+1.4*sp,1.7*sp,'= '+ST.tempo,1.5*sp,'sctempo')}
+  if(ST.feel.swing>=10) T(head0+7*sp,1.7*sp,'swing '+(ST.feel.swing8?'8ths':'16ths'),1.3*sp,'scital');
+  for(let sy=0;sy<systems;sy++){const y0=top0+sy*sysH,first=sy===0,x0=first?head0+tsig:head0;
+    const nM=Math.min(per,M.length-sy*per),x1=x0+nM*mw;
+    for(let l=0;l<5;l++) L(0,y0+l*sp,x1,y0+l*sp,1,'scline');
+    o.push(`<rect x="${1.4*sp}" y="${y0+sp}" width="${.42*sp}" height="${2*sp}"/><rect x="${2.3*sp}" y="${y0+sp}" width="${.42*sp}" height="${2*sp}"/>`);   // percussion clef
+    if(first){T(head0+tsig*.42,y0+2*sp-.12*sp,'4',2.55*sp,'sctime','middle');T(head0+tsig*.42,y0+4*sp-.12*sp,'4',2.55*sp,'sctime','middle')}
+    L(0.5,y0,0.5,y0+4*sp,1.2);
+    for(let mi=0;mi<nM;mi++){const m=M[sy*per+mi],mx=x0+mi*mw,P=ST.slots[m.slot];
+      const lp=(m.rs?2.6:1.6)*sp,rp=(m.re?2:1)*sp,w=(mw-lp-rp)/16;
+      scGeo.push({x:mx,y:y0,w:mw,lp,slot:w,sp,m});
+      o.push(`<rect class="schl" data-m="${sy*per+mi}" x="${mx.toFixed(1)}" y="${(y0-7*sp).toFixed(1)}" width="${mw.toFixed(1)}" height="${(16*sp).toFixed(1)}"/>`);
+      // the bar's label: which pattern it is
+      T(mx+lp-.6*sp,y0-6.3*sp,m.label,1.3*sp,'sclabel');
+      if(m.rs){L(mx+.35*sp,y0,mx+.35*sp,y0+4*sp,.5*sp);L(mx+1*sp,y0,mx+1*sp,y0+4*sp,1);o.push(`<circle cx="${mx+1.55*sp}" cy="${y0+1.5*sp}" r="${.24*sp}"/><circle cx="${mx+1.55*sp}" cy="${y0+2.5*sp}" r="${.24*sp}"/>`)}
+      const ex=mx+mw;
+      if(m.re){o.push(`<circle cx="${ex-1.55*sp}" cy="${y0+1.5*sp}" r="${.24*sp}"/><circle cx="${ex-1.55*sp}" cy="${y0+2.5*sp}" r="${.24*sp}"/>`);L(ex-1*sp,y0,ex-1*sp,y0+4*sp,1);L(ex-.35*sp,y0,ex-.35*sp,y0+4*sp,.5*sp)}
+      else if(sy*per+mi===M.length-1){L(ex-1*sp,y0,ex-1*sp,y0+4*sp,1);L(ex-.35*sp,y0,ex-.35*sp,y0+4*sp,.5*sp)}
+      else L(ex-.5,y0,ex-.5,y0+4*sp,1);
+      // the two voices
+      const up=Array.from({length:16},()=>[]),dn=Array.from({length:16},()=>[]);
+      ROWS.forEach(R=>P[R.k].forEach((x,j)=>{if(!x) return;const n=scNote(P,R.k,j);(n.foot?dn:up)[j].push(n)}));
+      const hasUp=up.some(a=>a.length),hasDn=dn.some(a=>a.length);
+      const X=j=>mx+lp+j*w+w/2;
+      if(!hasUp&&!hasDn){scRest(o,'w',mx+mw/2,y0+st(2),sp);continue}
+      [[up,true,hasDn],[dn,false,hasUp]].forEach(([ev,isUp,other])=>{
+        if(!ev.some(a=>a.length)) return;
+        const ys=ev.flat().map(n=>y0+st(n.pos));
+        const beamY=isUp?Math.min(...ys)-3.3*sp:Math.max(...ys)+3.3*sp,dir=isUp?-1:1;
+        const restY=y0+st(other?(isUp?2:7):4);
+        const marks=isUp?Math.min(beamY,y0-.6*sp)-1.1*sp:Math.max(beamY,y0+4.6*sp)+1.4*sp;
+        let b=0;
+        while(b<4){const items=scBeat(ev,b);
+          if(!items){// empty beats: a half rest on beats 1–2 or 3–4, else quarter rests
+            if(b%2===0&&!scBeat(ev,b+1)){scRest(o,'h',X(b*4+3.5),y0+st(other?(isUp?2:6):4),sp);b+=2;continue}
+            scRest(o,'q',X(b*4+1.5),restY,sp);b++;continue}
+          const notes=items.filter(it=>it.notes);
+          items.filter(it=>it.rest).forEach(it=>scRest(o,it.d===1?'s':'e',X(b*4+it.s),restY,sp));
+          // noteheads, stems
+          const stems=[];
+          notes.forEach(it=>{const x=X(b*4+it.s);const ns=[...it.notes].sort((a,c)=>isUp?c.pos-a.pos:a.pos-c.pos);
+            let prev=null,side=0,ext=[];
+            ns.forEach(n=>{let hx=x;if(prev!=null&&Math.abs(n.pos-prev)===1&&!side){hx=x+(isUp?2*hw:-2*hw);side=1}else side=0;prev=n.pos;
+              const y=y0+st(n.pos);scHead(o,n,hx,y,sp,hw);ext.push(y);
+              // ledger lines above and below the staff
+              for(let p=-2;p>=n.pos;p-=2) L(hx-hw*1.6,y0+st(p),hx+hw*1.6,y0+st(p),1.1);
+              for(let p=10;p<=n.pos;p+=2) L(hx-hw*1.6,y0+st(p),hx+hw*1.6,y0+st(p),1.1);
+              if(it.d===3){const dp=n.pos%2===0?n.pos+(isUp?-1:1):n.pos;o.push(`<circle cx="${(hx+hw+.55*sp).toFixed(1)}" cy="${(y0+st(dp)).toFixed(1)}" r="${.19*sp}"/>`)}
+              if(n.grace) scGrace(o,hx-1.9*sp,y,sp);
+              if(n.ghost) T(hx-hw-.5*sp,y+.42*sp,'(',1.3*sp,'scparen','middle'),T(hx+hw+.5*sp,y+.42*sp,')',1.3*sp,'scparen','middle')});
+            const sx=x+(isUp?hw-.5:-hw+.5),far=isUp?Math.max(...ext):Math.min(...ext);
+            L(sx,far,sx,beamY,1.15);stems.push({x:sx,d:it.d,ns});
+            if(ns.some(n=>n.trem)) for(let t=0;t<3;t++){const ty=(far+beamY)/2+(t-1)*.62*sp;L(sx-.55*sp,ty+.3*sp,sx+.55*sp,ty-.3*sp,.32*sp)}
+            // marks over the hands, under the feet
+            let my=marks;const mstep=isUp?-1.3*sp:1.3*sp;
+            ns.forEach(n=>{
+              if(n.acc){T(x,my+.5*sp,'&gt;',1.55*sp,'scacc','middle');my+=mstep}
+              if(n.open){o.push(`<circle cx="${x.toFixed(1)}" cy="${my.toFixed(1)}" r="${.38*sp}" fill="none" stroke-width="1.2"/>`);if(n.open==='h') L(x-.55*sp,my+.55*sp,x+.55*sp,my-.55*sp,1.2);my+=mstep}
+              if(n.txt){T(x,my+.35*sp,n.txt,1*sp,'scsmall','middle');my+=mstep}
+              if(n.choke) T(x+hw+.35*sp,y0+st(n.pos)-.2*sp,'’',1.6*sp,'scchoke')})});
+          // beams, or a flag for a note on its own
+          if(stems.length===1&&stems[0].d<4) scFlag(o,stems[0].x,beamY,stems[0].d===1?2:1,isUp,sp);
+          else if(stems.length>1){const bw=.5*sp;
+            o.push(`<rect x="${stems[0].x-.6}" y="${(isUp?beamY:beamY-bw).toFixed(1)}" width="${(stems.at(-1).x-stems[0].x+1.2).toFixed(1)}" height="${bw}"/>`);
+            const y2=isUp?beamY+.8*sp:beamY-.8*sp-bw;
+            stems.forEach((s,i)=>{if(s.d!==1) return;const nx=stems[i+1],pv=stems[i-1];
+              if(nx&&nx.d===1) o.push(`<rect x="${s.x-.6}" y="${y2.toFixed(1)}" width="${(nx.x-s.x+1.2).toFixed(1)}" height="${bw}"/>`);
+              else if(!(pv&&pv.d===1)){const len=Math.min(1.1*sp,(nx?nx.x-s.x:s.x-pv.x)*.45),x=nx?s.x:s.x-len;o.push(`<rect x="${x.toFixed(1)}" y="${y2.toFixed(1)}" width="${len.toFixed(1)}" height="${bw}"/>`)}})}
+          b++}})}}
+  // the key: where each instrument sits
+  host.innerHTML=`<svg class="scsvg" viewBox="0 0 ${W} ${H.toFixed(0)}" width="${W}" height="${H.toFixed(0)}" role="img" aria-label="Drum notation">${o.join('')}<line class="scph" id="scPh" x1="0" x2="0" y1="0" y2="0" stroke-width="2"/></svg>`;
+  scShown=-1;scoreKey()}
+function scHead(o,n,x,y,sp,hw){const f=v=>v.toFixed(1);
+  if(n.head==='n'||n.head==='sl'){o.push(`<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(hw)}" ry="${f(.43*sp)}" transform="rotate(-20 ${f(x)} ${f(y)})"/>`);
+    if(n.head==='sl') o.push(`<line x1="${f(x-1.5*hw)}" y1="${f(y+.8*sp)}" x2="${f(x+1.5*hw)}" y2="${f(y-.8*sp)}" stroke-width="${f(.2*sp)}"/>`)}
+  else if(n.head==='d') o.push(`<path d="M${f(x-hw)} ${f(y)}L${f(x)} ${f(y-.55*sp)}L${f(x+hw)} ${f(y)}L${f(x)} ${f(y+.55*sp)}Z"/>`);
+  else{const a=.5*sp;o.push(`<path d="M${f(x-a)} ${f(y-a)}L${f(x+a)} ${f(y+a)}M${f(x-a)} ${f(y+a)}L${f(x+a)} ${f(y-a)}" fill="none" stroke-width="${f(.17*sp)}"/>`);
+    if(n.head==='cx') o.push(`<circle cx="${f(x)}" cy="${f(y)}" r="${f(.85*sp)}" fill="none" stroke-width="1.1"/>`)}}
+function scGrace(o,x,y,sp){const f=v=>v.toFixed(1);
+  o.push(`<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(.4*sp)}" ry="${f(.28*sp)}" transform="rotate(-20 ${f(x)} ${f(y)})"/>`,
+    `<line x1="${f(x+.37*sp)}" y1="${f(y)}" x2="${f(x+.37*sp)}" y2="${f(y-2.2*sp)}" stroke-width="1"/>`,
+    `<path d="M${f(x+.37*sp)} ${f(y-2.2*sp)}q${f(.15*sp)} ${f(.6*sp)} ${f(.7*sp)} ${f(.9*sp)}" fill="none" stroke-width="1"/>`,
+    `<line x1="${f(x-.2*sp)}" y1="${f(y-.6*sp)}" x2="${f(x+.95*sp)}" y2="${f(y-1.7*sp)}" stroke-width="1"/>`)}
+function scFlag(o,x,yEnd,n,isUp,sp){const f=v=>v.toFixed(1);
+  for(let i=0;i<n;i++){const y=yEnd+(isUp?1:-1)*i*.85*sp,d=isUp?1:-1;
+    o.push(`<path d="M${f(x)} ${f(y)}c${f(.2*sp)} ${f(d*.9*sp)} ${f(1.3*sp)} ${f(d*1.1*sp)} ${f(.9*sp)} ${f(d*2.4*sp)}c${f(.2*sp)} ${f(-d*1*sp)} ${f(-.5*sp)} ${f(-d*1.4*sp)} ${f(-.9*sp)} ${f(-d*1.6*sp)}z"/>`)}}
+function scRest(o,kind,x,y,sp){const f=v=>v.toFixed(1),u=v=>f(v*sp);
+  if(kind==='w') o.push(`<rect x="${f(x-.65*sp)}" y="${f(y)}" width="${u(1.3)}" height="${u(.5)}"/>`);         // hangs from the line
+  else if(kind==='h') o.push(`<rect x="${f(x-.65*sp)}" y="${f(y-.5*sp)}" width="${u(1.3)}" height="${u(.5)}"/>`); // sits on the line
+  else if(kind==='q'){const P=(a,b)=>`${f(x+a*sp)} ${f(y+b*sp)}`;
+    o.push(`<path d="M${P(-.28,-1.5)}L${P(.36,-.72)}" fill="none" stroke-width="${u(.16)}" stroke-linecap="round"/>`,
+      `<path d="M${P(.36,-.72)}L${P(-.16,.02)}" fill="none" stroke-width="${u(.42)}" stroke-linecap="round"/>`,
+      `<path d="M${P(-.16,.02)}L${P(.4,.78)}" fill="none" stroke-width="${u(.16)}" stroke-linecap="round"/>`,
+      `<path d="M${P(.4,.78)}C${P(-.25,.42)} ${P(-.6,.98)} ${P(-.02,1.55)}" fill="none" stroke-width="${u(.24)}" stroke-linecap="round"/>`)}
+  else{const dots=kind==='s'?2:1;
+    o.push(`<line x1="${f(x+.45*sp)}" y1="${f(y-.75*sp)}" x2="${f(x-.2*sp-(dots-1)*.25*sp)}" y2="${f(y+(.9+(dots-1)*.9)*sp)}" stroke-width="${u(.16)}"/>`);
+    for(let i=0;i<dots;i++){const dy=y-.55*sp+i*.9*sp,dx=x-.32*sp-i*.25*sp;o.push(`<circle cx="${f(dx)}" cy="${f(dy)}" r="${u(.25)}"/><path d="M${f(dx)} ${f(dy+.1*sp)}q${u(.4)} ${u(.25)} ${u(.8)} ${u(-.2)}" fill="none" stroke-width="${u(.13)}"/>`)}}}
+function scoreKey(){const host=$('scoreKey');if(!host||host.dataset.done) return;host.dataset.done=1;
+  const sp=7,hw=.62*sp,y0=3.5*sp,items=[['Kick',{pos:7,head:'n'}],['Lo tom',{pos:5,head:'n'}],['Snare',{pos:3,head:'n'}],['Cross-stick',{pos:3,head:'cx'}],['Rimshot',{pos:3,head:'sl'}],['Hi tom',{pos:1,head:'n'}],
+    ['Ride',{pos:0,head:'x'}],['Ride bell',{pos:0,head:'d'}],['Hat',{pos:-1,head:'x'}],['Hat foot',{pos:9,head:'x'}],['Crash',{pos:-2,head:'x'}],['Splash',{pos:-3,head:'x'}]];
+  const step=9*sp,W=items.length*step+2*sp,o=[];
+  for(let l=0;l<5;l++) o.push(`<line x1="0" x2="${W}" y1="${y0+l*sp}" y2="${y0+l*sp}" stroke-width="1" class="scline"/>`);
+  items.forEach(([name,n],i)=>{const x=sp*2+i*step+step/2,y=y0+n.pos*sp/2;scHead(o,n,x,y,sp,hw);
+    for(let p=-2;p>=n.pos;p-=2) o.push(`<line x1="${x-hw*1.6}" x2="${x+hw*1.6}" y1="${y0+p*sp/2}" y2="${y0+p*sp/2}" stroke-width="1.1"/>`);
+    o.push(`<text x="${x}" y="${y0+7.4*sp}" font-size="${1.45*sp}" text-anchor="middle" class="sckey">${name}</text>`)});
+  const marks=`<span><b>&gt;</b> accent</span><span><b>( )</b> ghost note</span><span><b>o</b> open hat</span><span><b>ø</b> loose hat</span><span><b>’</b> choke</span><span><b>///</b> roll</span><span><b>small note</b> flam</span>`;
+  host.innerHTML=`<svg viewBox="0 0 ${W} ${y0+9*sp}" width="${W}" height="${y0+9*sp}" aria-hidden="true">${o.join('')}</svg><div class="scmarks">${marks}</div>`}
+// follow the playhead
+function scoreTick(bar,step){const ph=$('scPh');if(!ph||$('scoreView').hidden) return;
+  let mi=-1;if(bar!=null){const {M}=scMeasures();
+    if(ST.chain&&(scMode||'chain')==='chain'){const pos=barPos.get(bar);if(pos===-1) mi=0;else if(pos!=null) mi=pos+(introSlot()>=0?1:0)}
+    else mi=M.findIndex(m=>m.slot===ST.cur)}
+  const g=scGeo[mi];
+  if(mi!==scShown){scShown=mi;document.querySelectorAll('.schl').forEach(r=>r.classList.toggle('on',+r.dataset.m===mi));
+    if(g){const host=$('score');if(g.y-9*g.sp<host.scrollTop||g.y+9*g.sp>host.scrollTop+host.clientHeight) host.scrollTo({top:Math.max(0,g.y-9.5*g.sp),behavior:'smooth'})}}
+  if(!g){ph.setAttribute('y1',0);ph.setAttribute('y2',0);return}
+  const x=g.x+g.lp+step*g.slot+g.slot/2;ph.setAttribute('x1',x);ph.setAttribute('x2',x);ph.setAttribute('y1',g.y-1.5*g.sp);ph.setAttribute('y2',g.y+5.5*g.sp)}
+$('scSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled) return;scMode=b.dataset.v;scoreRender()});
+$('scPrint').addEventListener('click',()=>{scoreRender();window.print()});
+addEventListener('resize',()=>{clearTimeout(scoreRender.t);scoreRender.t=setTimeout(scoreRender,120)});
+
+// redraw the score once per frame at most, and only while it is on screen
+function scoreSoon(){if(scoreSoon.p||!$('scoreView')||$('scoreView').hidden) return;scoreSoon.p=requestAnimationFrame(()=>{scoreSoon.p=0;scoreRender()})}
 
 // ---------- full screen ----------
 // phones go full screen on the first touch; the button switches it on and off anywhere.
@@ -1570,7 +1786,7 @@ function hearStep(r,j){const R=ROWS[r],sl=ST.slots[ST.cur],v=sl[R.k][j];if(!v) r
   const ai=ART[R.k]?sl.art[R.k][j]|0:0,art=ai?ART[R.k][ai][0]:'';
   if(art==='open') id='OH';else if(art){x={art,len:art==='roll'?qn()/4:0};if(R.k==='h') id=hatVoice(art)}
   hitDrum(E,id,ctx.currentTime+.02,stepVel(sl,R.k,j),x)}
-function renderGrid(){const sl=ST.slots[ST.cur];
+function renderGrid(){scoreSoon();const sl=ST.slots[ST.cur];
   ROWS.forEach((R,r)=>{const m=!!ST.mute[R.k];names[r].classList.toggle('muted',m);names[r].setAttribute('aria-pressed',m);
     for(let j=0;j<16;j++){const p=pads[r][j];p.dataset.v=sl[R.k][j];p.classList.toggle('mut',m);
       const vx=sl.vel&&sl.vel[R.k]&&sl[R.k][j]?sl.vel[R.k][j]:null;p.classList.toggle('vx',vx!=null);if(vx!=null) p.style.setProperty('--fill',(vx>=100?100:vx*.8)+'%');p.dataset.vel=sl[R.k][j]?Math.round(stepVel(sl,R.k,j)*100):''   // the fill sits where a tap of that velocity lands
@@ -1699,8 +1915,9 @@ const swept=new Set();
 function powerOn(v){if(swept.has(v)) return;swept.add(v);
   const rows=v==='steps'?['feelKnobs']:['voiceKnobs','ecKnobs','rvKnobs','outKnobs','tpKnobs'];
   rows.forEach((id,n)=>{const box=$(id);if(!box) return;[...box.children].forEach((el,i)=>{if(el.glide&&!matchMedia('(prefers-reduced-motion: reduce)').matches) el.glide(0,120+n*60+i*28)})})}
-function setView(v){ST.view=v;requestAnimationFrame(()=>powerOn(v));$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');save()}
-$('vSteps').addEventListener('click',()=>setView('steps'));$('vSound').addEventListener('click',()=>setView('sound'));
+function setView(v){ST.view=v;if(v!=='score') requestAnimationFrame(()=>powerOn(v));$('stepsView').hidden=v!=='steps';$('soundView').hidden=v!=='sound';$('scoreView').hidden=v!=='score';
+  $('vSteps').setAttribute('aria-pressed',v==='steps');$('vSound').setAttribute('aria-pressed',v==='sound');$('vScore').setAttribute('aria-pressed',v==='score');if(v==='score') scoreRender();save()}
+$('vSteps').addEventListener('click',()=>setView('steps'));$('vSound').addEventListener('click',()=>setView('sound'));$('vScore').addEventListener('click',()=>setView('score'));
 
 // ---------- defaults.json: the starting point for any browser that has no settings of its own ----------
 // Copy settings puts everything (patterns, tempo, kit, feel, effects, tape, instrument knobs) on the clipboard as JSON; saved
@@ -1733,11 +1950,12 @@ function frame(){
       if(ps!==playingSlot){playingSlot=ps;if(uiQueued===ps) uiQueued=null;if(ST.chain&&ps!==ST.cur){ST.cur=ps;renderGrid()}else renderSlots()}
       $('grid').classList.toggle('away',ps!==ST.cur);
       if(step!==shownCol){if(shownCol>=0) colPads[shownCol].forEach(p=>p.classList.remove('col'));shownCol=step;colPads[step].forEach(p=>p.classList.add('col'))}
+      scoreTick(bar,step);
       if(beat!==lastBeat){lastBeat=beat;const b=$('play');b.classList.add('beat');setTimeout(()=>b.classList.remove('beat'),90)}}}
   requestAnimationFrame(frame)}
 
 // ---------- start ----------
-buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();if(!hadSaved) loadDefaults(false);kitFetch(ST.kitIdx);setView(ST.view==='sound'?'sound':'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
+buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();if(!hadSaved) loadDefaults(false);kitFetch(ST.kitIdx);setView(['sound','score'].includes(ST.view)?ST.view:'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
 requestAnimationFrame(frame);
 </script>
 

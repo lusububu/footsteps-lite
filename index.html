@@ -57,6 +57,17 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
 #chain.custom{box-shadow:inset 0 -3px 0 var(--orange)}
 .chainpop{position:fixed;z-index:60;top:calc(54px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--paper);border-radius:14px;padding:12px;display:grid;gap:10px;box-shadow:0 12px 30px rgba(23,17,13,.35)}
 .chainpop .cap{color:rgba(255,242,230,.65)}
+/* the controller: the lane its step buttons edit, the control being learned, the prompt bar */
+.name.msel code{background:var(--ink);color:var(--paper);border-radius:3px;text-align:center}
+.mlearn{outline:3px solid var(--ink)!important;outline-offset:2px;border-radius:8px}
+.mlearning .pad,.mlearning .name,.mlearning .slot,.mlearning .knob,.mlearning #play,.mlearning #chain,.mlearning #tap,.mlearning #bpm,.mlearning .fxq{cursor:crosshair}
+.midibar{position:fixed;z-index:70;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(680px,calc(100% - 24px));background:var(--ink);color:var(--paper);border-radius:12px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 26px rgba(23,17,13,.35);font:500 13px/1.3 var(--f-mono)}
+.midibar[hidden]{display:none}
+.midibar.up{bottom:auto;top:calc(10px + env(safe-area-inset-top,0px))}
+.midibar .mbtext{cursor:pointer}
+.midibar .mbtext{flex:1;min-width:0}
+.midibar .mbtext b{font:600 15px/1.2 var(--f-display);letter-spacing:-.01em;display:block}
+.midibar .mini{color:var(--paper);border-color:rgba(255,242,230,.6);background:transparent}
 .chainpop .mini{border-color:var(--paper);color:var(--paper)}
 .chainpop .mini:active{background:var(--paper);color:var(--ink)}
 .cphead,.cprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -354,6 +365,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
   </section>
 
   <div class="artmenu" id="artMenu" role="menu" aria-label="Articulation" hidden></div>
+  <div class="midibar" id="midiBar" role="status" hidden><span class="mbtext" id="mbText"></span><button class="mini" id="mbBack">Back</button><button class="mini" id="mbSkip">Skip</button><button class="mini" id="mbDone">Done</button></div>
   <div class="chainpop" id="chainPop" role="dialog" aria-label="Chain" hidden>
     <div class="cphead"><span class="cptitle">Chain</span><button class="mini" id="cpClose" aria-label="Close">✕</button></div>
     <div class="cpstep">
@@ -396,12 +408,15 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--paper);out
     <div class="band">
       <h2>Settings <span class="cap">saved on this device as you go</span></h2>
       <div class="group" style="flex:1 1 100%">
-        <div class="ghead"><button class="btn" id="copySet">Copy settings</button><button class="btn" id="resetSet">Reset to default</button><span class="cap" id="setStatus" role="status"></span><span class="cap verstamp" title="Which version of the app this is">Version 2026-11-02 23:30</span></div>
+        <div class="ghead"><button class="btn" id="copySet">Copy settings</button><button class="btn" id="saveSet" title="For the Footsteps plugin: Import from the web app">Save to a file</button><button class="btn" id="resetSet">Reset to default</button><span class="cap" id="setStatus" role="status"></span><span class="cap verstamp" title="Which version of the app this is">Version 2026-11-05 17:50</span></div>
         <textarea id="setText" readonly hidden aria-label="Settings to save as defaults.json"></textarea>
       </div>
       <div class="group" style="flex:1 1 100%">
-        <div class="ghead"><button class="btn" id="kitFolder">Kit 3 from a folder</button><button class="btn" id="kitForget" hidden>Forget folder</button><span class="cap" id="folderStatus" role="status">Pick the folder with kit3.json. The samples stay on this device.</span></div>
+        <div class="ghead"><button class="btn" id="kitFolder">Kit 3 from a folder</button><button class="btn" id="kitForget" hidden>Forget folder</button><span class="seg" id="detailSeg" role="group" aria-label="Samples to load" title="Full: every layer and take. Light: half the layers and two takes of each, for phones (less memory, loads faster)"><button data-v="full">Full</button><button data-v="light">Light</button></span><span class="cap" id="folderStatus" role="status">Pick the folder with kit3.json. The samples stay on this device.</span></div>
         <input type="file" id="kitFolderInput" webkitdirectory directory multiple hidden>
+      </div>
+      <div class="group" style="flex:1 1 100%">
+        <div class="ghead"><button class="btn" id="midiOn">Connect controller</button><button class="btn" id="midiBsp" title="Step by step: press each control of the BeatStep Pro once">BeatStep Pro setup</button><button class="btn toggle" id="midiLearn" aria-pressed="false" title="Tap a control in the app, then move one on the controller">Learn</button><button class="btn toggle" id="midiLights" aria-pressed="true" title="Send the steps, patterns and buttons back to the controller's lights">Lights</button><button class="btn" id="midiClear">Clear</button><span class="cap" id="midiStatus" role="status">Controller: USB MIDI, in Chrome or Edge</span></div>
       </div>
     </div>
   </section>
@@ -1004,6 +1019,8 @@ $('kitFolder').addEventListener('click',async()=>{
 $('kitFolderInput').addEventListener('change',e=>{const list=[...e.target.files];if(!list.length) return;const m=new Map();
   list.forEach(f=>{const rel=(f.webkitRelativePath||f.name).split('/').slice(1).join('/');m.set(rel,f);m.set(rel.toLowerCase(),f)});
   LOCAL.files=m;LOCAL.handle=null;LOCAL.name=(list[0].webkitRelativePath||'').split('/')[0]||'the folder';useFolder()});
+function detailUI(){[...$('detailSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===(kitLight()?'light':'full')))}
+$('detailSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b) return;ST.kitDetail=b.dataset.v;save();detailUI();kitDetailApply()});
 $('kitForget').addEventListener('click',async()=>{LOCAL.handle=null;LOCAL.files=null;LOCAL.name='';try{await idbDel('kit3')}catch(e){}
   if(ST.kitIdx===K3){ST.kitIdx=0;save();kitFetch(0)}const b=$('kitSeg').children[K3];if(b) fetch(KITS[K3].file,{method:'HEAD',cache:'no-cache'}).then(r=>{b.hidden=!r.ok}).catch(()=>{b.hidden=true});folderUI()});
 
@@ -1189,15 +1206,55 @@ async function kitFetch(i){i=clamp(i|0,0,KITS.length-1);if(LOADING&&LOADING.idx=
   try{K.def=await src.json()}
   catch(e){K.missing=true;K.why=e&&e.why;if(K.why){LOCAL.note=K.why;$('folderStatus').textContent=K.why}else if(i===K3&&(LOCAL.handle||LOCAL.files)){LOCAL.note='Kit 3: kit3.json could not be read ('+(e&&e.message)+')';$('folderStatus').textContent=LOCAL.note}if(LOADING===K) LOADING=null;kitUI();if(first&&i!==0) setTimeout(()=>kitFetch(0),50);return}
   if(i===K3) LOCAL.note='';
-  const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');applyChoices(K);
-  const takes=keys=>{const J=[];new Set(keys.filter(Boolean)).forEach(key=>{const s=k.sounds&&k.sounds[key];if(s) s.layers.forEach(L=>L.takes.forEach(tk=>J.push(tk)))});return J.sort((a,b)=>(a.seconds||1)-(b.seconds||1))};
-  // articulation recordings load only when a pattern uses them or one is picked (Kit 2's would otherwise add about 100 MB)
-  const base=takes(Object.values(K.rows)),extra=takes(artKeysInUse(K.arts)).filter(tk=>!base.includes(tk));K.folder=folder;
-  base.forEach(tk=>tk._base=true);const jobs=base.concat(extra);K.total=jobs.length;K.bTotal=base.length;K.bDone=0;kitUI();
-  let next=0;const worker=async()=>{while(next<jobs.length){if(LOADING!==K&&KIT!==K) return;const tk=jobs[next++];   // stops if another kit was picked meanwhile
-    try{tk.ab=await K.read(folder,tk.file);if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);if(tk._base) K.bDone++;kitUI();kitDone(K)}}
-    catch(e){K.failed++;whyMissing(K,tk.file,e);if(tk._base) K.bDone++;console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI();kitDone(K)}}};
-  await Promise.all([worker(),worker(),worker(),worker()]);kitDone(K)}
+  const k=K.def,folder=String(k.folder||'samples').replace(/\/+$/,'');applyChoices(K);K.folder=folder;
+  // the lanes' sounds: a spread of each one's layers first, and the kit plays once those are in; the other layers and takes
+  // fill in behind. Articulation recordings load only when a pattern uses them or one is picked (Kit 2's would otherwise add
+  // about 100 MB)
+  const [b0,b1,b2]=takeOrder(Object.values(K.rows),K),seen=new Set([...b0,...b1,...b2]);
+  const extra=takeOrder(artKeysInUse(K.arts),K).flat().filter(tk=>!seen.has(tk));
+  b0.forEach(tk=>tk._base=true);const jobs=[...b0,...b1,...b2,...extra];K.total=jobs.length;K.bTotal=b0.length;K.bDone=0;kitUI();
+  await fillKit(K,jobs,6);kitDone(K)}
+// the order a kit's takes load in: first a spread of each sound's layers, one take each (enough to play every strength), then
+// the other layers, then the other takes. Light (for phones): a sound with many layers keeps every second one, and two takes
+// a layer; the rest are never loaded
+const KIT_DETAIL_AUTO=matchMedia('(pointer:coarse)').matches?'light':'full';
+const kitLight=()=>(ST.kitDetail||KIT_DETAIL_AUTO)==='light';
+function keptTakes(s){const Ls=s.layers,n=Ls.length,light=kitLight();
+  const li=Ls.map((L,i)=>i).filter(i=>!light||n<=12||i%2===(n-1)%2);   // light: every second layer, always keeping the loudest
+  return li.map(i=>({i,takes:light?Ls[i].takes.slice(0,2):Ls[i].takes}))}
+function takeOrder(keys,K){const t0=[],t1=[],t2=[];
+  new Set(keys.filter(Boolean)).forEach(key=>{const s=K.def.sounds&&K.def.sounds[key];if(!s) return;const L=keptTakes(s),n=L.length,m=Math.min(n,6),pick=new Set();
+    for(let i=0;i<m;i++) pick.add(Math.round(i*(n-1)/Math.max(1,m-1)));
+    L.forEach((x,i)=>x.takes.forEach((tk,j)=>(j?t2:pick.has(i)?t0:t1).push(tk)))});
+  return [t0,t1,t2]}
+// loads takes with a few running at once; stops when another kit was picked meanwhile
+async function fillKit(K,jobs,n){let next=0;
+  const worker=async()=>{while(next<jobs.length){if(LOADING!==K&&KIT!==K) return;const tk=jobs[next++];
+    if(!tk.buf){try{await loadTake(tk,K)}catch(e){K.failed++;whyMissing(K,tk.file,e);console.warn('Sample not loaded:',tk.file,e&&e.message)}}
+    if(tk._base&&!tk._counted){tk._counted=true;K.bDone++}kitUI();if(E&&K===KIT) busesSoon();kitDone(K)}};
+  await Promise.all(Array.from({length:n},worker))}
+// Samples decode as they are read, also before the first tap: an offline context decodes at the rate this device played at
+// last time (48 kHz the first time). Only each take's main file is loaded: a kit's separate overhead and room recordings
+// (take.oh, take.room in its JSON) are left out, so Kit 3 plays drier and loads a third of the files
+const RATE_KEY='footsteps-lite-rate';
+let decCtx=null,ctxWait=null;
+function decoder(){if(ctx) return ctx;if(!decCtx){let r=48000;try{r=+localStorage.getItem(RATE_KEY)||48000}catch(e){}
+  try{decCtx=new OfflineAudioContext(2,1,r)}catch(e){decCtx=null}}return decCtx}
+async function decodeAB(ab){if(!ab) return null;let c=decoder();
+  if(!c){if(!ctxWait){let res;ctxWait=new Promise(ok=>res=ok);ctxWait.ok=res}await ctxWait;c=ctx}   // no offline context in this browser: wait for the first tap
+  return new Promise(ok=>{try{const p=c.decodeAudioData(ab,ok,()=>ok(null));if(p&&p.catch) p.catch(()=>ok(null))}catch(e){ok(null)}})}
+async function loadTake(tk,K){if(tk.buf||tk._busy) return;tk._busy=true;
+  try{const b=await decodeAB(await K.read(K.folder,tk.file));if(!b){const e=new Error('decode');e.name='Decode';throw e}
+    tk.pk=bufPeak(b);tk.buf=b;K.ready++}
+  finally{tk._busy=false}}
+let busesQ=0;const busesSoon=()=>{if(busesQ) return;busesQ=requestAnimationFrame(()=>{busesQ=0;applyBuses()})};
+// Light or Full picked: the takes Light leaves out are let go of (or loaded)
+function kitDetailApply(){[KIT,LOADING].forEach(K=>{if(K&&K.def) kitDetailOn(K)})}
+function kitDetailOn(K){const keep=new Set();
+  for(const s of Object.values(K.def.sounds)) keptTakes(s).forEach(x=>x.takes.forEach(tk=>keep.add(tk)));
+  for(const s of Object.values(K.def.sounds)) s.layers.forEach(L=>L.takes.forEach(tk=>{if(tk.buf&&!keep.has(tk)){tk.buf=null;K.ready--}}));
+  const keys=[...new Set([...Object.values(K.rows),...artKeysInUse(K.arts),...(K.want||[])])],jobs=takeOrder(keys,K).flat().filter(tk=>!tk.buf);
+  K.total=K.ready+jobs.length;kitUI();fillKit(K,jobs,4)}
 // the articulation sounds the saved patterns use, in a kit's own names
 function artKeysInUse(A){A=A||{};const out=new Set();
   ST.slots.forEach(sl=>{for(const k in ART){const R=ROWS.find(x=>x.k===k);if(!R) continue;sl.art[k].forEach((ai,j)=>{if(!ai||!sl[k][j]) return;const key=ART[k][ai][0],voice=k==='h'?hatVoice(key):R.id,m=(A[voice]||{})[key]||(voice==='OH'?(A.CH||{})[key]:null);if(m) out.add(m)})}});
@@ -1206,31 +1263,9 @@ function artKeysInUse(A){A=A||{};const out=new Set();
 // sounds of the current kit that are loading (or loaded) on demand. Kept on the kit itself: when the kit is picked again
 // (a new folder or a new kit3.json) it is a new kit object and loads them again
 async function kitWant(key){const K=KIT,s=K.def&&K.def.sounds[key];K.want=K.want||new Set();if(!s||K.want.has(key)||soundReady(key)) return;K.want.add(key);
-  const tks=s.layers.flatMap(L=>L.takes).filter(tk=>!tk.buf);K.total+=tks.length;kitUI();
-  let next=0;const worker=async()=>{while(next<tks.length){if(KIT!==K) return;const tk=tks[next++];
-    try{tk.ab=await K.read(K.folder,tk.file);if(ctx) await kitDecode(tk,K);else{K.pend.push(tk);kitUI()}}
-    catch(e){K.failed++;whyMissing(K,tk.file,e);console.warn('Sample not loaded:',tk.file,e&&e.message);kitUI()}}};
-  await Promise.all([worker(),worker(),worker(),worker()]);roomLoad()}
+  const tks=takeOrder([key],K).flat().filter(tk=>!tk.buf);K.total+=tks.length;kitUI();
+  await fillKit(K,tks,4)}
 function wantArt(voice,art){const h=KIT.def&&artMap(voice,art);if(h) kitWant(h)}
-// extra microphones: a kit can carry more recordings of each hit, from its overheads (take.oh) and its room mics
-// (take.room). Each loads only while its knob is up, and plays with the hit, under the same envelope, at the knob's level
-const STEMS={oh:{k:'oh',label:'overheads'},room:{k:'room',label:'room mics'}};
-const kitHas=(kind,K=KIT)=>{if(!K||!K.def||!K.def.sounds) return false;K.has=K.has||{};
-  if(K.has[kind]==null) K.has[kind]=Object.values(K.def.sounds).some(s=>s.layers.some(L=>L.takes.some(tk=>tk[kind])));return K.has[kind]};
-const kitHasRooms=(K=KIT)=>kitHas('room',K);
-const stemGain=kind=>1;   // at the pack's own level: the overheads and the room are part of the kit's sound
-const roomGain=()=>stemGain('room');
-async function stemLoad(kind){const K=KIT;if(!ctx||!kitHas(kind,K)) return;
-  const bk=kind+'Buf',rq='_'+kind+'Req';
-  const jobs=Object.values(K.def.sounds).flatMap(s=>s.layers.flatMap(L=>L.takes)).filter(tk=>tk.buf&&tk[kind]&&!tk[bk]&&!tk[rq]);
-  if(!jobs.length) return;jobs.forEach(tk=>tk[rq]=true);K.st=K.st||{};const st=K.st[kind]=K.st[kind]||{total:0,done:0};st.total+=jobs.length;kitUI();
-  let next=0;const worker=async()=>{while(next<jobs.length){if(KIT!==K) return;const tk=jobs[next++];
-    try{const ab=await K.read(K.folder,tk[kind]);
-      tk[bk]=await new Promise(ok=>{try{const p=ctx.decodeAudioData(ab,ok,()=>ok(null));if(p&&p.catch) p.catch(()=>ok(null))}catch(e){ok(null)}})}
-    catch(e){console.warn('Sample not loaded:',tk[kind],e&&e.message)}
-    st.done++;kitUI()}};
-  await Promise.all([worker(),worker(),worker()])}
-const roomLoad=()=>{stemLoad('oh');stemLoad('room')};
 // a kit can offer more than one sound for a lane ("choices" in its kit file: the two snares, both kick beaters, both
 // crashes ...). The pick is kept per kit, and each choice brings the articulations and names that go with it
 const kitFileOf=K=>(KITS[K.idx]||{}).file||'';
@@ -1247,11 +1282,8 @@ function whyMissing(K,file,e){if(K.why1) return;const n=e&&e.name,m=String(e&&e.
   const why=n==='Decode'?'could not be decoded':n==='NotFoundError'||/not in the folder|404/.test(m)?(K.local?'not found in your folder':'not on the site'):n==='NotAllowedError'||n==='SecurityError'?'no permission to read '+where:(m||n||'error');
   K.why1=(K.local&&LOCAL.base&&LOCAL.base.length?LOCAL.base.join('/')+'/':'')+(K.def&&K.def.folder?K.def.folder+'/':'')+file+' ('+why+')'}
 // a kit takes over once its lane sounds are in (or wait only for the audio to start); its articulations keep loading after
-function kitDone(K){if(LOADING!==K||K.bDone<K.bTotal) return;LOADING=null;KIT=K;applyBuses();renderVoice();applyLanes();scoreSoon();kitUI();renderSound();roomLoad()}
+function kitDone(K){if(LOADING!==K||K.bDone<K.bTotal) return;LOADING=null;KIT=K;applyBuses();renderVoice();applyLanes();scoreSoon();kitUI();renderSound()}
 function bufPeak(b){let m=1e-6;for(let ch=0;ch<b.numberOfChannels;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){const a=d[i]<0?-d[i]:d[i];if(a>m) m=a}}return m}
-function kitDecode(tk,K){const ab=tk.ab;tk.ab=null;
-  return new Promise(ok=>{const wasPend=K.pend.includes(tk),done=b=>{if(b){tk.buf=b;tk.pk=bufPeak(b);K.ready++}else{K.failed++;whyMissing(K,tk.file,{name:'Decode'})}if(tk._base&&!wasPend) K.bDone++;kitUI();if(b&&E&&K===KIT) applyBuses();kitDone(K);ok()};
-    try{const p=ctx.decodeAudioData(ab,done,()=>done(null));if(p&&p.catch) p.catch(()=>{})}catch(e){done(null)}})}
 function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;queueMicrotask(()=>{el.title=el.textContent;if(LOCAL.note&&K.idx!==K3&&!K.missing) el.textContent=LOCAL.note});
   [...$('kitSeg').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===K.idx));
   if(K.idx<0){el.textContent='';return}
@@ -1259,8 +1291,7 @@ function kitUI(){const el=$('kitStatus'),K=LOADING||KIT;if(!el) return;queueMicr
   if(!K.def){el.textContent='Loading '+KITS[K.idx].label;return}
   const got=K.ready+K.pend.length;
   el.textContent=K.failed?`${K.failed} of ${K.total} samples missing`+(K.why1?` · first: ${K.why1}`:''):K.bDone<K.bTotal?`${KITS[K.idx].label}: samples ${got}/${K.bTotal}`+(K!==KIT?' (the other kit plays meanwhile)':''):
-    got<K.total?`Loading articulations ${got-K.bTotal}/${K.total-K.bTotal}`:(K.pend.length?'Samples ready: press Play':stemStatus(K)||(LOCAL.note||''))}
-const stemStatus=K=>{for(const kind in STEMS){const s=K.st&&K.st[kind];if(s&&s.done<s.total) return `Loading ${STEMS[kind].label} ${s.done}/${s.total}`}return ''};
+    got+K.failed<K.total?`${KITS[K.idx].label} plays · filling in ${got}/${K.total}`:(LOCAL.note||'')}
 // one hit: the layer is picked by velocity, takes rotate, and the level follows the velocity inside the layer
 function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=s.layers,v=vel*100,has=L=>L.takes.some(tk=>tk.buf);
   let li=Ls.findIndex(L=>v<=L.upTo);if(li<0) li=Ls.length-1;
@@ -1291,16 +1322,12 @@ function playSample(E,id,t,vel,key,anyLayer,len){const s=KIT.def.sounds[key],Ls=
   if(dk<.995){const len=.04+dk*dk*dur;g.gain.setValueAtTime(gain,T);g.gain.setTargetAtTime(0,T+len*.35,len*.22+.005);stopAt=T+len*1.6+.05}
   if(tt>.005){const hold=TIGHT_MAX[id]+(TIGHT_MIN[id]-TIGHT_MAX[id])*Math.pow(tt,.7),tau=.004+.03*(1-tt);if(T+hold+tau*8<stopAt){g.gain.cancelScheduledValues(T);g.gain.setValueAtTime(gain,T);g.gain.setTargetAtTime(0,T+hold,tau);stopAt=T+hold+tau*8}}
   if(len>0&&T+len<stopAt){g.gain.cancelScheduledValues(T);g.gain.setValueAtTime(gain,T);g.gain.setValueAtTime(gain,T+len);g.gain.setTargetAtTime(0,T+len,.03);stopAt=T+len+.25}
-  let outNode=g;const tone=vsp(id,'stone');if(tone<19.5){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=tone*1000;f.Q.value=.6;g.connect(f);outNode=f;const fd=()=>{try{f.disconnect()}catch(e){}};setTimeout(fd,(Math.max(tk.buf.duration,tk.ohBuf?tk.ohBuf.duration:0,tk.roomBuf?tk.roomBuf.duration:0)+Math.max(0,t-c.currentTime)+1)*1000)}
+  let outNode=g;const tone=vsp(id,'stone');if(tone<19.5){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=tone*1000;f.Q.value=.6;g.connect(f);outNode=f;const fd=()=>{try{f.disconnect()}catch(e){}};setTimeout(fd,(Math.max(tk.buf.duration)+Math.max(0,t-c.currentTime)+1)*1000)}
   // choke: a closed hat cuts a ringing open hat, and so on, as kit.json's chokedBy lists
   for(const [k2,list] of Object.entries(KIT.voices)){const cs=KIT.def.sounds[k2];if(!cs||!(cs.chokedBy||[]).includes(key)) continue;
     list.forEach(vo=>{if(vo.start<T&&vo.end>T){vo.g.gain.cancelScheduledValues(T);vo.g.gain.setTargetAtTime(0,T,.012)}})}
   const off=Math.max(0,((tk.startMs||0)-1)/1000);src.connect(g);outNode.connect(E.buses[id]);src.start(T,off);if(stopAt<Infinity) src.stop(stopAt);liveAdd(src,T);
   let alive=1,tail=tk.buf.duration;const fin=()=>{if(--alive<=0){try{g.disconnect()}catch(e){}}};
-  for(const kind in STEMS){const buf=tk[kind+'Buf'],sg=stemGain(kind);if(!buf||!(sg>0)) continue;
-    alive++;const rs=c.createBufferSource(),rg=c.createGain();rs.buffer=buf;rs.playbackRate.value=src.playbackRate.value;rg.gain.value=sg;
-    rs.connect(rg);rg.connect(g);rs.start(T,off);if(stopAt<Infinity) rs.stop(stopAt);liveAdd(rs,T);tail=Math.max(tail,buf.duration);
-    rs.addEventListener('ended',()=>{try{rg.disconnect()}catch(e){}fin()},{once:true})}
   src.addEventListener('ended',fin,{once:true});
   const list=(KIT.voices[key]||[]).filter(vo=>vo.end>c.currentTime);list.push({g,start:T,end:T+tail-off});KIT.voices[key]=list;
   return true}
@@ -1436,13 +1463,13 @@ setInterval(tpTick,200);
 function tpSay(s){const el=$('tpStatus');if(el) el.textContent=s}
 
 async function ensureAudio(){if(ctx){if(ctx.state!=='running') try{await ctx.resume()}catch(e){}return}
-  const AC=window.AudioContext||window.webkitAudioContext;ctx=new AC({latencyHint:'interactive'});
+  const AC=window.AudioContext||window.webkitAudioContext;ctx=new AC({latencyHint:'interactive'});try{localStorage.setItem(RATE_KEY,ctx.sampleRate)}catch(e){}if(ctxWait&&ctxWait.ok) ctxWait.ok();
   BUS=ctx.createGain();FXC=buildFxChain(ctx);RV=buildRv(ctx);LEVEL=ctx.createGain();
   try{FXC.ch.out.disconnect();FXC.ch.lfo.stop()}catch(e){}FXC.ec.in.connect(FXC.ec.send);MAKEUP=ctx.createGain();TAPEIN=ctx.createGain();LIM=ctx.createDynamicsCompressor();AN=ctx.createAnalyser();AN.fftSize=1024;   // echo and reverb run side by side as sends
   LIM.threshold.value=-1;LIM.ratio.value=20;LIM.knee.value=0;LIM.attack.value=.001;LIM.release.value=.08;
   BUS.connect(LEVEL);FXC.ec.out.connect(LEVEL);RV.n.out.connect(LEVEL);LEVEL.connect(LIM);LIM.connect(MAKEUP);MAKEUP.connect(TAPEIN);TAPEIN.connect(AN);AN.connect(ctx.destination);
   if(ctx.audioWorklet) tpAttach(ctx);else tpSay('The tape machine needs a newer browser. The beat plays without it.');
-  E=createEngine(ctx,{dry:BUS,ec:FXC.ec.in,rv:RV.n.input});[KIT,LOADING].forEach(K=>{if(K) K.pend.splice(0).forEach(tk=>kitDecode(tk,K))});applyBuses();applyFx(true);setTimeout(roomLoad,400);
+  E=createEngine(ctx,{dry:BUS,ec:FXC.ec.in,rv:RV.n.input});applyBuses();applyFx(true);
   if(ctx.state!=='running') try{await ctx.resume()}catch(e){}}
 
 // ---------- the drummer: feel, ghost notes and the body (adapted from Footsteps Mobile) ----------
@@ -2022,7 +2049,7 @@ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.target.clo
   if(e.key==='c'&&!getSelection().toString()){e.preventDefault();copyPat()}else if(e.key==='v'&&clip){e.preventDefault();if(pasteUndo){pasteUndo=null;$('paste').textContent='Paste'}pastePat()}});
 
 // ---------- UI: knobs ----------
-const knobRefs={};
+const knobRefs={},knobSet={};
 function arcPath(f1){const r=22,a0=135*Math.PI/180,a1=(135+270*f1)*Math.PI/180,x0=28+r*Math.cos(a0),y0=28+r*Math.sin(a0),x1=28+r*Math.cos(a1),y1=28+r*Math.sin(a1);
   return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${r} ${r} 0 ${f1*270>180?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`}
 function knob(spec,obj,onChange){const el=document.createElement('div');el.className='knob';
@@ -2055,6 +2082,7 @@ function knob(spec,obj,onChange){const el=document.createElement('div');el.class
   dial.addEventListener('keydown',e=>{const k={ArrowUp:1,ArrowRight:1,ArrowDown:-1,ArrowLeft:-1,PageUp:10,PageDown:-10}[e.key];if(k){e.preventDefault();set(obj[spec.k]+k*spec.step)}if(e.key==='Home') set(spec.min);if(e.key==='End') set(spec.max)});
   dial.addEventListener('wheel',e=>{e.preventDefault();set(obj[spec.k]+(e.deltaY<0?1:-1)*spec.step)},{passive:false});
   el.redraw=draw;el.move=(delay)=>el.glide(el._f??target(),delay||0);   // travel from where it shows now to where it belongs
+  el.dataset.mk=obj===ST.snd?'v:'+String(spec.k).split('_').slice(2).join('_'):'k:'+spec.k;knobSet[spec.k]={set,spec,obj};
   draw();knobRefs[spec.k]=draw;return el}
 // move a row of knobs to their settings one after another, like motor faders
 function motor(box,from){if(!box) return;const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2153,6 +2181,11 @@ $('copySet').addEventListener('click',()=>{const text=JSON.stringify(ST,null,1),
   const done=()=>setMsg('Copied. Save it in the repo as defaults.json, next to index.html');
   try{navigator.clipboard.writeText(text).then(()=>{done();ta.hidden=true},()=>{shown();setMsg('Select all of this and copy it, then save it as defaults.json')})}
   catch(e){shown();setMsg('Select all of this and copy it, then save it as defaults.json')}});
+// the settings as a file, for the Footsteps plugin (its window: Import from the web app)
+$('saveSet').addEventListener('click',()=>{ST.kit=KIT_FILES[ST.kitIdx]||KIT_FILES[0];
+  const url=URL.createObjectURL(new Blob([JSON.stringify(ST,null,1)],{type:'application/json'})),a=document.createElement('a');
+  a.href=url;a.download='footsteps-settings.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  setMsg('Saved footsteps-settings.json: import it in the plugin')});
 {let armed=0;$('resetSet').addEventListener('click',()=>{const b=$('resetSet');
   if(!armed){armed=setTimeout(()=>{armed=0;b.textContent='Reset to default'},3000);b.textContent='Tap again to reset';setMsg('This replaces the settings on this device');return}
   clearTimeout(armed);armed=0;b.textContent='Resetting…';loadDefaults(true)})}
@@ -2170,13 +2203,140 @@ function frame(){
       if(step!==shownCol){if(shownCol>=0) colPads[shownCol].forEach(p=>p.classList.remove('col'));shownCol=step;colPads[step].forEach(p=>p.classList.add('col'))}
       scoreTick(bar,step);
       if(beat!==lastBeat){lastBeat=beat;const b=$('play');b.classList.add('beat');setTimeout(()=>b.classList.remove('beat'),90)}}}
-  requestAnimationFrame(frame)}
+  ledSync();requestAnimationFrame(frame)}
+
+
+// ---------- a MIDI controller (Web MIDI: Chrome and Edge, on Android and on a computer) ----------
+// Any control can be learned: tap a control in the app, then move or press one on the controller. The BeatStep Pro setup
+// asks for its controls one after another (step buttons, pads, encoders) and maps them to the layout below. The step buttons
+// edit the lane picked on the controller (its name shows inverted). Play and Stop on the controller start and stop the app
+// (MIDI Start and Stop, or MMC). Lights: the app sends each mapped button back its state (on 127, off 0, the same note or CC),
+// steps with the playing step inverted, so a controller that takes it shows the pattern.
+const MIDI={press:new Map(),touched:new Map(),acc:null,learn:false,want:null,wantEl:null,guide:null,sent:new Map(),lastOut:new Map(),lane:0,ins:[],outs:[],warned:false};
+function midiState(){const m=ST.midi;ST.midi=m&&Array.isArray(m.map)?m:{map:[],lights:true,on:false};if(ST.midi.lights==null) ST.midi.lights=true;return ST.midi}
+const LANE_NAMES=()=>ROWS.map(R=>R.name);
+function tgtName(g){const [a,b]=g.split(':');
+  if(a==='step') return 'Step '+(+b+1);if(a==='pat') return 'Pattern '+(+b+1);if(a==='lane') return ROWS[+b].name;
+  if(a==='k'||a==='v'){const ks=a==='v'?vkey(ROWS[MIDI.lane].id,b):b,K=knobSet[ks];return (a==='v'?'Lane ':'')+(K?K.spec.label:b)}
+  return {play:'Play',chain:'Chain',tap:'Tap',tempo:'Tempo',lanesel:'Lane select',fx:'Effect '+b}[a]||g}
+const srcName=m=>(m.t==='cc'?'CC ':'Note ')+m.n+(m.ch?' · ch '+(m.ch+1):'');
+function midiSay(t){const el=$('midiStatus');if(el) el.textContent=t}
+function midiStatus(){const n=MIDI.ins.length,c=midiState().map.length;
+  midiSay(!MIDI.acc?'Controller: USB MIDI, in Chrome or Edge':n?MIDI.ins.map(p=>p.name).join(', ')+' · '+c+' control'+(c===1?'':'s')+' mapped':'No controller found: plug it in by USB');
+  $('midiOn').textContent=MIDI.acc?'Controller on':'Connect controller';laneMark()}
+async function midiConnect(){if(!navigator.requestMIDIAccess){midiSay('This browser has no MIDI: use Chrome or Edge');return false}
+  try{MIDI.acc=await navigator.requestMIDIAccess({sysex:true})}
+  catch(e){try{MIDI.acc=await navigator.requestMIDIAccess()}catch(e2){midiSay('MIDI was not allowed. Allow it for this site in the browser settings');return false}}
+  midiState().on=true;save();MIDI.acc.onstatechange=midiPorts;midiPorts();return true}
+const portKey=s=>String(s||'').toLowerCase().replace(/\b(midi|in|out|input|output|port)\b|[^a-z0-9]/g,'');
+function midiPorts(){if(!MIDI.acc) return;MIDI.ins=[...MIDI.acc.inputs.values()].filter(p=>p.state!=='disconnected');MIDI.outs=[...MIDI.acc.outputs.values()].filter(p=>p.state!=='disconnected');
+  MIDI.ins.forEach(p=>{p.onmidimessage=e=>midiIn(e.data,p)});MIDI.sent.clear();midiStatus()}
+// a CC button: a press sends 127; in toggle mode the next press sends 0, in gate mode the release does (soon after the press)
+const srcKey=m=>m.t+m.ch+'.'+m.n;
+function ccPress(m,v){const now=performance.now(),k=srcKey(m);if(v>0){MIDI.press.set(k,now);return true}const p=MIDI.press.get(k),gate=p&&now-p<600;MIDI.press.delete(k);return !gate}
+function midiIn(d,port){if(!d||!d.length) return;const s0=d[0];
+  if(s0===0xFA||s0===0xFB){if(!playing) midiPlay();return}if(s0===0xFC){if(playing) stop();return}
+  if(s0===0xF0){if(d[1]===0x7F&&d[3]===0x06){const c=d[4];if(c===2||c===3){if(!playing) midiPlay()}else if(c===1||c===9){if(playing) stop()}}return}
+  const st=s0&0xF0,ch=s0&15;let t,v;
+  if(st===0x90){t='note';v=d[2]}else if(st===0x80){t='note';v=0}else if(st===0xB0){t='cc';v=d[2]}else return;const n=d[1];
+  const lo=MIDI.lastOut.get(t+ch+'.'+n);if(lo&&lo.v===v&&performance.now()-lo.t<80) return;   // our own light coming back
+  if(MIDI.guide||MIDI.learn){learnIn(t,ch,n,v,port);return}
+  const m=midiState().map.find(x=>x.t===t&&x.ch===ch&&x.n===n);if(!m) return;MIDI.touched.set(srcKey(m),performance.now());midiDo(m,v)}
+function midiPlay(){if(!ctx||ctx.state!=='running'){midiSay('Tap the screen once so the sound can start, then Play works from the controller');if(!ctx) return}play()}
+function midiDo(m,v){const [a,b]=m.tgt.split(':');
+  if(a==='k'||a==='v'){if(m.t!=='cc') return;const K=knobSet[a==='v'?vkey(ROWS[MIDI.lane].id,b):b];if(!K) return;const S=K.spec;K.set(S.min+(S.max-S.min)*v/127);return}
+  if(a==='tempo'){if(m.t==='cc') setTempo(40+160*v/127);return}
+  if(a==='lanesel'){if(m.t!=='cc') return;const L=ROWS.map((R,i)=>i).filter(i=>laneOn(ROWS[i]));selLane(L[Math.min(L.length-1,Math.floor(v/128*L.length))]);return}
+  if(m.t==='note'?v===0:!ccPress(m,v)) return;
+  if(a==='play'){playing?stop():midiPlay();return}
+  if(a==='chain'){ST.chain=!ST.chain;queued=null;uiQueued=null;$('chainPop').hidden=true;renderSlots();save();return}
+  if(a==='tap'){$('tap').dispatchEvent(new Event('pointerdown'));return}
+  if(a==='pat'){pickSlot(+b);return}
+  if(a==='step'){midiStep(+b);return}
+  if(a==='lane'){selLane(+b,m.t==='note'?v/127:.8);return}
+  if(a==='fx'){const q=document.querySelector('.fxq[data-fx="'+b+'"]');if(q) q.click()}}
+function midiStep(j){const R=ROWS[MIDI.lane],sl=ST.slots[ST.cur],on=!sl[R.k][j];sl[R.k][j]=on?2:0;
+  if(ART[R.k]) sl.art[R.k][j]=0;if(sl.vel&&sl.vel[R.k]) sl.vel[R.k][j]=null;if(on&&!playing&&E) hearStep(MIDI.lane,j);renderGrid();save()}
+// the lane the step buttons edit; a pad that picks it also plays it, at the pad's velocity
+function selLane(r,hit){if(r==null||!ROWS[r]) return;MIDI.lane=r;voiceSel=ROWS[r].k;renderVoice();laneMark();
+  if(hit&&E&&ctx.state==='running'&&laneOn(ROWS[r])) hitDrum(E,ROWS[r].id,ctx.currentTime+.01,clamp(hit,.05,1),null)}
+function laneMark(){const on=!!(MIDI.acc&&midiState().map.some(m=>/^(step|lane|lanesel|v):/.test(m.tgt)));names.forEach((el,r)=>el.classList.toggle('msel',on&&r===MIDI.lane))}
+// ---- learning ----
+function learnTarget(el){const p=el.closest('.pad');if(p) return ['step:'+p.dataset.j,p];
+  const nm=el.closest('.name');if(nm&&names.includes(nm)) return ['lane:'+names.indexOf(nm),nm];
+  const sl=el.closest('#slots .slot');if(sl) return ['pat:'+[...$('slots').children].indexOf(sl),sl];
+  const kn=el.closest('.knob');if(kn&&kn.dataset.mk) return [kn.dataset.mk,kn];
+  const fx=el.closest('.fxq');if(fx) return ['fx:'+fx.dataset.fx,fx];
+  for(const [id,g] of [['play','play'],['chain','chain'],['tap','tap'],['bpm','tempo']]){const b=el.closest('#'+id);if(b) return [g,b]}
+  return null}
+function learnMark(el){if(MIDI.wantEl) MIDI.wantEl.classList.remove('mlearn');MIDI.wantEl=el;if(el) el.classList.add('mlearn');
+  // the bar keeps out of the way of the control it asks about (a tap on its text moves it too)
+  if(el){const r=el.getBoundingClientRect();$('midiBar').classList.toggle('up',r.top+r.height/2>innerHeight*.55)}}
+$('mbText').addEventListener('click',()=>$('midiBar').classList.toggle('up'));
+['pointerdown','click','contextmenu'].forEach(ev=>document.addEventListener(ev,e=>{if(!MIDI.learn||e.target.closest('#midiBar,#app .band')&&!e.target.closest('.knob,.fxq')) return;
+  const hit=learnTarget(e.target);if(!hit) return;e.preventDefault();e.stopPropagation();
+  if(ev==='pointerdown'){MIDI.want=hit[0];learnMark(hit[1]);bar('<b>'+tgtName(hit[0])+'</b>Now move or press a control on the controller')}},true));
+function mapSet(t,ch,n,tgt,port){const M=midiState();M.map=M.map.filter(m=>!(m.t===t&&m.ch===ch&&m.n===n)&&m.tgt!==tgt);M.map.push({t,ch,n,tgt,port:port&&port.name||''});MIDI.sent.clear();save();midiStatus()}
+function learnIn(t,ch,n,v,port){if(t==='note'&&v===0) return;const key=t+ch+'.'+n;
+  if(MIDI.guide){const G=MIDI.guide;if(G.used.has(key)) return;const step=G.list[G.i];G.used.add(key);G.done.push(key);mapSet(t,ch,n,step.tgt,port);G.i++;guideShow();return}
+  if(!MIDI.want){bar('<b>Learn</b>Tap a control in the app first (a step, a lane name, a pattern, a knob, Play …)');return}
+  mapSet(t,ch,n,MIDI.want,port);bar('<b>'+tgtName(MIDI.want)+' ← '+srcName({t,ch,n})+'</b>Tap the next control, or Done');MIDI.want=null;learnMark(null)}
+function bar(html){const b=$('midiBar');b.hidden=!html;if(html) $('mbText').innerHTML=html;$('mbBack').hidden=$('mbSkip').hidden=!MIDI.guide}
+function learnOn(on){MIDI.learn=on;MIDI.want=null;learnMark(null);$('midiLearn').setAttribute('aria-pressed',on);document.body.classList.toggle('mlearning',on);
+  bar(on?'<b>Learn</b>Tap a control in the app, then move or press one on the controller':'')}
+// ---- the BeatStep Pro, in Control mode: its controls in the order the setup asks for them ----
+// pads 1-8 (bottom row) pick the lanes from Kick to Clap and play them; pads 9-16 (top row) are patterns 1-8.
+// Encoders: the feel, then tempo, level, reverb, echo, the lane's level and which lane (all eleven)
+const BSP=[...Array.from({length:16},(_,j)=>({tgt:'step:'+j,ask:'Press step button '+(j+1)})),
+  ...Array.from({length:8},(_,i)=>({tgt:'lane:'+i,ask:'Hit pad '+(i+1)+' (bottom row) · '+ROWS[i].name})),
+  ...Array.from({length:8},(_,i)=>({tgt:'pat:'+i,ask:'Hit pad '+(i+9)+' (top row) · Pattern '+(i+1)})),
+  ...[['swing','Swing'],['loose','Looseness'],['kghost','Kick ghosts'],['kvar','Kick variation'],['ghost','Snare ghosts'],['svar','Snare variation'],['hat','Hat variation'],['hghost','Hat ghosts'],
+     ['touch','Touch'],['intensity','Intensity']].map(([k,l],i)=>({tgt:'k:'+k,ask:'Turn encoder '+(i+1)+' · '+l})),
+  {tgt:'tempo',ask:'Turn encoder 11 · Tempo'},{tgt:'k:level',ask:'Turn encoder 12 · Level'},{tgt:'k:rmix',ask:'Turn encoder 13 · Reverb amount'},
+  {tgt:'k:emix',ask:'Turn encoder 14 · Echo amount'},{tgt:'v:slevel',ask:'Turn encoder 15 · the lane’s level'},{tgt:'lanesel',ask:'Turn encoder 16 · which lane the steps edit'}];
+function guideStart(){if(MIDI.learn) learnOn(false);setView('steps');MIDI.guide={list:BSP,i:0,used:new Set(),done:[]};guideShow()}
+function guideShow(){const G=MIDI.guide;if(!G) return;if(G.i>=G.list.length){guideEnd('<b>BeatStep Pro ready</b>'+midiState().map.length+' controls mapped. Play and Stop work by themselves');return}
+  const st=G.list[G.i],el=learnElFor(st.tgt);learnMark(el);
+  bar('<b>'+st.ask+'</b>'+(G.i+1)+' of '+G.list.length+' · on the BeatStep Pro, in Control mode')}
+function guideEnd(msg){MIDI.guide=null;learnMark(null);bar(msg||'');if(msg) setTimeout(()=>{if(!MIDI.guide&&!MIDI.learn) bar('')},5000)}
+function learnElFor(g){const [a,b]=g.split(':');if(a==='step') return pads[MIDI.lane]&&pads[MIDI.lane][+b];if(a==='lane') return names[+b];if(a==='pat') return $('slots').children[+b];
+  if(a==='tempo') return $('bpm');if(a==='k'||a==='v') return document.querySelector('.knob[data-mk="'+g+'"]');return null}
+$('mbSkip').addEventListener('click',()=>{const G=MIDI.guide;if(!G) return;G.done.push(null);G.i++;guideShow()});
+$('mbBack').addEventListener('click',()=>{const G=MIDI.guide;if(!G||!G.i) return;G.i--;const k=G.done.pop();if(k) G.used.delete(k);guideShow()});
+$('mbDone').addEventListener('click',()=>{if(MIDI.guide) guideEnd();if(MIDI.learn) learnOn(false);bar('')});
+$('midiOn').addEventListener('click',()=>midiConnect());
+$('midiBsp').addEventListener('click',async()=>{if(!MIDI.acc&&!(await midiConnect())) return;guideStart()});
+$('midiLearn').addEventListener('click',async()=>{if(MIDI.learn){learnOn(false);return}if(!MIDI.acc&&!(await midiConnect())) return;if(MIDI.guide) guideEnd();learnOn(true)});
+$('midiLights').addEventListener('click',()=>{const M=midiState();M.lights=!M.lights;$('midiLights').setAttribute('aria-pressed',M.lights);MIDI.sent.clear();if(!M.lights) ledsOff();save()});
+{let armed=0;$('midiClear').addEventListener('click',()=>{const b=$('midiClear');
+  if(!armed){armed=setTimeout(()=>{armed=0;b.textContent='Clear'},3000);b.textContent='Tap again to clear';return}
+  clearTimeout(armed);armed=0;b.textContent='Clear';ledsOff();midiState().map=[];save();midiStatus()})}
+// ---- lights ----
+function outsFor(m){const k=portKey(m.port),same=MIDI.outs.filter(o=>portKey(o.name)===k);return same.length?same:MIDI.outs.filter(o=>k&&(portKey(o.name).includes(k)||k.includes(portKey(o.name))))}
+function sendTo(m,val){const st=(m.t==='cc'?0xB0:0x90)|m.ch,msg=[st,m.n,val];outsFor(m).forEach(o=>{try{o.send(msg)}catch(e){}});MIDI.lastOut.set(m.t+m.ch+'.'+m.n,{v:val,t:performance.now()})}
+function ledVal(m,col){const [a,b]=m.tgt.split(':');
+  if(a==='step'){const R=ROWS[MIDI.lane],sl=ST.slots[ST.cur];const on=!!sl[R.k][+b];return (on!==(col===+b))?127:0}
+  if(a==='pat') return +b===ST.cur?127:0;if(a==='lane') return +b===MIDI.lane?127:0;
+  if(a==='play') return playing?127:0;if(a==='chain') return ST.chain?127:0;if(a==='fx') return ST.fx[b]?127:0;
+  if(m.t!=='cc') return null;
+  if(a==='tempo') return Math.round((ST.tempo-40)/160*127);
+  if(a==='k'||a==='v'){const K=knobSet[a==='v'?vkey(ROWS[MIDI.lane].id,b):b];if(!K) return null;const S=K.spec;return clamp(Math.round((K.obj[S.k]-S.min)/(S.max-S.min)*127),0,127)}
+  return null}
+function ledSync(){const M=ST.midi;if(!MIDI.acc||!M||!M.lights||!M.map.length||!MIDI.outs.length) return;
+  const col=playing&&playingSlot===ST.cur?shownCol:-1,now=performance.now();
+  for(const m of M.map){const tch=MIDI.touched.get(srcKey(m));if(tch&&now-tch<400&&!/^(step|pat|lane|play|chain|fx)/.test(m.tgt)) continue;   // a knob being turned: no echo
+    const v=ledVal(m,col);if(v==null) continue;const k=m.t+m.ch+'.'+m.n;if(MIDI.sent.get(k)===v) continue;MIDI.sent.set(k,v);sendTo(m,v)}}
+function ledsOff(){(ST.midi&&ST.midi.map||[]).forEach(m=>{if(/^(step|pat|lane|play|chain|fx)/.test(m.tgt)) sendTo(m,0)});MIDI.sent.clear()}
+function midiInit(){const M=midiState();$('midiLights').setAttribute('aria-pressed',!!M.lights);
+  // reconnect without asking when this site already has MIDI permission
+  if(M.on&&navigator.requestMIDIAccess){const go=()=>midiConnect();
+    if(navigator.permissions&&navigator.permissions.query) navigator.permissions.query({name:'midi',sysex:true}).then(r=>{if(r.state==='granted') go()}).catch(()=>{});}}
 
 // ---------- start ----------
-buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();applyLanes();if(!hadSaved) loadDefaults(false);(async()=>{if(ST.kitIdx===K3){try{const h=await idbGet('kit3');if(h){LOCAL.handle=h;LOCAL.name=h.name}}catch(e){}}kitFetch(ST.kitIdx);folderUI()})();
+buildGrid();buildSound();renderGrid();renderSound();buildKitSeg();applyLanes();detailUI();if(!hadSaved) loadDefaults(false);(async()=>{if(ST.kitIdx===K3){try{const h=await idbGet('kit3');if(h){LOCAL.handle=h;LOCAL.name=h.name}}catch(e){}}kitFetch(ST.kitIdx);folderUI()})();
 idbGet('kit3').then(h=>{if(h&&!LOCAL.handle&&!LOCAL.files){LOCAL.handle=h;LOCAL.name=h.name;folderUI()}}).catch(()=>{});
 setView(['sound','score'].includes(ST.view)?ST.view:'steps');$('bpm').textContent=ST.tempo;$('bpm').setAttribute('aria-valuenow',ST.tempo);
-requestAnimationFrame(frame);
+midiInit();requestAnimationFrame(frame);
 </script>
 
 </html>
